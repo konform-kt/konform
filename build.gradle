@@ -1,0 +1,33 @@
+buildscript {
+    ext.projectVersion = '0.1.0'
+    ext.projectName = 'konform'
+    ext.projectGroup = 'io.github.konform-kt'
+    ext.projectDesc = 'Konform: Multiplatform validation for Kotlin'
+    ext.projectHost = 'github'
+    ext.projectOrg = 'konform-kt'
+    ext.projectLicense = 'MIT'
+    ext.projectDevelNick = 'nlochschmidt'
+    ext.projectDevelName = 'Niklas Lochschmidt'
+    ext.projectInceptionYear = 2018
+
+    ext.kotlinVersion = '1.2.30'
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+rootProject.allprojects {
+    group projectGroup
+    version projectVersion
+
+    apply plugin: 'idea'
+
+    repositories {
+        jcenter()
+    }
+}

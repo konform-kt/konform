@@ -1,14 +1,30 @@
+# Compiled
+*.class
+*.jar
+
+# Log file
+*.log
+
+# Gradle
 .gradle
 /build/
-
-# Ignore Gradle GUI config
+*/build/
 gradle-app.setting
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# IntelliJ IDE Project Files #
+*.iml
+.idea/*
+!.idea/runConfigurations
+*.versionsBackup
+pom.xml.versionsBackup
+jacoco.exec
+/out
 
-# Cache of project
-.gradletasknamecache
+# Android
+local.properties
 
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
+# MacOS
+*.DS_Store
+
+# Javascript
+node_modules/
