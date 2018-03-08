@@ -1,4 +1,6 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform) [![Build Status](https://travis-ci.org/konform-kt/konform.svg?branch=master)](https://travis-ci.org/konform-kt/konform)
+[![Build Status](https://travis-ci.org/konform-kt/konform.svg?branch=master)](https://travis-ci.org/konform-kt/konform)
+[![Bintray](https://api.bintray.com/packages/konform-kt/konform/konform/images/download.svg) ](https://bintray.com/konform-kt/konform/konform/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
 
@@ -9,7 +11,22 @@
 
 ### Installation
 
-> TODO publish on Maven Central
+Add the konvert bintray repository to your build.gradle
+
+```groovy
+repositories {
+    maven { url "https://dl.bintray.com/konform-kt/konform" }
+}
+```
+
+Depending on your type of Kotlin project add one of these dependencies:
+
+- JVM:   
+`implementation 'io.konform:konform:0.0.1'`
+- JS:  
+`implementation 'io.konform:konform-js:0.0.1'`
+- Common:  
+`implementation 'io.konform:konform-common:0.0.1'`
 
 ### Quick Start
 
