@@ -1,15 +1,11 @@
-rootProject.name = 'konform'
+rootProject.name = 'konform-root'
 
 include(
 		'konform-common',
-		'konform-jvm',
+		'konform',
 		'konform-js'
 )
 
-def register(String base) {
-	findProject(":$base-common")?.projectDir = file("common")
-	findProject(":$base-jvm")?.projectDir = file("jvm")
-	findProject(":$base-js")?.projectDir = file("js")
-}
-
-register(rootProject.name)
+project(':konform-common').projectDir = file('./common')
+project(':konform').projectDir = file('./jvm')
+project(':konform-js').projectDir = file('./js')

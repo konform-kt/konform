@@ -1,8 +1,8 @@
 buildscript {
-    ext.projectVersion = '0.1.0'
+    ext.projectVersion = '0.1.0-SNAPSHOT'
     ext.projectName = 'konform'
-    ext.projectGroup = 'io.github.konform-kt'
-    ext.projectDesc = 'Konform: Multiplatform validation for Kotlin'
+    ext.projectGroup = 'io.konform'
+    ext.projectDesc = 'Konform: Portable validations for Kotlin'
     ext.projectHost = 'github'
     ext.projectOrg = 'konform-kt'
     ext.projectLicense = 'MIT'
@@ -21,13 +21,55 @@ buildscript {
     }
 }
 
-rootProject.allprojects {
+apply plugin: 'kotlin'
+
+subprojects {
     group projectGroup
     version projectVersion
 
     apply plugin: 'idea'
+    apply plugin: 'maven-publish'
+    apply from: rootProject.file('pom.gradle')
 
     repositories {
         jcenter()
+    }
+
+    afterEvaluate {
+        task sourceJar(type: Jar, dependsOn: classes) {
+            classifier 'sources'
+            from sourceSets.main.kotlin
+            if (project.name == "konform" || project.name == "konform-js") {
+                duplicatesStrategy = "exclude"
+                def platformSrc = sourceSets.main.kotlin
+                def commonSrc = project(':konform-common').sourceSets.main.kotlin
+                from(platformSrc + commonSrc)
+            }
+        }
+    }
+
+    task emptyJar(type: Jar) {
+        classifier 'javadoc'
+    }
+
+    publishing {
+        publications {
+            mavenProject(MavenPublication) {
+                from components.java
+                groupId project.group
+                artifactId project.name
+                version project.version
+
+                artifact sourceJar {
+                    classifier 'sources'
+                }
+
+                artifact emptyJar {
+                    classifier 'javadoc'
+                }
+
+                withPom(pom)
+            }
+        }
     }
 }
