@@ -22,11 +22,11 @@ repositories {
 Depending on your type of Kotlin project add one of these dependencies:
 
 - JVM:   
-`implementation 'io.konform:konform:0.0.1'`
+`implementation 'io.konform:konform:0.0.2'`
 - JS:  
-`implementation 'io.konform:konform-js:0.0.1'`
+`implementation 'io.konform:konform-js:0.0.2'`
 - Common:  
-`implementation 'io.konform:konform-common:0.0.1'`
+`implementation 'io.konform:konform-common:0.0.2'`
 
 ### Quick Start
 
@@ -71,6 +71,77 @@ validationResult[UserProfile::age]
 // yields listOf("must be equal or greater than 0")
 ```
 
+In case the validation went through successfully you get a result of type `Valid` with the validated value in the `value` field.
+
+```Kotlin
+val validationResult = validateUser(UserProfile("Alice", 25))
+// yields Valid(UserProfile("Alice", 25))
+```
+
+### Advanced
+
+It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
+
+```Kotlin
+data class Person(val name: String, val email: String?, val age: Int)
+
+data class Event(
+    val organizer: Person,
+    val attendees: List<Person>,
+    val ticketPrices: Map<String, Double?>
+)
+
+val validateEvent = Validation<Event> {
+    Event::organizer {
+        // even though the email is nullable you can force it to be set in the validation
+        Person::email required {
+            pattern(".+@bigcorp.com") hint "Organizers must have a BigCorp email address"
+        }
+    }
+
+    // validation on the attendees list
+    Event::attendees onEach {
+        maxSize(100)
+    }
+
+    // validation on individual attendees
+    Event::attendees onEach {
+        Person::name {
+            minLength(2)
+        }
+        Person::age {
+            minimum(18) hint "Attendees must be 18 years or older"
+        }
+        // Email is optional but if it is set it must be valid
+        Person::email ifPresent {
+            pattern(".+@.+\..+") hint "Please provide a valid email address (optional)"
+        }
+    }
+
+    // validation on the ticketPrices Map as a whole
+    Event::ticketPrices {
+        minSize(1) hint "Provide at least one ticket price"
+    }
+
+    // validations for the individual entries
+    Event::ticketPrices onEach {
+        // Tickets may be free
+        Entry<String, Double?>::value ifPresent {
+            minimum(0.01)
+        }
+    }
+}
+```
+
+Errors in the validation result can be accessed again using the index access in case of Iterables and Arrays you use the index and in case of Maps you use the key
+
+```Kotlin
+// get the error messages for the first attendees age if any
+result[Event::attendees, 0, Person::age]
+
+// get the error messages for the free ticket if any
+result[Event::ticketPrices, "free"]
+```
 
 ##### Author
 
