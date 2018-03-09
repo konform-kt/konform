@@ -133,7 +133,7 @@ val validateEvent = Validation<Event> {
 }
 ```
 
-Errors in the validation result can be accessed again using the index access in case of Iterables and Arrays you use the index and in case of Maps you use the key
+Errors in the `ValidationResult` can be accessed again using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
 
 ```Kotlin
 // get the error messages for the first attendees age if any
