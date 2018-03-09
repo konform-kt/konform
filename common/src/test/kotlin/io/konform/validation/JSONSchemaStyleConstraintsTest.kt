@@ -5,10 +5,16 @@ import io.konform.validation.jsonschema.const
 import io.konform.validation.jsonschema.enum
 import io.konform.validation.jsonschema.exclusiveMaximum
 import io.konform.validation.jsonschema.exclusiveMinimum
+import io.konform.validation.jsonschema.maxItems
+import io.konform.validation.jsonschema.maxLength
 import io.konform.validation.jsonschema.maximum
+import io.konform.validation.jsonschema.minItems
+import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.minimum
 import io.konform.validation.jsonschema.multipleOf
+import io.konform.validation.jsonschema.pattern
 import io.konform.validation.jsonschema.type
+import io.konform.validation.jsonschema.uniqueItems
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -116,8 +122,8 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(-4.0)))
         assertEquals(1, countFieldsWithErrors(validation(25.1)))
 
-        assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(0) }}
-        assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(-1) }}
+        assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(0) } }
+        assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(-1) } }
 
         assertEquals("must be a multiple of '2.5'", validation(1).get()!![0])
     }
@@ -136,7 +142,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(11)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), Validation<Number> { maximum(Double.POSITIVE_INFINITY) } (Double.POSITIVE_INFINITY))
+        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), Validation<Number> { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY))
 
         assertEquals("must be at most '10'", validation(11).get()!![0])
     }
@@ -155,7 +161,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
         assertEquals(1, countFieldsWithErrors(validation(11)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) } (Double.POSITIVE_INFINITY)))
+        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)))
 
 
         assertEquals("must be less than '10'", validation(11).get()!![0])
@@ -175,7 +181,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(8)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), Validation<Number> { minimum(Double.NEGATIVE_INFINITY) } (Double.NEGATIVE_INFINITY))
+        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), Validation<Number> { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY))
 
         assertEquals("must be at least '10'", validation(9).get()!![0])
     }
@@ -194,9 +200,132 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
         assertEquals(1, countFieldsWithErrors(validation(8)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) } (Double.NEGATIVE_INFINITY)))
+        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)))
 
 
         assertEquals("must be greater than '10'", validation(9).get()!![0])
+    }
+
+    @Test
+    fun minLengthConstraint() {
+        val validation = Validation<String> { minLength(10) }
+
+        assertEquals(Valid("HelloWorld"), validation("HelloWorld"))
+        assertEquals(Valid("Hello World"), validation("Hello World"))
+
+        assertEquals(1, countFieldsWithErrors(validation("Hello")))
+        assertEquals(1, countFieldsWithErrors(validation("")))
+
+        assertEquals("must have at least 10 characters", validation("").get()!![0])
+    }
+
+    @Test
+    fun maxLengthConstraint() {
+        val validation = Validation<String> { maxLength(10) }
+
+        assertEquals(Valid("HelloWorld"), validation("HelloWorld"))
+        assertEquals(Valid("Hello"), validation("Hello"))
+        assertEquals(Valid(""), validation(""))
+
+        assertEquals(1, countFieldsWithErrors(validation("Hello World")))
+
+        assertEquals("must have at most 10 characters", validation("Hello World").get()!![0])
+    }
+
+    @Test
+    fun patternConstraint() {
+        val validation = Validation<String> { pattern(".+@.+") }
+
+        assertEquals(Valid("a@a"), validation("a@a"))
+        assertEquals(Valid("a@a@a@a"), validation("a@a@a@a"))
+        assertEquals(Valid(" a@a "), validation(" a@a "))
+
+        assertEquals(1, countFieldsWithErrors(validation("a")))
+        assertEquals("must match the expected pattern", validation("").get()!![0])
+
+        val compiledRegexValidation = Validation<String> {
+            pattern("^\\w+@\\w+\\.\\w+$".toRegex())
+        }
+
+        assertEquals(Valid("tester@example.com"), compiledRegexValidation("tester@example.com"))
+        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example")))
+        assertEquals(1, countFieldsWithErrors(compiledRegexValidation(" tester@example.com")))
+        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example.com ")))
+
+        assertEquals("must match the expected pattern", compiledRegexValidation("").get()!![0])
+    }
+
+    @Test
+    fun minSizeConstraint() {
+        val validation = Validation<List<String>> { minItems(1) }
+
+        assertEquals(Valid(listOf("a", "b")), validation(listOf("a", "b")))
+        assertEquals(Valid(listOf("a")), validation(listOf("a")))
+
+        assertEquals(1, countFieldsWithErrors(validation(emptyList())))
+
+
+        val arrayValidation = Validation<Array<String>> { minItems(1) }
+
+        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(emptyArray())))
+
+        val mapValidation = Validation<Map<String, Int>> { minItems(1) }
+
+        assertEquals(Valid(mapOf("a" to 0, "b" to 1)), mapValidation(mapOf("a" to 0, "b" to 1)))
+        assertEquals(Valid(mapOf("a" to 0)), mapValidation(mapOf("a" to 0)))
+
+        assertEquals(1, countFieldsWithErrors(mapValidation(emptyMap())))
+
+        assertEquals("must have at least 1 items", validation(emptyList()).get()!![0])
+    }
+
+    @Test
+    fun maxSizeConstraint() {
+        val validation = Validation<List<String>> { maxItems(1) }
+
+        assertEquals(Valid(emptyList()), validation(emptyList()))
+        assertEquals(Valid(listOf("a")), validation(listOf("a")))
+
+        assertEquals(1, countFieldsWithErrors(validation(listOf("a", "b"))))
+
+        val arrayValidation = Validation<Array<String>> { maxItems(1) }
+
+        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "b"))))
+
+        val mapValidation = Validation<Map<String, Int>> { maxItems(1) }
+
+        assertEquals(Valid(emptyMap()), mapValidation(emptyMap()))
+        assertEquals(Valid(mapOf("a" to 0)), mapValidation(mapOf("a" to 0)))
+
+        assertEquals(1, countFieldsWithErrors(mapValidation(mapOf("a" to 0, "b" to 1))))
+
+        assertEquals("must have at most 1 items", mapValidation(mapOf("a" to 0, "b" to 1)).get()!![0])
+    }
+
+    @Test
+    fun uniqueItemsConstraint() {
+        val validation = Validation<List<String>> { uniqueItems(true) }
+
+        assertEquals(Valid(emptyList()), validation(emptyList()))
+        assertEquals(Valid(listOf("a")), validation(listOf("a")))
+        assertEquals(Valid(listOf("a", "b")), validation(listOf("a", "b")))
+
+        assertEquals(1, countFieldsWithErrors(validation(listOf("a", "a"))))
+
+        val arrayValidation = Validation<Array<String>> { uniqueItems(true) }
+
+        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "a"))))
+
+        assertEquals("all items must be unique", validation(listOf("a", "a")).get()!![0])
     }
 }

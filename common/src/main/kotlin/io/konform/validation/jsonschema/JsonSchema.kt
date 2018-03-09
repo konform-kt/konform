@@ -39,22 +39,83 @@ fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constraint<T> 
     }
 }
 
-fun <T: Number> ValidationBuilder<T>.maximum(maximumInclusive: Number) = addConstraint(
+fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number) = addConstraint(
     "must be at most '{0}'",
     maximumInclusive.toString()
 ) { it.toDouble() <= maximumInclusive.toDouble() }
 
-fun <T: Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number) = addConstraint(
+fun <T : Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number) = addConstraint(
     "must be less than '{0}'",
     maximumExclusive.toString()
 ) { it.toDouble() < maximumExclusive.toDouble() }
 
-fun <T: Number> ValidationBuilder<T>.minimum(minimumInclusive: Number) = addConstraint(
+fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number) = addConstraint(
     "must be at least '{0}'",
     minimumInclusive.toString()
 ) { it.toDouble() >= minimumInclusive.toDouble() }
 
-fun <T: Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number) = addConstraint(
+fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number) = addConstraint(
     "must be greater than '{0}'",
     minimumExclusive.toString()
 ) { it.toDouble() > minimumExclusive.toDouble() }
+
+fun ValidationBuilder<String>.minLength(length: Int): Constraint<String> {
+    require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
+    return addConstraint(
+        "must have at least {0} characters",
+        length.toString()
+    ) { it.length >= length }
+}
+
+fun ValidationBuilder<String>.maxLength(length: Int): Constraint<String> {
+    require(length >= 0) { IllegalArgumentException("maxLength requires the length to be >= 0") }
+    return addConstraint(
+        "must have at most {0} characters",
+        length.toString()
+    ) { it.length <= length }
+}
+
+
+fun ValidationBuilder<String>.pattern(pattern: String) = pattern(pattern.toRegex())
+
+
+fun ValidationBuilder<String>.pattern(pattern: Regex) = addConstraint(
+    "must match the expected pattern",
+    pattern.toString()
+) { it.matches(pattern) }
+
+
+inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Constraint<T> = addConstraint(
+    "must have at least {0} items",
+    minSize.toString()
+) {
+    when (it) {
+        is Iterable<*> -> it.count() >= minSize
+        is Array<*> -> it.count() >= minSize
+        is Map<*, *> -> it.count() >= minSize
+        else -> throw IllegalStateException("minItems can not be applied to type ${T::class}")
+    }
+}
+
+
+inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Constraint<T> = addConstraint(
+    "must have at most {0} items",
+    maxSize.toString()
+) {
+    when (it) {
+        is Iterable<*> -> it.count() <= maxSize
+        is Array<*> -> it.count() <= maxSize
+        is Map<*, *> -> it.count() <= maxSize
+        else -> throw IllegalStateException("maxItems can not be applied to type ${T::class}")
+    }
+}
+
+inline fun <reified T> ValidationBuilder<T>.uniqueItems(unique: Boolean): Constraint<T> = addConstraint(
+    "all items must be unique"
+) {
+    !unique || when (it) {
+        is Iterable<*> -> it.distinct().count() == it.count()
+        is Array<*> -> it.distinct().count() == it.count()
+        else -> throw IllegalStateException("uniqueItems can not be applied to type ${T::class}")
+    }
+}
