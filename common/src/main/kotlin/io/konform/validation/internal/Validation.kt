@@ -68,9 +68,33 @@ internal class RequiredPropertyValidation<T, R>(
 internal class IterableValidation<T>(
     subValidations: List<Validation<T>>
 ) : AbstractPropertyValidation<T>(subValidations), Validation<Iterable<T>> {
-    override fun validate(values: Iterable<T>): ValidationResult<Iterable<T>> {
-        return values.foldIndexed(Valid(values)) { index, result: ValidationResult<Iterable<T>>, propertyValue ->
-            val propertyValidation = applyValidations(propertyValue, keyTransform = { listOf(index.toString()) + it }).map { values }
+    override fun validate(value: Iterable<T>): ValidationResult<Iterable<T>> {
+        return value.foldIndexed(Valid(value)) { index, result: ValidationResult<Iterable<T>>, propertyValue ->
+            val propertyValidation = applyValidations(propertyValue, keyTransform = { listOf(index.toString()) + it }).map { value }
+            result.combineWith(propertyValidation)
+        }
+
+    }
+}
+
+internal class ArrayValidation<T>(
+    subValidations: List<Validation<T>>
+) : AbstractPropertyValidation<T>(subValidations), Validation<Array<T>> {
+    override fun validate(value: Array<T>): ValidationResult<Array<T>> {
+        return value.foldIndexed(Valid(value)) { index, result: ValidationResult<Array<T>>, propertyValue ->
+            val propertyValidation = applyValidations(propertyValue, keyTransform = { listOf(index.toString()) + it }).map { value }
+            result.combineWith(propertyValidation)
+        }
+
+    }
+}
+
+internal class MapValidation<K, V>(
+    subValidations: List<Validation<Map.Entry<K, V>>>
+) : AbstractPropertyValidation<Map.Entry<K, V>>(subValidations), Validation<Map<K, V>> {
+    override fun validate(value: Map<K, V>): ValidationResult<Map<K, V>> {
+        return value.asSequence().fold(Valid(value)) { result: ValidationResult<Map<K, V>>, entry ->
+            val propertyValidation = applyValidations(entry, keyTransform = { listOf(entry.key.toString()) + it.drop(1) }).map { value }
             result.combineWith(propertyValidation)
         }
 

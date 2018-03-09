@@ -142,26 +142,77 @@ class ValidationBuilderTest {
 
     @Test
     fun validateLists() {
-        val listValidation= Validation<Register> {
-            Register::previousAddresses onEach {
-                Address::address {
+
+        data class Data(val registrations: List<Register> = emptyList())
+
+        val listValidation = Validation<Data> {
+            Data::registrations onEach {
+                Register::email {
                     minLength(3)
                 }
             }
         }
 
-        Register().let { assertEquals(Valid(it), listValidation(it)) }
-        Register(previousAddresses = listOf(Address("valid"), Address("ab")))
+        Data().let { assertEquals(Valid(it), listValidation(it)) }
+        Data(registrations = listOf(Register(email = "valid"), Register(email = "a")))
             .let {
-                assertEquals(1, countErrors(listValidation(it), Register::previousAddresses, 1, Address::address))
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
             }
-        Register(previousAddresses = listOf(Address("a"), Address("ab")))
+        Data(registrations = listOf(Register(email = "a"), Register(email = "ab")))
             .let {
                 assertEquals(2, countFieldsWithErrors(listValidation(it)))
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
             }
-        Register(previousAddresses = listOf(Address("a"), Address("ab")))
+    }
+
+    @Test
+    fun validateArrays() {
+
+        data class Data(val registrations: Array<Register> = emptyArray())
+
+        val arrayValidation = Validation<Data> {
+            Data::registrations onEach {
+                Register::email {
+                    minLength(3)
+                }
+            }
+        }
+
+        Data().let { assertEquals(Valid(it), arrayValidation(it)) }
+        Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
             .let {
-                assertEquals(1, countErrors(listValidation(it), Register::previousAddresses, 1, Address::address))
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+        Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(arrayValidation(it)))
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+    }
+
+    @Test
+    fun validateHashMaps() {
+
+        data class Data(val registrations: Map<String, Register> = emptyMap())
+
+        val mapValidation = Validation<Data> {
+            Data::registrations onEach {
+                Map.Entry<String, Register>::value {
+                    Register::email {
+                        minLength(2)
+                    }
+                }
+            }
+        }
+
+        Data().let { assertEquals(Valid(it), mapValidation(it)) }
+        Data(registrations = mapOf(
+            "user1" to Register(email = "valid"),
+            "user2" to Register(email = "a")))
+            .let {
+                println(mapValidation(it))
+                assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
+                assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
             }
     }
 
@@ -173,10 +224,10 @@ class ValidationBuilderTest {
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }
 
-    private fun <T> countFieldsWithErrors(overlappingValidations: ValidationResult<T>) = (overlappingValidations as Invalid).errors.size
-    private fun countErrors(validationResult: ValidationResult<Register>, vararg properties: Any) = validationResult.get(*properties)?.size
+    private fun <T> countFieldsWithErrors(validationResult: ValidationResult<T>) = (validationResult as Invalid).errors.size
+    private fun countErrors(validationResult: ValidationResult<*>, vararg properties: Any) = validationResult.get(*properties)?.size
         ?: 0
 
-    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null, val previousAddresses: List<Address> = emptyList())
+    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
     private data class Address(val address: String = "", val country: String = "DE")
 }
