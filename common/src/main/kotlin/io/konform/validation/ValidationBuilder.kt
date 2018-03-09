@@ -5,7 +5,7 @@ import kotlin.reflect.KProperty1
 expect abstract class ValidationBuilder<T> constructor() {
     abstract fun build(): Validation<T>
     abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T>
-    abstract infix fun <R> Constraint<R>.hint(hint: String): Constraint<R>
+    abstract infix fun Constraint<T>.hint(hint: String): Constraint<T>
     abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit)
     internal abstract fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<R>.() -> Unit)
     infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit)

@@ -83,7 +83,8 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilderImpl<*>>()
 
-    override fun <R> Constraint<R>.hint(hint: String): Constraint<R> = Constraint(hint, this.templateValues, this.test)
+    override fun Constraint<T>.hint(hint: String): Constraint<T> =
+        Constraint(hint, this.templateValues, this.test).also { constraints.remove(this); constraints.add(it) }
 
     override fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T> {
         return Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
