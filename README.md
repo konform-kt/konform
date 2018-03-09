@@ -22,11 +22,11 @@ repositories {
 Depending on your type of Kotlin project add one of these dependencies:
 
 - JVM:   
-`implementation 'io.konform:konform:0.0.2'`
+`implementation 'io.konform:konform:0.0.3'`
 - JS:  
-`implementation 'io.konform:konform-js:0.0.2'`
+`implementation 'io.konform:konform-js:0.0.3'`
 - Common:  
-`implementation 'io.konform:konform-common:0.0.2'`
+`implementation 'io.konform:konform-common:0.0.3'`
 
 ### Quick Start
 
@@ -58,7 +58,8 @@ val validateUser = Validation<UserProfile> {
 and apply it to your data
 
 ```Kotlin
-val validationResult = validateUser(UserProfile("A", -1))
+val invalidUser = UserProfile("A", -1)
+val validationResult = validateUser(invalidUser)
 ```
 
 since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors by indexed access:
@@ -74,7 +75,8 @@ validationResult[UserProfile::age]
 In case the validation went through successfully you get a result of type `Valid` with the validated value in the `value` field.
 
 ```Kotlin
-val validationResult = validateUser(UserProfile("Alice", 25))
+val validUser = UserProfile("Alice", 25)
+val validationResult = validateUser(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 
@@ -125,7 +127,7 @@ val validateEvent = Validation<Event> {
 
     // validations for the individual entries
     Event::ticketPrices onEach {
-        // Tickets may be free
+        // Tickets may be free in which case they are null
         Entry<String, Double?>::value ifPresent {
             minimum(0.01)
         }
@@ -145,7 +147,7 @@ result[Event::ticketPrices, "free"]
 
 ##### Author
 
- [Niklas Lochschmidt](https://twitter.com/niklas_l)
+[Niklas Lochschmidt](https://twitter.com/niklas_l)
 
 ##### License
 
