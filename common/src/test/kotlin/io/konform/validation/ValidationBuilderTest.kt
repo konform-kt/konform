@@ -8,10 +8,10 @@ class ValidationBuilderTest {
 
     // Some example constraints for Testing
     fun ValidationBuilder<String>.minLength(minValue: Int) =
-        addConstraint("must have at least {1} characters", minValue.toString()) { it.length >= minValue }
+        addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
 
     fun ValidationBuilder<String>.maxLength(minValue: Int) =
-        addConstraint("must have at most {1} characters", minValue.toString()) { it.length <= minValue }
+        addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
 
     fun ValidationBuilder<String>.matches(regex: Regex) =
         addConstraint("must have correct format") { it.contains(regex) }
@@ -210,7 +210,6 @@ class ValidationBuilderTest {
             "user1" to Register(email = "valid"),
             "user2" to Register(email = "a")))
             .let {
-                println(mapValidation(it))
                 assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
                 assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
             }
@@ -223,10 +222,6 @@ class ValidationBuilderTest {
         }
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }
-
-    private fun <T> countFieldsWithErrors(validationResult: ValidationResult<T>) = (validationResult as Invalid).errors.size
-    private fun countErrors(validationResult: ValidationResult<*>, vararg properties: Any) = validationResult.get(*properties)?.size
-        ?: 0
 
     private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
     private data class Address(val address: String = "", val country: String = "DE")

@@ -17,9 +17,11 @@ internal class ValueValidation<T>(
         return Invalid(mapOf(emptyList<String>() to errors))
     }
 
-    private fun constructHint(value: T, it: Constraint<T>) =
-        (listOf(value.toString()) + it.templateValues)
-            .foldIndexed(it.hint) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
+    private fun constructHint(value: T, it: Constraint<T>): String {
+        val replaceValue = it.hint.replace("{value}", value.toString())
+        return it.templateValues
+            .foldIndexed(replaceValue) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
+    }
 }
 
 
