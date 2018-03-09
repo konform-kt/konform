@@ -1,6 +1,5 @@
 package io.konform.validation
 
-import kotlin.reflect.KProperty1
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -142,18 +141,42 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateLists() {
+        val listValidation= Validation<Register> {
+            Register::previousAddresses onEach {
+                Address::address {
+                    minLength(3)
+                }
+            }
+        }
+
+        Register().let { assertEquals(Valid(it), listValidation(it)) }
+        Register(previousAddresses = listOf(Address("valid"), Address("ab")))
+            .let {
+                assertEquals(1, countErrors(listValidation(it), Register::previousAddresses, 1, Address::address))
+            }
+        Register(previousAddresses = listOf(Address("a"), Address("ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(listValidation(it)))
+            }
+        Register(previousAddresses = listOf(Address("a"), Address("ab")))
+            .let {
+                assertEquals(1, countErrors(listValidation(it), Register::previousAddresses, 1, Address::address))
+            }
+    }
+
+    @Test
     fun replacePlaceholderInString() {
         val validation = Validation<Register> {
             Register::password.has.minLength(8)
         }
-        println(validation(Register(password = ""))[Register::password]!![0])
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }
 
     private fun <T> countFieldsWithErrors(overlappingValidations: ValidationResult<T>) = (overlappingValidations as Invalid).errors.size
-    private fun countErrors(validationResult: ValidationResult<Register>, vararg properties: KProperty1<*, *>) = validationResult.get(*properties)?.size
+    private fun countErrors(validationResult: ValidationResult<Register>, vararg properties: Any) = validationResult.get(*properties)?.size
         ?: 0
 
-    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
+    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null, val previousAddresses: List<Address> = emptyList())
     private data class Address(val address: String = "", val country: String = "DE")
 }

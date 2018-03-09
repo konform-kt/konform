@@ -2,7 +2,7 @@ package io.konform.validation.internal
 
 import io.konform.validation.Constraint
 import io.konform.validation.Invalid
-import io.konform.validation.Property
+import io.konform.validation.PathSegment
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
@@ -22,7 +22,8 @@ internal class ValueValidation<T>(
             .foldIndexed(it.hint) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
 }
 
-internal abstract class AbstractValidation<R>(
+
+internal abstract class AbstractPropertyValidation<R>(
     private val subValidations: List<Validation<R>>
 ) {
     protected fun applyValidations(propertyValue: R, keyTransform: (List<String>) -> List<String>): ValidationResult<R> {
@@ -31,35 +32,12 @@ internal abstract class AbstractValidation<R>(
             existingValidation.combineWith(newValidation)
         }
     }
-
-    private fun ValidationResult<R>.mapError(keyTransform: (List<Property>) -> List<Property>): ValidationResult<R> {
-        return when (this) {
-            is Valid -> this
-            is Invalid -> Invalid(this.errors.mapKeys { (key, _) ->
-                keyTransform(key)
-            })
-        }
-    }
-
-    private fun ValidationResult<R>.combineWith(other: ValidationResult<R>): ValidationResult<R> {
-        return when (this) {
-            is Valid -> return other
-            is Invalid -> when (other) {
-                is Valid -> this
-                is Invalid -> {
-                    Invalid((this.errors.toList() + other.errors.toList())
-                        .groupBy({ it.first }, { it.second })
-                        .mapValues { (_, values) -> values.flatten() })
-                }
-            }
-        }
-    }
 }
 
-internal class PropertyValidation<T, R>(
+internal class NonNullPropertyValidation<T, R>(
     private val property: KProperty1<T, R>,
     subValidations: List<Validation<R>>
-) : AbstractValidation<R>(subValidations), Validation<T> {
+) : AbstractPropertyValidation<R>(subValidations), Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue = property(value)
         return applyValidations(propertyValue, keyTransform = { listOf(property.name) + it }).map { value }
@@ -69,7 +47,7 @@ internal class PropertyValidation<T, R>(
 internal class OptionalPropertyValidation<T, R>(
     private val property: KProperty1<T, R?>,
     subValidations: List<Validation<R>>
-) : AbstractValidation<R>(subValidations), Validation<T> {
+) : AbstractPropertyValidation<R>(subValidations), Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue = property(value) ?: return Valid(value)
         return applyValidations(propertyValue, keyTransform = { listOf(property.name) + it }).map { value }
@@ -79,7 +57,7 @@ internal class OptionalPropertyValidation<T, R>(
 internal class RequiredPropertyValidation<T, R>(
     private val property: KProperty1<T, R?>,
     subValidations: List<Validation<R>>
-) : AbstractValidation<R>(subValidations), Validation<T> {
+) : AbstractPropertyValidation<R>(subValidations), Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue = property(value)
             ?: return Invalid<T>(mapOf(listOf(property.name) to listOf("is required")))
@@ -87,10 +65,45 @@ internal class RequiredPropertyValidation<T, R>(
     }
 }
 
+internal class IterableValidation<T>(
+    subValidations: List<Validation<T>>
+) : AbstractPropertyValidation<T>(subValidations), Validation<Iterable<T>> {
+    override fun validate(values: Iterable<T>): ValidationResult<Iterable<T>> {
+        return values.foldIndexed(Valid(values)) { index, result: ValidationResult<Iterable<T>>, propertyValue ->
+            val propertyValidation = applyValidations(propertyValue, keyTransform = { listOf(index.toString()) + it }).map { values }
+            result.combineWith(propertyValidation)
+        }
+
+    }
+}
+
 internal class ClassValidation<T>(
     subValidations: List<Validation<T>>
-) : AbstractValidation<T>(subValidations), Validation<T> {
+) : AbstractPropertyValidation<T>(subValidations), Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         return applyValidations(value, keyTransform = { it })
+    }
+}
+
+internal fun <R> ValidationResult<R>.mapError(keyTransform: (List<PathSegment>) -> List<PathSegment>): ValidationResult<R> {
+    return when (this) {
+        is Valid -> this
+        is Invalid -> Invalid(this.errors.mapKeys { (key, _) ->
+            keyTransform(key)
+        })
+    }
+}
+
+internal fun <R> ValidationResult<R>.combineWith(other: ValidationResult<R>): ValidationResult<R> {
+    return when (this) {
+        is Valid -> return other
+        is Invalid -> when (other) {
+            is Valid -> this
+            is Invalid -> {
+                Invalid((this.errors.toList() + other.errors.toList())
+                    .groupBy({ it.first }, { it.second })
+                    .mapValues { (_, values) -> values.flatten() })
+            }
+        }
     }
 }
