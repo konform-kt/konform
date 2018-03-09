@@ -11,7 +11,7 @@
 
 ### Installation
 
-Add the konvert bintray repository to your build.gradle
+Add the konform bintray repository to your build.gradle
 
 ```groovy
 repositories {
