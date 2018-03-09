@@ -100,8 +100,8 @@ val validateEvent = Validation<Event> {
     }
 
     // validation on the attendees list
-    Event::attendees onEach {
-        maxSize(100)
+    Event::attendees {
+        maxItems(100)
     }
 
     // validation on individual attendees
@@ -120,7 +120,7 @@ val validateEvent = Validation<Event> {
 
     // validation on the ticketPrices Map as a whole
     Event::ticketPrices {
-        minSize(1) hint "Provide at least one ticket price"
+        minItems(1) hint "Provide at least one ticket price"
     }
 
     // validations for the individual entries
