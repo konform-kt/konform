@@ -110,6 +110,12 @@ inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Constraint<T
     }
 }
 
+inline fun <reified T: Map<*, *>> ValidationBuilder<T>.minProperties(minSize: Int): Constraint<T> =
+    minItems(minSize) hint "must have at least {0} properties"
+
+inline fun <reified T: Map<*, *>> ValidationBuilder<T>.maxProperties(maxSize: Int): Constraint<T> =
+    maxItems(maxSize) hint "must have at most {0} properties"
+
 inline fun <reified T> ValidationBuilder<T>.uniqueItems(unique: Boolean): Constraint<T> = addConstraint(
     "all items must be unique"
 ) {

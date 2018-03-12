@@ -7,9 +7,11 @@ import io.konform.validation.jsonschema.exclusiveMaximum
 import io.konform.validation.jsonschema.exclusiveMinimum
 import io.konform.validation.jsonschema.maxItems
 import io.konform.validation.jsonschema.maxLength
+import io.konform.validation.jsonschema.maxProperties
 import io.konform.validation.jsonschema.maximum
 import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
+import io.konform.validation.jsonschema.minProperties
 import io.konform.validation.jsonschema.minimum
 import io.konform.validation.jsonschema.multipleOf
 import io.konform.validation.jsonschema.pattern
@@ -306,6 +308,30 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(mapValidation(mapOf("a" to 0, "b" to 1))))
 
         assertEquals("must have at most 1 items", mapValidation(mapOf("a" to 0, "b" to 1)).get()!![0])
+    }
+
+    @Test
+    fun minPropertiesConstraint() {
+        val validation = Validation<Map<String, Int>> { minProperties(1) }
+
+        assertEquals(Valid(mapOf("a" to 0, "b" to 1)), validation(mapOf("a" to 0, "b" to 1)))
+        assertEquals(Valid(mapOf("a" to 0)), validation(mapOf("a" to 0)))
+
+        assertEquals(1, countFieldsWithErrors(validation(emptyMap())))
+
+        assertEquals("must have at least 1 properties", validation(emptyMap()).get()!![0])
+    }
+
+    @Test
+    fun maxPropertiesConstraint() {
+        val validation = Validation<Map<String, Int>> { maxProperties(1) }
+
+        assertEquals(Valid(emptyMap()), validation(emptyMap()))
+        assertEquals(Valid(mapOf("a" to 0)), validation(mapOf("a" to 0)))
+
+        assertEquals(1, countFieldsWithErrors(validation(mapOf("a" to 0, "b" to 1))))
+
+        assertEquals("must have at most 1 properties", validation(mapOf("a" to 0, "b" to 1)).get()!![0])
     }
 
     @Test
