@@ -2,7 +2,6 @@ package io.konform.validation.internal
 
 import io.konform.validation.Constraint
 import io.konform.validation.Invalid
-import io.konform.validation.PathSegment
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
@@ -111,7 +110,7 @@ internal class ClassValidation<T>(
     }
 }
 
-internal fun <R> ValidationResult<R>.mapError(keyTransform: (List<PathSegment>) -> List<PathSegment>): ValidationResult<R> {
+internal fun <R> ValidationResult<R>.mapError(keyTransform: (List<String>) -> List<String>): ValidationResult<R> {
     return when (this) {
         is Valid -> this
         is Invalid -> Invalid(this.errors.mapKeys { (key, _) ->
