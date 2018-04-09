@@ -23,7 +23,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).internalBuild()
+                val validations = (builder as ValidationBuilderImpl<R>).build()
                 return when (modifier) {
                     NonNull -> NonNullPropertyValidation(property, validations)
                     Optional -> OptionalPropertyValidation(property, validations)
@@ -38,11 +38,11 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).internalBuild()
+                val validations = (builder as ValidationBuilderImpl<R>).build()
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, listOf(IterableValidation(validations)))
-                    Optional -> OptionalPropertyValidation(property, listOf(IterableValidation(validations)))
-                    OptionalRequired -> RequiredPropertyValidation(property, listOf(IterableValidation(validations)))
+                    NonNull -> NonNullPropertyValidation(property, IterableValidation(validations))
+                    Optional -> OptionalPropertyValidation(property, IterableValidation(validations))
+                    OptionalRequired -> RequiredPropertyValidation(property, IterableValidation(validations))
                 }
             }
         }
@@ -53,11 +53,11 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).internalBuild()
+                val validations = (builder as ValidationBuilderImpl<R>).build()
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, listOf(ArrayValidation(validations)))
-                    Optional -> OptionalPropertyValidation(property, listOf(ArrayValidation(validations)))
-                    OptionalRequired -> RequiredPropertyValidation(property, listOf(ArrayValidation(validations)))
+                    NonNull -> NonNullPropertyValidation(property, ArrayValidation(validations))
+                    Optional -> OptionalPropertyValidation(property, ArrayValidation(validations))
+                    OptionalRequired -> RequiredPropertyValidation(property, ArrayValidation(validations))
                 }
             }
         }
@@ -68,11 +68,11 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<Map.Entry<K, V>>).internalBuild()
+                val validations = (builder as ValidationBuilderImpl<Map.Entry<K, V>>).build()
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, listOf(MapValidation(validations)))
-                    Optional -> OptionalPropertyValidation(property, listOf(MapValidation(validations)))
-                    OptionalRequired -> RequiredPropertyValidation(property, listOf(MapValidation(validations)))
+                    NonNull -> NonNullPropertyValidation(property, MapValidation(validations))
+                    Optional -> OptionalPropertyValidation(property, MapValidation(validations))
+                    OptionalRequired -> RequiredPropertyValidation(property, MapValidation(validations))
                 }
             }
         }
@@ -134,16 +134,10 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     override val <R> KProperty1<T, R>.has: ValidationBuilder<R>
         get() = getOrCreateBuilder(NonNull)
 
-    private fun internalBuild(): List<Validation<T>> {
-        val localValidation = if (constraints.isNotEmpty()) ValueValidation(constraints) else null
+    override fun build(): Validation<T> {
         val nestedValidations = subValidations.map { (key, builder) ->
             key.build(builder)
         }
-
-        return listOfNotNull(localValidation) + nestedValidations
-    }
-
-    override fun build(): Validation<T> {
-        return ClassValidation(internalBuild())
+        return ValidationNode(constraints, nestedValidations)
     }
 }
