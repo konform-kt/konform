@@ -25,7 +25,7 @@ actual abstract class ValidationBuilder<T> {
 
     actual abstract infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit)
     actual abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit)
+
+    actual abstract fun run(validation: Validation<T>)
     actual abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
-
-
 }

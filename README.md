@@ -28,7 +28,7 @@ Depending on your type of Kotlin project add one of these dependencies:
 - Common:  
 `implementation 'io.konform:konform-common:0.0.3'`
 
-### Quick Start
+### Use
 
 Suppose you have a data class like this:
 
@@ -80,7 +80,26 @@ val validationResult = validateUser(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 
-### Advanced
+### Advanced use
+
+You can define validations for nested classes and use them for new validations
+
+```Kotlin
+val ageCheck = Validation<UserProfile> {
+    UserProfile::age required {
+        minimum(18)
+    }
+}
+
+val validateUser = Validation<UserProfile> {
+    UserProfile::fullName {
+        minLength(2)
+        maxLength(100)
+    }
+    
+    run(ageCheck)
+}
+```
 
 It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
 

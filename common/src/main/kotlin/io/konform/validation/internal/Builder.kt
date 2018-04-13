@@ -1,6 +1,7 @@
 package io.konform.validation.internal
 
 import io.konform.validation.Constraint
+import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationBuilder
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.*
@@ -82,6 +83,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilderImpl<*>>()
+    private val prebuiltValidations = mutableListOf<Validation<T>>()
 
     override fun Constraint<T>.hint(hint: String): Constraint<T> =
         Constraint(hint, this.templateValues, this.test).also { constraints.remove(this); constraints.add(it) }
@@ -134,10 +136,14 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     override val <R> KProperty1<T, R>.has: ValidationBuilder<R>
         get() = getOrCreateBuilder(NonNull)
 
+    override fun run(validation: Validation<T>) {
+        prebuiltValidations.add(validation)
+    }
+
     override fun build(): Validation<T> {
         val nestedValidations = subValidations.map { (key, builder) ->
             key.build(builder)
         }
-        return ValidationNode(constraints, nestedValidations)
+        return ValidationNode(constraints, nestedValidations + prebuiltValidations)
     }
 }

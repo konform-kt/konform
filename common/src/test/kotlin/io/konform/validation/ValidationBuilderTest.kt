@@ -216,6 +216,21 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun composeValidations() {
+        val addressValidation = Validation<Address> {
+            Address::address.has.minLength(1)
+        }
+
+        val validation = Validation<Register> {
+            Register::home ifPresent {
+                run(addressValidation)
+            }
+        }
+
+        assertEquals(1, countFieldsWithErrors(validation(Register(home = Address()))))
+    }
+
+    @Test
     fun replacePlaceholderInString() {
         val validation = Validation<Register> {
             Register::password.has.minLength(8)
