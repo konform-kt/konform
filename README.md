@@ -22,11 +22,11 @@ repositories {
 Depending on your type of Kotlin project add one of these dependencies:
 
 - JVM:   
-`implementation 'io.konform:konform:0.0.3'`
+`implementation 'io.konform:konform:0.1.0'`
 - JS:  
-`implementation 'io.konform:konform-js:0.0.3'`
+`implementation 'io.konform:konform-js:0.1.0'`
 - Common:  
-`implementation 'io.konform:konform-common:0.0.3'`
+`implementation 'io.konform:konform-common:0.1.0'`
 
 ### Use
 
