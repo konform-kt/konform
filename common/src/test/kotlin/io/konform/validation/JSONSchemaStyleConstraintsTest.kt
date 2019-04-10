@@ -17,6 +17,9 @@ import io.konform.validation.jsonschema.multipleOf
 import io.konform.validation.jsonschema.pattern
 import io.konform.validation.jsonschema.type
 import io.konform.validation.jsonschema.uniqueItems
+import io.konform.validation.jsonschema.between
+import io.konform.validation.jsonschema.betweenExclusive
+import io.konform.validation.jsonschema.inRange
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -206,6 +209,71 @@ class JSONSchemaStyleConstraintsTest {
 
 
         assertEquals("must be greater than '10'", validation(9).get()!![0])
+    }
+
+    @Test
+    fun betweenConstraint() {
+        val validation = Validation<Number> { between(1.0, 999.9) }
+
+        assertEquals<ValidationResult<Number>>(Valid(999.9), validation(999.9))
+        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
+        assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
+        assertEquals<ValidationResult<Number>>(Valid(1.1), validation(1.1))
+
+        assertEquals(1, countFieldsWithErrors(validation(0)))
+        assertEquals(1, countFieldsWithErrors(validation(0.1)))
+        assertEquals(1, countFieldsWithErrors(validation(-2)))
+        assertEquals(1, countFieldsWithErrors(validation(-6.7)))
+        assertEquals(1, countFieldsWithErrors(validation(1000)))
+        assertEquals(1, countFieldsWithErrors(validation(9999.9999)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
+
+        assertEquals("must be at least '1.0' and not greater than '999.9'", validation(1000).get()!![0])
+    }
+
+    @Test
+    fun betweenExclusiveConstraint() {
+        val validation = Validation<Number> { betweenExclusive(1.0, 999.9) }
+
+        assertEquals<ValidationResult<Number>>(Valid(999.8), validation(999.8))
+        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
+        assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
+        assertEquals<ValidationResult<Number>>(Valid(1.1), validation(1.1))
+
+        assertEquals(1, countFieldsWithErrors(validation(0)))
+        assertEquals(1, countFieldsWithErrors(validation(0.1)))
+        assertEquals(1, countFieldsWithErrors(validation(-2)))
+        assertEquals(1, countFieldsWithErrors(validation(-6.7)))
+        assertEquals(1, countFieldsWithErrors(validation(1000)))
+        assertEquals(1, countFieldsWithErrors(validation(9999.9999)))
+        assertEquals(1, countFieldsWithErrors(validation(1.0)))
+        assertEquals(1, countFieldsWithErrors(validation(999.9)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
+
+        assertEquals("must be greater than '1.0' and less than '999.9'", validation(1000).get()!![0])
+    }
+
+    @Test
+    fun inRangeConstraint() {
+        val validation = Validation<Number> { inRange(1.0..999.9) }
+
+        assertEquals<ValidationResult<Number>>(Valid(999.9), validation(999.9))
+        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
+        assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
+        assertEquals<ValidationResult<Number>>(Valid(1.1), validation(1.1))
+
+        assertEquals(1, countFieldsWithErrors(validation(0)))
+        assertEquals(1, countFieldsWithErrors(validation(0.1)))
+        assertEquals(1, countFieldsWithErrors(validation(-2)))
+        assertEquals(1, countFieldsWithErrors(validation(-6.7)))
+        assertEquals(1, countFieldsWithErrors(validation(1000)))
+        assertEquals(1, countFieldsWithErrors(validation(9999.9999)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
+
+        assertEquals("must be at least '1.0' and not greater than '999.9'", validation(1000).get()!![0])
     }
 
     @Test

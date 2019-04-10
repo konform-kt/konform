@@ -59,6 +59,27 @@ fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number)
     minimumExclusive.toString()
 ) { it.toDouble() > minimumExclusive.toDouble() }
 
+fun <T : Number> ValidationBuilder<T>.between(start: Number, endInclusive: Number) = addConstraint(
+        "must be at least '{0}' and not greater than '{1}'",
+        start.toString(),
+        endInclusive.toString()
+    ) { it.toDouble() >= start.toDouble() && it.toDouble() <= endInclusive.toDouble() }
+
+fun <T : Number> ValidationBuilder<T>.betweenExclusive(start: Number, endExclusive: Number) = addConstraint(
+    "must be greater than '{0}' and less than '{1}'",
+    start.toString(),
+    endExclusive.toString()
+) { it.toDouble() > start.toDouble() && it.toDouble() < endExclusive.toDouble() }
+
+fun <T, R> ValidationBuilder<T>.inRange(range: ClosedRange<R>)
+    where R : Comparable<R>,
+          R : Number,
+          T : Number = addConstraint(
+    "must be at least '{0}' and not greater than '{1}'",
+    range.start.toString(),
+    range.endInclusive.toString()
+) { it.toDouble() in range.start.toDouble()..range.endInclusive.toDouble() }
+
 fun ValidationBuilder<String>.minLength(length: Int): Constraint<String> {
     require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
     return addConstraint(
