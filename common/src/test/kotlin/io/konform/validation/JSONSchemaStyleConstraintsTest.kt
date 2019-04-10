@@ -213,7 +213,7 @@ class JSONSchemaStyleConstraintsTest {
 
     @Test
     fun betweenConstraint() {
-        val validation = Validation<Number> { between(1.0, 999.9) }
+        val validation = Validation<Number> { between(1.1, 999.9) }
 
         assertEquals<ValidationResult<Number>>(Valid(999.9), validation(999.9))
         assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
@@ -229,17 +229,17 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals("must be at least '1.0' and not greater than '999.9'", validation(1000).get()!![0])
+        assertEquals("must be at least '1.1' and not greater than '999.9'", validation(1000).get()!![0])
     }
 
     @Test
     fun betweenExclusiveConstraint() {
-        val validation = Validation<Number> { betweenExclusive(1.0, 999.9) }
+        val validation = Validation<Number> { betweenExclusive(1.1, 999.9) }
 
         assertEquals<ValidationResult<Number>>(Valid(999.8), validation(999.8))
         assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
         assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
-        assertEquals<ValidationResult<Number>>(Valid(1.1), validation(1.1))
+        assertEquals<ValidationResult<Number>>(Valid(1.2), validation(1.2))
 
         assertEquals(1, countFieldsWithErrors(validation(0)))
         assertEquals(1, countFieldsWithErrors(validation(0.1)))
@@ -247,17 +247,17 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(-6.7)))
         assertEquals(1, countFieldsWithErrors(validation(1000)))
         assertEquals(1, countFieldsWithErrors(validation(9999.9999)))
-        assertEquals(1, countFieldsWithErrors(validation(1.0)))
+        assertEquals(1, countFieldsWithErrors(validation(1.1)))
         assertEquals(1, countFieldsWithErrors(validation(999.9)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals("must be greater than '1.0' and less than '999.9'", validation(1000).get()!![0])
+        assertEquals("must be greater than '1.1' and less than '999.9'", validation(1000).get()!![0])
     }
 
     @Test
     fun inRangeConstraint() {
-        val validation = Validation<Number> { inRange(1.0..999.9) }
+        val validation = Validation<Number> { inRange(1.1..999.9) }
 
         assertEquals<ValidationResult<Number>>(Valid(999.9), validation(999.9))
         assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
@@ -273,7 +273,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals("must be at least '1.0' and not greater than '999.9'", validation(1000).get()!![0])
+        assertEquals("must be at least '1.1' and not greater than '999.9'", validation(1000).get()!![0])
     }
 
     @Test
