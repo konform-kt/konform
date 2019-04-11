@@ -59,17 +59,25 @@ fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number)
     minimumExclusive.toString()
 ) { it.toDouble() > minimumExclusive.toDouble() }
 
-fun <T : Number> ValidationBuilder<T>.between(start: Number, endInclusive: Number) = addConstraint(
+fun <T : Number> ValidationBuilder<T>.between(start: Number, endInclusive: Number): Constraint<T> {
+    require(start != endInclusive) { IllegalArgumentException("between requires start and endExclusive to be different") }
+    require(endInclusive.toDouble() > start.toDouble()) { IllegalArgumentException("between requires endExclusive to be greater than start") }
+    return addConstraint(
         "must be at least '{0}' and not greater than '{1}'",
         start.toString(),
         endInclusive.toString()
     ) { it.toDouble() >= start.toDouble() && it.toDouble() <= endInclusive.toDouble() }
+}
 
-fun <T : Number> ValidationBuilder<T>.betweenExclusive(start: Number, endExclusive: Number) = addConstraint(
-    "must be greater than '{0}' and less than '{1}'",
-    start.toString(),
-    endExclusive.toString()
-) { it.toDouble() > start.toDouble() && it.toDouble() < endExclusive.toDouble() }
+fun <T : Number> ValidationBuilder<T>.betweenExclusive(start: Number, endExclusive: Number): Constraint<T> {
+    require(start != endExclusive) { IllegalArgumentException("between requires start and endExclusive to be different") }
+    require(endExclusive.toDouble() > start.toDouble() + 1) { IllegalArgumentException("between requires endExclusive to be greater than start+1") }
+    return addConstraint(
+        "must be greater than '{0}' and less than '{1}'",
+        start.toString(),
+        endExclusive.toString()
+    ) { it.toDouble() > start.toDouble() && it.toDouble() < endExclusive.toDouble() }
+}
 
 fun <T, R> ValidationBuilder<T>.inRange(range: ClosedRange<R>)
     where R : Comparable<R>,
