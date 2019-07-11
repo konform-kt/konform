@@ -8,7 +8,7 @@ sealed class ValidationResult<T> {
 }
 
 data class Invalid<T>(
-    internal val errors: Map<List<String>, List<String>>) : ValidationResult<T>() {
+    val errors: Map<List<String>, List<String>>) : ValidationResult<T>() {
 
     override fun get(vararg propertyPath: Any): List<String>? =
         errors[propertyPath.map(::toPathSegment)]
