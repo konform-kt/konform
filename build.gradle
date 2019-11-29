@@ -78,13 +78,6 @@ kotlin {
     }
 }
 
-def publishUser = (rootProject.findProperty("BINTRAY_USER") ?: project.findProperty("bintrayUser") ?: System.getenv("BINTRAY_USER"))?.toString()
-def publishPassword = (rootProject.findProperty("BINTRAY_KEY") ?: project.findProperty("bintrayApiKey") ?: System.getenv("BINTRAY_API_KEY") ?: System.getenv("BINTRAY_KEY"))?.toString()
-
-if (publishUser == null || publishPassword == null) {
-    println("Required BINTRAY_USER and BINTRAY_KEY in ~/.gradle/gradle.properties")
-}
-
 publishing {
     publications {
         kotlinMultiplatform {
@@ -118,9 +111,16 @@ publishing {
     }
 }
 
+def publishUser = (rootProject.findProperty("BINTRAY_USER") ?: project.findProperty("bintrayUser") ?: System.getenv("BINTRAY_USER"))?.toString()
+def publishPassword = (rootProject.findProperty("BINTRAY_KEY") ?: project.findProperty("bintrayApiKey") ?: System.getenv("BINTRAY_API_KEY") ?: System.getenv("BINTRAY_KEY"))?.toString()
+
+if (publishUser == null || publishPassword == null) {
+    println("Required BINTRAY_USER and BINTRAY_KEY in ~/.gradle/gradle.properties")
+}
+
 bintray {
-    user = bintrayUser
-    key = bintrayApiKey
+    user = publishUser
+    key = publishPassword
     publications = ['js', 'jvm', 'metadata', 'kotlinMultiplatform']
     publish = false
     pkg {
