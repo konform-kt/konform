@@ -1,11 +1,3 @@
-rootProject.name = 'konform-root'
+rootProject.name = 'konform'
 
-include(
-		'konform-common',
-		'konform',
-		'konform-js'
-)
-
-project(':konform-common').projectDir = file('./common')
-project(':konform').projectDir = file('./jvm')
-project(':konform-js').projectDir = file('./js')
+enableFeaturePreview('GRADLE_METADATA')

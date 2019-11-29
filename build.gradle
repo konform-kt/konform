@@ -6,94 +6,137 @@ buildscript {
     ext.projectHost = 'github'
     ext.projectOrg = 'konform-kt'
     ext.projectLicense = 'MIT'
+    ext.projectLicenseUrl = 'http://opensource.org/licenses/MIT'
     ext.projectDevelNick = 'nlochschmidt'
     ext.projectDevelName = 'Niklas Lochschmidt'
     ext.projectInceptionYear = 2018
-
-    ext.kotlinVersion = '1.2.31'
 
     repositories {
         jcenter()
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
 
-apply plugin: 'kotlin'
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.61'
+}
 
-subprojects {
-    group projectGroup
-    version projectVersion
+repositories {
+    mavenCentral()
+}
 
-    apply plugin: 'idea'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
-    apply from: rootProject.file('pom.gradle')
+group projectGroup
+version projectVersion
 
-    repositories {
-        jcenter()
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+kotlin {
+    jvm()
+    js {
+        browser {
+        }
+        nodejs {
+        }
     }
-
-    afterEvaluate {
-        task sourceJar(type: Jar, dependsOn: classes) {
-            classifier 'sources'
-            from sourceSets.main.kotlin
-            if (project.name == "konform" || project.name == "konform-js") {
-                duplicatesStrategy = "exclude"
-                def platformSrc = sourceSets.main.kotlin
-                def commonSrc = project(':konform-common').sourceSets.main.kotlin
-                from(platformSrc + commonSrc)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation kotlin('test-common')
+                implementation kotlin('test-annotations-common')
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib-jdk8')
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation kotlin('test')
+                implementation kotlin('test-junit')
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation kotlin('stdlib-js')
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin('test-js')
             }
         }
     }
+}
 
-    task emptyJar(type: Jar) {
-        classifier 'javadoc'
-    }
+def publishUser = (rootProject.findProperty("BINTRAY_USER") ?: project.findProperty("bintrayUser") ?: System.getenv("BINTRAY_USER"))?.toString()
+def publishPassword = (rootProject.findProperty("BINTRAY_KEY") ?: project.findProperty("bintrayApiKey") ?: System.getenv("BINTRAY_API_KEY") ?: System.getenv("BINTRAY_KEY"))?.toString()
 
-    publishing {
-        publications {
-            mavenProject(MavenPublication) {
-                from components.java
-                groupId project.group
-                artifactId project.name
-                version project.version
+if (publishUser == null || publishPassword == null) {
+    println("Required BINTRAY_USER and BINTRAY_KEY in ~/.gradle/gradle.properties")
+}
 
-                artifact sourceJar {
-                    classifier 'sources'
+publishing {
+    publications {
+        kotlinMultiplatform {
+            groupId = projectGroup
+            artifactId = projectName
+            version = projectVersion
+
+            pom {
+                name = projectName
+                description = projectDesc
+                url = 'https://github.com/konform-kt/konform'
+                licenses {
+                    license {
+                        name = projectLicense
+                        url = projectLicenseUrl
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = projectDevelNick
+                        name = projectDevelName
+                    }
                 }
 
-                artifact emptyJar {
-                    classifier 'javadoc'
+                scm {
+                    url = "https://github.com/konform-kt/konform.git"
                 }
-
-                withPom(pom)
             }
         }
     }
+}
 
-    bintray {
-        user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-        key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-        publications = ['mavenProject']
-        pkg {
-            repo = projectName
-            name = projectName
-            userOrg = projectOrg
-            licenses = [projectLicense]
-            desc = projectDesc
-            labels = ['kotlin', 'validation']
-            vcsUrl = 'https://github.com/konform-kt/konform.git'
-            websiteUrl = 'https://github.com/konform-kt/konform'
-            issueTrackerUrl = 'https://github.com/konform-kt/konform/issues'
+bintray {
+    user = bintrayUser
+    key = bintrayApiKey
+    publications = ['js', 'jvm', 'metadata', 'kotlinMultiplatform']
+    publish = false
+    pkg {
+        repo = projectName
+        name = projectName
+        userOrg = projectOrg
+        licenses = [projectLicense]
+        desc = projectDesc
+        labels = ['kotlin', 'validation']
+        vcsUrl = 'https://github.com/konform-kt/konform.git'
+        websiteUrl = 'https://github.com/konform-kt/konform'
+        issueTrackerUrl = 'https://github.com/konform-kt/konform/issues'
 
-            githubRepo = 'konform-kt/konform'
-            version {
-                name = project.version
-            }
+        githubRepo = 'konform-kt/konform'
+        version {
+            name = projectVersion
         }
     }
 }
