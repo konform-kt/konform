@@ -66,7 +66,7 @@ since the validation fails the `validationResult` will be of type `Invalid` and 
 
 ```Kotlin
 validationResult[UserProfile::fullName]
-// yields listOf("must be at least 2 characters")
+// yields listOf("must have at least 2 characters")
 
 validationResult[UserProfile::age]
 // yields listOf("must be equal or greater than 0")
