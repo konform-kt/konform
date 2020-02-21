@@ -16,6 +16,9 @@ interface ValidationErrors : List<ValidationErrorMessage>
 
 internal object NoValidationErrors : ValidationErrors, List<ValidationErrorMessage> by emptyList()
 internal class DefaultValidationErrors(private val errors: List<ValidationErrorMessage>) : ValidationErrors, List<ValidationErrorMessage> by errors {
+    override fun toString(): String {
+        return errors.toString()
+    }
 }
 
 sealed class ValidationResult<T> {
@@ -25,26 +28,24 @@ sealed class ValidationResult<T> {
 }
 
 data class Invalid<T>(
-    internal val internalErrors: Map<List<String>, List<String>>) : ValidationResult<T>() {
+    internal val internalErrors: Map<String, List<String>>) : ValidationResult<T>() {
 
     override fun get(vararg propertyPath: Any): List<String>? =
-        internalErrors[propertyPath.map(::toPathSegment)]
+        internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
     override fun <R> map(transform: (T) -> R): ValidationResult<R> = Invalid(this.internalErrors)
 
     private fun toPathSegment(it: Any): String {
         return when (it) {
-            is KProperty1<*, *> -> it.name
-            else -> it.toString()
+            is KProperty1<*, *> -> ".${it.name}"
+            is Int -> "[$it]"
+            else -> ".$it"
         }
     }
 
     override val errors: ValidationErrors by lazy {
         DefaultValidationErrors(
-            internalErrors.flatMap { ( pathSegments, errors ) ->
-                errors.map {
-                    val dataPath = pathSegments.map { (it.toIntOrNull()?.let { "[$it]" }) ?: ".$it" }.joinToString("")
-                    PropertyValidationErrorMessage(dataPath, it)
-                }
+            internalErrors.flatMap { (path, errors ) ->
+                errors.map { PropertyValidationErrorMessage(path, it) }
             }
         )
     }
