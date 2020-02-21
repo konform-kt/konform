@@ -114,7 +114,7 @@ internal class ValidationNode<T>(
 internal fun <R> ValidationResult<R>.mapError(keyTransform: (List<String>) -> List<String>): ValidationResult<R> {
     return when (this) {
         is Valid -> this
-        is Invalid -> Invalid(this.errors.mapKeys { (key, _) ->
+        is Invalid -> Invalid(this.internalErrors.mapKeys { (key, _) ->
             keyTransform(key)
         })
     }
@@ -126,7 +126,7 @@ internal fun <R> ValidationResult<R>.combineWith(other: ValidationResult<R>): Va
         is Invalid -> when (other) {
             is Valid -> this
             is Invalid -> {
-                Invalid((this.errors.toList() + other.errors.toList())
+                Invalid((this.internalErrors.toList() + other.internalErrors.toList())
                     .groupBy({ it.first }, { it.second })
                     .mapValues { (_, values) -> values.flatten() })
             }
