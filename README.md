@@ -164,6 +164,11 @@ result[Event::attendees, 0, Person::age]
 result[Event::ticketPrices, "free"]
 ```
 
+### Other validation libraries written in Kotlin
+
+  - Valikator: https://github.com/valiktor/valiktor
+  - Kalidation: https://github.com/rcapraro/kalidation
+
 ##### Author
 
 [Niklas Lochschmidt](https://twitter.com/niklas_l)
