@@ -10,22 +10,22 @@
 
 ### Installation
 
-Add the konform bintray repository to your build.gradle
+Add the konform bintray repository to your build.gradle.kts
 
 ```groovy
 repositories {
-    maven { url "https://dl.bintray.com/konform-kt/konform" }
+    maven("https://dl.bintray.com/konform-kt/konform")
 }
 ```
 
 Depending on your type of Kotlin project add one of these dependencies:
 
-- JVM:
-`implementation 'io.konform:konform-jvm:0.2.0'`
+- JVM:  
+`implementation("io.konform:konform-jvm:0.2.0")`
 - JS:  
-`implementation 'io.konform:konform-js:0.2.0'`
-- Common:  
-`implementation 'io.konform:konform:0.2.0'`
+`implementation("io.konform:konform-js:0.2.0")`
+- MultiPlatform/commonMain:  
+`implementation("io.konform:konform:0.2.0")`
 
 ### Use
 
