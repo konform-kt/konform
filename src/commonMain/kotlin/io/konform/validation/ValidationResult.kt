@@ -20,6 +20,18 @@ data class Invalid<T>(
             else -> it.toString()
         }
     }
+
+    fun errorsMap(): Map<String, List<String>> {
+        val propertiesSet = HashSet<String>()
+        errors.keys.forEach { key ->
+            propertiesSet.addAll(key)
+        }
+        val resultMap = mutableMapOf<String, List<String>>()
+        propertiesSet.forEach {
+            resultMap[it] = get(it)!!
+        }
+        return resultMap
+    }
 }
 
 data class Valid<T>(val value: T) : ValidationResult<T>() {
