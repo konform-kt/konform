@@ -1,5 +1,5 @@
 buildscript {
-    ext.projectVersion = '0.2.0-SNAPSHOT'
+    ext.projectVersion = '0.2.0'
     ext.projectName = 'konform'
     ext.projectGroup = 'io.konform'
     ext.projectDesc = 'Konform: Portable validations for Kotlin'
