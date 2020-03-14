@@ -72,6 +72,16 @@ validationResult[UserProfile::age]
 // yields listOf("must be at least '0'")
 ```
 
+or you can get all validation errors with details as a list:
+
+```Kotlin
+validationResult.errors
+// yields listOf(
+//     ValidationError(dataPath=.fullName, message=must have at least 2 characters),
+//     ValidationError(dataPath=.age, message=must be at least '0'
+// )
+```
+
 In case the validation went through successfully you get a result of type `Valid` with the validated value in the `value` field.
 
 ```Kotlin
@@ -154,7 +164,7 @@ val validateEvent = Validation<Event> {
 }
 ```
 
-Errors in the `ValidationResult` can be accessed again using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
+Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
 
 ```Kotlin
 // get the error messages for the first attendees age if any

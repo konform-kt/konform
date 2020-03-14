@@ -1,5 +1,7 @@
 package io.konform.validation
 
+import io.konform.validation.jsonschema.maximum
+import io.konform.validation.jsonschema.maxLength
 import io.konform.validation.jsonschema.maxItems
 import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
@@ -10,6 +12,33 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ReadmeExampleTest {
+
+    @Test
+    fun simpleValidation() {
+        data class UserProfile(
+            val fullName: String,
+            val age: Int?
+        )
+
+        val validateUser = Validation<UserProfile> {
+            UserProfile::fullName {
+                minLength(2)
+                maxLength(100)
+            }
+
+            UserProfile::age ifPresent {
+                minimum(0)
+                maximum(150)
+            }
+        }
+
+        val invalidUser = UserProfile("A", -1)
+        val validationResult = validateUser(invalidUser)
+
+        assertEquals(2, validationResult.errors.size)
+        assertEquals("must have at least 2 characters", validationResult.errors.first().message)
+        assertEquals("must be at least '0'", validationResult.errors.last().message)
+    }
 
     @Test
     fun complexValidation() {

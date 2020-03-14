@@ -2,20 +2,20 @@ package io.konform.validation
 
 import kotlin.reflect.KProperty1
 
-interface ValidationErrorMessage {
+interface ValidationError {
     val dataPath: String
     val message: String
 }
 
-internal data class PropertyValidationErrorMessage(
+internal data class PropertyValidationError(
     override val dataPath: String,
     override val message: String
-) : ValidationErrorMessage
+) : ValidationError
 
-interface ValidationErrors : List<ValidationErrorMessage>
+interface ValidationErrors : List<ValidationError>
 
-internal object NoValidationErrors : ValidationErrors, List<ValidationErrorMessage> by emptyList()
-internal class DefaultValidationErrors(private val errors: List<ValidationErrorMessage>) : ValidationErrors, List<ValidationErrorMessage> by errors {
+internal object NoValidationErrors : ValidationErrors, List<ValidationError> by emptyList()
+internal class DefaultValidationErrors(private val errors: List<ValidationError>) : ValidationErrors, List<ValidationError> by errors {
     override fun toString(): String {
         return errors.toString()
     }
@@ -45,7 +45,7 @@ data class Invalid<T>(
     override val errors: ValidationErrors by lazy {
         DefaultValidationErrors(
             internalErrors.flatMap { (path, errors ) ->
-                errors.map { PropertyValidationErrorMessage(path, it) }
+                errors.map { PropertyValidationError(path, it) }
             }
         )
     }
