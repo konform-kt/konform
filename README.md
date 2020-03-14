@@ -7,7 +7,6 @@
   - **✅ Type-safe DSL**
   - **🔗 Multi-platform support** (JVM, JS)
   - **🐥 Zero dependencies**
-  - 🗣 i18n-support (*coming soon*)
 
 ### Installation
 
@@ -21,12 +20,12 @@ repositories {
 
 Depending on your type of Kotlin project add one of these dependencies:
 
-- JVM:   
-`implementation 'io.konform:konform:0.1.0'`
+- JVM:
+`implementation 'io.konform:konform-jvm:0.2.0'`
 - JS:  
-`implementation 'io.konform:konform-js:0.1.0'`
+`implementation 'io.konform:konform-js:0.2.0'`
 - Common:  
-`implementation 'io.konform:konform-common:0.1.0'`
+`implementation 'io.konform:konform:0.2.0'`
 
 ### Use
 
