@@ -10,7 +10,11 @@ interface ValidationError {
 internal data class PropertyValidationError(
     override val dataPath: String,
     override val message: String
-) : ValidationError
+) : ValidationError {
+    override fun toString(): String {
+        return "ValidationError(dataPath=$dataPath, message=$message)"
+    }
+}
 
 interface ValidationErrors : List<ValidationError>
 
@@ -48,6 +52,10 @@ data class Invalid<T>(
                 errors.map { PropertyValidationError(path, it) }
             }
         )
+    }
+
+    override fun toString(): String {
+        return "Invalid(errors=${errors})"
     }
 }
 
