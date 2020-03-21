@@ -177,6 +177,10 @@ result[Event::ticketPrices, "free"]
 
   - Valikator: https://github.com/valiktor/valiktor
   - Kalidation: https://github.com/rcapraro/kalidation
+  
+### Integration with testing libraries
+
+  - Kotest provides various matchers for use with Konform. They can be used in your tests to assert that a given object is validated successfully or fails validation with specific error messages. See usage documentation [here](https://github.com/kotest/kotest/blob/master/doc/konform.md).
 
 ##### Author
 
