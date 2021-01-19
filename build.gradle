@@ -78,33 +78,47 @@ kotlin {
     }
 }
 
-publishing {
-    publications {
-        kotlinMultiplatform {
-            groupId = projectGroup
-            artifactId = projectName
-            version = projectVersion
+task emptyJar(type: Jar) {
+}
 
-            pom {
-                name = projectName
-                description = projectDesc
-                url = 'https://github.com/konform-kt/konform'
-                licenses {
-                    license {
-                        name = projectLicense
-                        url = projectLicenseUrl
-                        distribution = 'repo'
+afterEvaluate {
+    publishing {
+        publications {
+            all {
+                if (name == 'kotlinMultiplatform') {
+                    artifact(emptyJar)
+                    artifact(emptyJar) {
+                        classifier 'sources'
+                    }
+                    artifact(emptyJar) {
+                        classifier 'javadoc'
+                    }
+                } else {
+                    artifact(emptyJar) {
+                        classifier 'javadoc'
                     }
                 }
-                developers {
-                    developer {
-                        id = projectDevelNick
-                        name = projectDevelName
+                pom {
+                    name = projectName
+                    description = projectDesc
+                    url = 'https://github.com/konform-kt/konform'
+                    licenses {
+                        license {
+                            name = projectLicense
+                            url = projectLicenseUrl
+                            distribution = 'repo'
+                        }
                     }
-                }
+                    developers {
+                        developer {
+                            id = projectDevelNick
+                            name = projectDevelName
+                        }
+                    }
 
-                scm {
-                    url = "https://github.com/konform-kt/konform.git"
+                    scm {
+                        url = "https://github.com/konform-kt/konform.git"
+                    }
                 }
             }
         }
