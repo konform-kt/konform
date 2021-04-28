@@ -1,5 +1,5 @@
 buildscript {
-    ext.projectVersion = '0.3.0-RC1'
+    ext.projectVersion = '0.3.0-RC2'
     ext.projectName = 'konform'
     ext.projectGroup = 'io.konform'
     ext.projectDesc = 'Konform: Portable validations for Kotlin'
@@ -19,6 +19,8 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.multiplatform' version '1.4.32'
     id 'maven-publish'
+    id 'signing'
+    id('io.github.gradle-nexus.publish-plugin') version '1.1.0'
 }
 
 repositories {
@@ -27,8 +29,6 @@ repositories {
 
 group projectGroup
 version projectVersion
-
-apply plugin: 'maven-publish'
 
 kotlin {
     jvm()
@@ -80,7 +80,6 @@ afterEvaluate {
         publications.all {
             if (name == 'kotlinMultiplatform') {
                 artifact(stubJavadoc)
-                artifact(stubSources)
             } else {
                 artifact(stubJavadoc)
             }
@@ -111,17 +110,13 @@ afterEvaluate {
     }
 }
 
-publishing {
+signing {
+    useGpgCmd()
+    sign publishing.publications
+}
+
+nexusPublishing {
     repositories {
-        maven {
-            def user = 'konform-kt'
-            def repo = 'konform'
-            def name = 'konform'
-            url = "https://api.bintray.com/maven/$user/$repo/$name/;publish=0"
-            credentials {
-                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-            }
-        }
+        sonatype()
     }
 }
