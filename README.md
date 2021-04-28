@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/konform-kt/konform.svg?branch=master)](https://travis-ci.org/konform-kt/konform)
-[![Bintray](https://api.bintray.com/packages/konform-kt/konform/konform/images/download.svg) ](https://bintray.com/konform-kt/konform/konform/_latestVersion)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
@@ -10,22 +9,27 @@
 
 ### Installation
 
-Add the konform bintray repository to your build.gradle.kts
+For multiplatform projects:
 
-```groovy
-repositories {
-    maven("https://dl.bintray.com/konform-kt/konform")
+```
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("io.konform:konform:0.3.0")
+            }
+        }
+    }
 }
 ```
 
-Depending on your type of Kotlin project add one of these dependencies:
+For jvm-only projects add:
 
-- JVM:  
-`implementation("io.konform:konform-jvm:0.2.0")`
-- JS:  
-`implementation("io.konform:konform-js:0.2.0")`
-- MultiPlatform/commonMain:  
-`implementation("io.konform:konform:0.2.0")`
+```
+dependencies {
+    implementation("io.konform:konform:0.3.0")
+}
+```
 
 ### Use
 

@@ -1,5 +1,5 @@
 buildscript {
-    ext.projectVersion = '0.2.0'
+    ext.projectVersion = '0.3.0'
     ext.projectName = 'konform'
     ext.projectGroup = 'io.konform'
     ext.projectDesc = 'Konform: Portable validations for Kotlin'
@@ -14,14 +14,13 @@ buildscript {
     repositories {
         jcenter()
     }
-
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-    }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.70'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.4.32'
+    id 'maven-publish'
+    id 'signing'
+    id('io.github.gradle-nexus.publish-plugin') version '1.1.0'
 }
 
 repositories {
@@ -31,45 +30,35 @@ repositories {
 group projectGroup
 version projectVersion
 
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-
 kotlin {
     jvm()
-    js {
+    js(BOTH) {
         browser {
+            testTask {
+                useKarma {
+                    usePhantomJS()
+                }
+            }
         }
         nodejs {
         }
     }
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation kotlin('stdlib-common')
-            }
-        }
+        commonMain {}
         commonTest {
             dependencies {
                 implementation kotlin('test-common')
                 implementation kotlin('test-annotations-common')
             }
         }
-        jvmMain {
-            dependencies {
-                implementation kotlin('stdlib-jdk8')
-            }
-        }
+        jvmMain {}
         jvmTest {
             dependencies {
                 implementation kotlin('test')
                 implementation kotlin('test-junit')
             }
         }
-        jsMain {
-            dependencies {
-                implementation kotlin('stdlib-js')
-            }
-        }
+        jsMain {}
         jsTest {
             dependencies {
                 implementation kotlin('test-js')
@@ -78,13 +67,23 @@ kotlin {
     }
 }
 
-publishing {
-    publications {
-        kotlinMultiplatform {
-            groupId = projectGroup
-            artifactId = projectName
-            version = projectVersion
+task stubSources(type: Jar) {
+    classifier 'sources'
+}
 
+task stubJavadoc(type: Jar) {
+    classifier 'javadoc'
+}
+
+afterEvaluate {
+    publishing {
+        publications.all {
+            if (name == 'kotlinMultiplatform') {
+                artifact(stubJavadoc)
+            } else {
+                artifact(stubJavadoc)
+            }
+            logger.info("Artifact id = ${it.artifactId}")
             pom {
                 name = projectName
                 description = projectDesc
@@ -111,32 +110,13 @@ publishing {
     }
 }
 
-def publishUser = (rootProject.findProperty("BINTRAY_USER") ?: project.findProperty("bintrayUser") ?: System.getenv("BINTRAY_USER"))?.toString()
-def publishPassword = (rootProject.findProperty("BINTRAY_KEY") ?: project.findProperty("bintrayApiKey") ?: System.getenv("BINTRAY_API_KEY") ?: System.getenv("BINTRAY_KEY"))?.toString()
-
-if (publishUser == null || publishPassword == null) {
-    println("Required BINTRAY_USER and BINTRAY_KEY in ~/.gradle/gradle.properties")
+signing {
+    useGpgCmd()
+    sign publishing.publications
 }
 
-bintray {
-    user = publishUser
-    key = publishPassword
-    publications = ['js', 'jvm', 'metadata', 'kotlinMultiplatform']
-    publish = false
-    pkg {
-        repo = projectName
-        name = projectName
-        userOrg = projectOrg
-        licenses = [projectLicense]
-        desc = projectDesc
-        labels = ['kotlin', 'validation']
-        vcsUrl = 'https://github.com/konform-kt/konform.git'
-        websiteUrl = 'https://github.com/konform-kt/konform'
-        issueTrackerUrl = 'https://github.com/konform-kt/konform/issues'
-
-        githubRepo = 'konform-kt/konform'
-        version {
-            name = projectVersion
-        }
+nexusPublishing {
+    repositories {
+        sonatype()
     }
 }
