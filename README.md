@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/konform-kt/konform.svg?branch=master)](https://travis-ci.org/konform-kt/konform)
-[![Bintray](https://api.bintray.com/packages/konform-kt/konform/konform/images/download.svg) ](https://bintray.com/konform-kt/konform/konform/_latestVersion)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
@@ -17,7 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("io.konform:konform:0.3.0-RC1")
+                implementation("io.konform:konform:0.3.0")
             }
         }
     }
@@ -28,7 +27,7 @@ For jvm-only projects add:
 
 ```
 dependencies {
-    implementation("io.konform:konform-jvm:0.3.0-RC1")
+    implementation("io.konform:konform:0.3.0")
 }
 ```
 
