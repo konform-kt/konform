@@ -17,7 +17,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.4.21'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.4.32'
     id 'maven-publish'
 }
 
@@ -32,9 +32,17 @@ apply plugin: 'maven-publish'
 
 kotlin {
     jvm()
-    js {
+    js(BOTH) {
         browser {
-        }
+            testTask {
+                useKarma {
+                    // I cannot get chrome headless to work with karma on any gradle project on a mac
+                    // It just times out trying to start chrome (which I have installed). Security thing probably
+                    // phantomJS works fine.
+                    // useChromeHeadless()
+                    usePhantomJS()
+                }
+            }        }
         nodejs {
         }
     }
