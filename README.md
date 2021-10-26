@@ -27,7 +27,7 @@ For jvm-only projects add:
 
 ```
 dependencies {
-    implementation("io.konform:konform:0.3.0")
+    implementation("io.konform:konform-jvm:0.3.0")
 }
 ```
 
