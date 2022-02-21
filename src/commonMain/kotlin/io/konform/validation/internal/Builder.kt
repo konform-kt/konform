@@ -1,10 +1,11 @@
 package io.konform.validation.internal
 
 import io.konform.validation.Constraint
-import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationBuilder
-import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.*
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.NonNull
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
 import kotlin.collections.Map.Entry
 import kotlin.reflect.KProperty1
 
@@ -34,14 +35,15 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         }
 
         private data class IterablePropKey<T, R>(
-            val property: KProperty1<T, Iterable<R>>,
+            val property: KProperty1<T, Iterable<R>?>,
             val modifier: PropModifier
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
                 val validations = (builder as ValidationBuilderImpl<R>).build()
+                @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, IterableValidation(validations))
+                    NonNull -> NonNullPropertyValidation(property as KProperty1<T, Iterable<R>>, IterableValidation(validations))
                     Optional -> OptionalPropertyValidation(property, IterableValidation(validations))
                     OptionalRequired -> RequiredPropertyValidation(property, IterableValidation(validations))
                 }
@@ -49,14 +51,15 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         }
 
         private data class ArrayPropKey<T, R>(
-            val property: KProperty1<T, Array<R>>,
+            val property: KProperty1<T, Array<R>?>,
             val modifier: PropModifier
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
                 val validations = (builder as ValidationBuilderImpl<R>).build()
+                @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, ArrayValidation(validations))
+                    NonNull -> NonNullPropertyValidation(property as KProperty1<T, Array<R>>, ArrayValidation(validations))
                     Optional -> OptionalPropertyValidation(property, ArrayValidation(validations))
                     OptionalRequired -> RequiredPropertyValidation(property, ArrayValidation(validations))
                 }
@@ -98,7 +101,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
     }
 
-    private fun <R> KProperty1<T, Iterable<R>>.getOrCreateIterablePropertyBuilder(modifier: PropModifier): ValidationBuilder<R> {
+    private fun <R> KProperty1<T, Iterable<R>?>.getOrCreateIterablePropertyBuilder(modifier: PropModifier): ValidationBuilder<R> {
         val key = IterablePropKey(this, modifier)
         @Suppress("UNCHECKED_CAST")
         return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
@@ -117,8 +120,16 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         prop.getOrCreateIterablePropertyBuilder(NonNull).also(init)
     }
 
+    override fun <R> onEachIterableIfPresent(prop: KProperty1<T, Iterable<R>?>, init: ValidationBuilder<R>.() -> Unit) {
+        prop.getOrCreateIterablePropertyBuilder(Optional).also(init)
+    }
+
     override fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit) {
         ArrayPropKey(prop, NonNull).getOrCreateBuilder<R>().also(init)
+    }
+
+    override fun <R> onEachArrayIfPresent(prop: KProperty1<T, Array<R>?>, init: ValidationBuilder<R>.() -> Unit) {
+        ArrayPropKey(prop, Optional).getOrCreateBuilder<R>().also(init)
     }
 
     override fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Entry<K, V>>.() -> Unit) {

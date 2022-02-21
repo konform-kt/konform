@@ -166,6 +166,32 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateNullableLists() {
+
+        data class Data(val registrations: List<Register>?)
+
+        val listValidation = Validation<Data> {
+            Data::registrations onEach {
+                Register::email {
+                    minLength(3)
+                }
+            }
+        }
+
+        Data(null).let { assertEquals(Valid(it), listValidation(it)) }
+        Data(emptyList()).let { assertEquals(Valid(it), listValidation(it)) }
+        Data(registrations = listOf(Register(email = "valid"), Register(email = "a")))
+            .let {
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
+            }
+        Data(registrations = listOf(Register(email = "a"), Register(email = "ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(listValidation(it)))
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
+            }
+    }
+
+    @Test
     fun validateArrays() {
 
         data class Data(val registrations: Array<Register> = emptyArray())
@@ -179,6 +205,32 @@ class ValidationBuilderTest {
         }
 
         Data().let { assertEquals(Valid(it), arrayValidation(it)) }
+        Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
+            .let {
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+        Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(arrayValidation(it)))
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+    }
+
+    @Test
+    fun validateNullableArrays() {
+
+        data class Data(val registrations: Array<Register>?)
+
+        val arrayValidation = Validation<Data> {
+            Data::registrations onEach {
+                Register::email {
+                    minLength(3)
+                }
+            }
+        }
+
+        Data(null).let { assertEquals(Valid(it), arrayValidation(it)) }
+        Data(emptyArray()).let { assertEquals(Valid(it), arrayValidation(it)) }
         Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
             .let {
                 assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
