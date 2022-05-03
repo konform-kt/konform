@@ -237,9 +237,7 @@ class ValidationBuilderTest {
         }
 
         Data(null).let { assertEquals(Valid(it), arrayValidation(it)) }
-
         Data(emptyArray()).let { assertEquals(1, countErrors(arrayValidation(it), Data::registrations)) }
-
         Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
             .let {
                 assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))

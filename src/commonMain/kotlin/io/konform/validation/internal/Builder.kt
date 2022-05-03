@@ -36,7 +36,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         }
 
         private data class IterablePropKey<T, R>(
-            val property: KProperty1<T, Iterable<R>?>,
+            val property: KProperty1<T, Iterable<R>>,
             val modifier: PropModifier
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
@@ -44,7 +44,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
                 val validations = (builder as ValidationBuilderImpl<R>).build()
                 @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property as KProperty1<T, Iterable<R>>, IterableValidation(validations))
+                    NonNull -> NonNullPropertyValidation(property, IterableValidation(validations))
                     Optional -> OptionalPropertyValidation(property, IterableValidation(validations))
                     OptionalRequired -> RequiredPropertyValidation(property, IterableValidation(validations))
                 }
@@ -52,7 +52,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         }
 
         private data class ArrayPropKey<T, R>(
-            val property: KProperty1<T, Array<R>?>,
+            val property: KProperty1<T, Array<R>>,
             val modifier: PropModifier
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
@@ -60,7 +60,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
                 val validations = (builder as ValidationBuilderImpl<R>).build()
                 @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property as KProperty1<T, Array<R>>, ArrayValidation(validations))
+                    NonNull -> NonNullPropertyValidation(property, ArrayValidation(validations))
                     Optional -> OptionalPropertyValidation(property, ArrayValidation(validations))
                     OptionalRequired -> RequiredPropertyValidation(property, ArrayValidation(validations))
                 }
@@ -102,7 +102,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
     }
 
-    private fun <R> KProperty1<T, Iterable<R>?>.getOrCreateIterablePropertyBuilder(modifier: PropModifier): ValidationBuilder<R> {
+    private fun <R> KProperty1<T, Iterable<R>>.getOrCreateIterablePropertyBuilder(modifier: PropModifier): ValidationBuilder<R> {
         val key = IterablePropKey(this, modifier)
         @Suppress("UNCHECKED_CAST")
         return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
