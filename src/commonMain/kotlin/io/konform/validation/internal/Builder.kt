@@ -7,6 +7,7 @@ import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifi
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
 import kotlin.collections.Map.Entry
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
@@ -120,16 +121,8 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         prop.getOrCreateIterablePropertyBuilder(NonNull).also(init)
     }
 
-    override fun <R> onEachIterableIfPresent(prop: KProperty1<T, Iterable<R>?>, init: ValidationBuilder<R>.() -> Unit) {
-        prop.getOrCreateIterablePropertyBuilder(Optional).also(init)
-    }
-
     override fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit) {
         ArrayPropKey(prop, NonNull).getOrCreateBuilder<R>().also(init)
-    }
-
-    override fun <R> onEachArrayIfPresent(prop: KProperty1<T, Array<R>?>, init: ValidationBuilder<R>.() -> Unit) {
-        ArrayPropKey(prop, Optional).getOrCreateBuilder<R>().also(init)
     }
 
     override fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Entry<K, V>>.() -> Unit) {
