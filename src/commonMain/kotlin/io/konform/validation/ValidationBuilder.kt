@@ -3,6 +3,10 @@ package io.konform.validation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KProperty1
 
+@DslMarker
+private annotation class ValidationScope
+
+@ValidationScope
 abstract class ValidationBuilder<T> {
     abstract fun build(): Validation<T>
     abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T>
