@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/konform-kt/konform.svg?branch=master)](https://travis-ci.org/konform-kt/konform)
+[![Test](https://github.com/konform-kt/konform/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
