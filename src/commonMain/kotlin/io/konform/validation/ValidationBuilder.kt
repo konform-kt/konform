@@ -1,5 +1,9 @@
 package io.konform.validation
 
+import io.konform.validation.internal.ArrayValidation
+import io.konform.validation.internal.IterableValidation
+import io.konform.validation.internal.MapValidation
+import io.konform.validation.internal.ValidationBuilderImpl
 import kotlin.jvm.JvmName
 import kotlin.reflect.KProperty1
 
@@ -25,4 +29,28 @@ abstract class ValidationBuilder<T> {
     abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit)
     abstract fun run(validation: Validation<T>)
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+}
+
+@JvmName("onEachIterable")
+fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
+    val builder = ValidationBuilderImpl<S>()
+    init(builder)
+    @Suppress("UNCHECKED_CAST")
+    run(IterableValidation(builder.build()) as Validation<T>)
+}
+
+@JvmName("onEachArray")
+fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() -> Unit) {
+    val builder = ValidationBuilderImpl<T>()
+    init(builder)
+    @Suppress("UNCHECKED_CAST")
+    run(ArrayValidation(builder.build()) as Validation<Array<T>>)
+}
+
+@JvmName("onEachMap")
+fun <K, V, T : Map<K, V>> ValidationBuilder<T>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) {
+    val builder = ValidationBuilderImpl<Map.Entry<K, V>>()
+    init(builder)
+    @Suppress("UNCHECKED_CAST")
+    run(MapValidation(builder.build()) as Validation<T>)
 }

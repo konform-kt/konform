@@ -1,5 +1,6 @@
 package io.konform.validation
 
+import io.konform.validation.jsonschema.minItems
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -166,6 +167,35 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateNullableLists() {
+
+        data class Data(val registrations: List<Register>?)
+
+        val listValidation = Validation<Data> {
+            Data::registrations ifPresent {
+                minItems(1)
+                onEach {
+                    Register::email {
+                        minLength(3)
+                    }
+                }
+            }
+        }
+
+        Data(null).let { assertEquals(Valid(it), listValidation(it)) }
+        Data(emptyList()).let { assertEquals(1, countErrors(listValidation(it), Data::registrations)) }
+        Data(registrations = listOf(Register(email = "valid"), Register(email = "a")))
+            .let {
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
+            }
+        Data(registrations = listOf(Register(email = "a"), Register(email = "ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(listValidation(it)))
+                assertEquals(1, countErrors(listValidation(it), Data::registrations, 1, Register::email))
+            }
+    }
+
+    @Test
     fun validateArrays() {
 
         data class Data(val registrations: Array<Register> = emptyArray())
@@ -179,6 +209,35 @@ class ValidationBuilderTest {
         }
 
         Data().let { assertEquals(Valid(it), arrayValidation(it)) }
+        Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
+            .let {
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+        Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab")))
+            .let {
+                assertEquals(2, countFieldsWithErrors(arrayValidation(it)))
+                assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
+            }
+    }
+
+    @Test
+    fun validateNullableArrays() {
+
+        data class Data(val registrations: Array<Register>?)
+
+        val arrayValidation = Validation<Data> {
+            Data::registrations ifPresent {
+                minItems(1)
+                onEach {
+                    Register::email {
+                        minLength(3)
+                    }
+                }
+            }
+        }
+
+        Data(null).let { assertEquals(Valid(it), arrayValidation(it)) }
+        Data(emptyArray()).let { assertEquals(1, countErrors(arrayValidation(it), Data::registrations)) }
         Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a")))
             .let {
                 assertEquals(1, countErrors(arrayValidation(it), Data::registrations, 1, Register::email))
@@ -206,6 +265,35 @@ class ValidationBuilderTest {
         }
 
         Data().let { assertEquals(Valid(it), mapValidation(it)) }
+        Data(registrations = mapOf(
+            "user1" to Register(email = "valid"),
+            "user2" to Register(email = "a")))
+            .let {
+                assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
+                assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
+            }
+    }
+
+    @Test
+    fun validateNullableHashMaps() {
+
+        data class Data(val registrations: Map<String, Register>? = null)
+
+        val mapValidation = Validation<Data> {
+            Data::registrations ifPresent  {
+                onEach {
+                    Map.Entry<String, Register>::value {
+                        Register::email {
+                            minLength(2)
+                        }
+                    }
+                }
+            }
+        }
+
+
+        Data(null).let { assertEquals(Valid(it), mapValidation(it)) }
+        Data(emptyMap()).let { assertEquals(Valid(it), mapValidation(it)) }
         Data(registrations = mapOf(
             "user1" to Register(email = "valid"),
             "user2" to Register(email = "a")))

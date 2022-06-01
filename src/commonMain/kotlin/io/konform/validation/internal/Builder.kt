@@ -1,11 +1,13 @@
 package io.konform.validation.internal
 
 import io.konform.validation.Constraint
-import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationBuilder
-import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.*
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.NonNull
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
+import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
 import kotlin.collections.Map.Entry
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
@@ -40,6 +42,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
                 val validations = (builder as ValidationBuilderImpl<R>).build()
+                @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
                     NonNull -> NonNullPropertyValidation(property, IterableValidation(validations))
                     Optional -> OptionalPropertyValidation(property, IterableValidation(validations))
@@ -55,6 +58,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
                 val validations = (builder as ValidationBuilderImpl<R>).build()
+                @Suppress("UNCHECKED_CAST")
                 return when (modifier) {
                     NonNull -> NonNullPropertyValidation(property, ArrayValidation(validations))
                     Optional -> OptionalPropertyValidation(property, ArrayValidation(validations))
