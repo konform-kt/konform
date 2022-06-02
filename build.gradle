@@ -50,7 +50,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                compileOnly kotlin('stdlib')
+                api kotlin('stdlib')
             }
         }
         commonTest {
@@ -59,9 +59,6 @@ kotlin {
             }
         }
         jvmMain {
-            dependencies {
-                compileOnly kotlin('stdlib-jdk8')
-            }
         }
         jvmTest {}
         jsMain {}
