@@ -258,7 +258,7 @@ class JSONSchemaStyleConstraintsTest {
     }
 
     @Test
-    fun uuid() {
+    fun uuidConstraint() {
         val validation = Validation<String> { uuid() }
 
         assertEquals(Valid("ae40fe0d-05cb-4796-be1f-a1798fec52cf"), validation("ae40fe0d-05cb-4796-be1f-a1798fec52cf"))
