@@ -21,11 +21,11 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 group projectGroup
 version projectVersion
-
 
 kotlin {
     sourceSets.all {
@@ -51,6 +51,7 @@ kotlin {
         commonMain {
             dependencies {
                 compileOnly kotlin('stdlib')
+                implementation("com.github.quickbirdstudios.NonEmptyCollections:NonEmptyCollections:1.1.0")
             }
         }
         commonTest {

@@ -1,43 +1,47 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.pattern
+import io.konform.validation.checks.maxLength
+import io.konform.validation.checks.minLength
+import io.konform.validation.checks.pattern
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ValidationResultTest {
+    private data class ValidationError(val message: String)
 
     @Test
     fun singleValidation() {
-        val validation = Validation<Person> {
+        val personValidator = Validation<Person, ValidationError> {
             Person::name {
-                minLength(1)
+                minLength(1) { ValidationError("must have at least 1 characters") }
             }
 
             Person::addresses onEach {
                 Address::city {
                     City::postalCode {
-                        minLength(4)
-                        maxLength(5)
-                        pattern("\\d{4,5}") hint ("must be a four or five digit number")
+                        minLength(4) { ValidationError("must have at least 4 characters") }
+                        maxLength(5) { ValidationError("must have at least 5 characters") }
+                        pattern("\\d{4,5}") { ValidationError("must be a four or five digit number") }
                     }
                 }
             }
         }
 
-        val result = validation(Person("", addresses = listOf(Address(City("", "")))))
-        assertEquals(3, result.errors.size)
-        val (firstError, secondError, thirdError) = result.errors
+        val result = personValidator.validate(Person("", addresses = listOf(Address(City("", "")))))
 
-        assertEquals(".name", firstError.dataPath)
-        assertEquals("must have at least 1 characters", firstError.message)
+        if (result is Invalid<*>) {
+            assertEquals(3, result.errors.size)
+            val (firstError, secondError, thirdError) = result.errors
 
-        assertEquals(".addresses[0].city.postalCode", secondError.dataPath)
-        assertEquals("must have at least 4 characters", secondError.message)
+            assertEquals(".name", firstError.path.toString())
+            assertEquals("must have at least 1 characters", (firstError.error as ValidationError).message)
 
-        assertEquals(".addresses[0].city.postalCode", thirdError.dataPath)
-        assertEquals("must be a four or five digit number", thirdError.message)
+            assertEquals(".addresses[0].city.postalCode", secondError.path.toString())
+            assertEquals("must have at least 4 characters", (secondError.error as ValidationError).message)
+
+            assertEquals(".addresses[0].city.postalCode", thirdError.path.toString())
+            assertEquals("must be a four or five digit number", (thirdError.error as ValidationError).message)
+        }
     }
 
     private data class Person(val name: String, val addresses: List<Address>)

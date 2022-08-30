@@ -1,19 +1,40 @@
 package io.konform.validation
 
-import io.konform.validation.internal.ValidationBuilderImpl
+import com.quickbirdstudios.nonEmptyCollection.list.NonEmptyList
+import com.quickbirdstudios.nonEmptyCollection.unsafe.UnsafeNonEmptyCollectionApi
+import com.quickbirdstudios.nonEmptyCollection.unsafe.toNonEmptyList
 
-interface Validation<T> {
-
-    companion object {
-        operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
-            val builder = ValidationBuilderImpl<T>()
-            return builder.apply(init).build()
-        }
+sealed class Properties {
+    object Any : Properties()
+    class Some(vararg properties: Path) : Properties() {
+        val paths = properties.toList()
     }
-
-    fun validate(value: T): ValidationResult<T>
-    operator fun invoke(value: T) = validate(value)
 }
 
+infix fun Properties.contains(path: Path) = when (this) {
+    Properties.Any -> true
+    is Properties.Some -> this.paths.contains(path)
+}
 
-class Constraint<R> internal constructor(val hint: String, val templateValues: List<String>, val test: (R) -> Boolean)
+data class ErrorWithPath<E>(val path: Path, val error: E)
+
+class Validation<T, E>(val block: Builder<T, E>.() -> Unit) {
+    @OptIn(UnsafeNonEmptyCollectionApi::class)
+    fun validate(
+        value: T,
+        properties: Properties = Properties.Any
+    ): Validated<T, NonEmptyList<ErrorWithPath<E>>> {
+        val errors = mutableListOf<ErrorWithPath<E>>()
+
+        try {
+            ValidationBuilder(errors, Path(emptyList()), value, properties).block()
+        } catch (_: StopValidation) {
+        }
+
+        return when (errors.isEmpty()) {
+            true -> Valid(value)
+            false -> Invalid(errors.toNonEmptyList())
+        }
+    }
+}
+
