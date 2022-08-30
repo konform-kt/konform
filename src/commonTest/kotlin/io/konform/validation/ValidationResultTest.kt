@@ -1,27 +1,27 @@
 package io.konform.validation
 
-import io.konform.validation.checks.maxLength
-import io.konform.validation.checks.minLength
+import io.konform.validation.errors.maxLength
+import io.konform.validation.errors.minLength
 import io.konform.validation.checks.pattern
+import io.konform.validation.errors.ValidationError
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ValidationResultTest {
-    private data class ValidationError(val message: String)
-
+    class PostalCodeValidationError(override val message: String) : ValidationError
     @Test
     fun singleValidation() {
         val personValidator = Validation<Person, ValidationError> {
             Person::name {
-                minLength(1) { ValidationError("must have at least 1 characters") }
+                minLength(1)
             }
 
             Person::addresses onEach {
                 Address::city {
                     City::postalCode {
-                        minLength(4) { ValidationError("must have at least 4 characters") }
-                        maxLength(5) { ValidationError("must have at least 5 characters") }
-                        pattern("\\d{4,5}") { ValidationError("must be a four or five digit number") }
+                        minLength(4)
+                        maxLength(5)
+                        pattern("\\d{4,5}") { PostalCodeValidationError("must be a four or five digit number") }
                     }
                 }
             }
