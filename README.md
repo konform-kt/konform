@@ -107,8 +107,6 @@ val validateUser = Validation<UserProfile, ValidationError> {
 It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
 
 ```Kotlin
-data class Error(override val message: String) : ValidationError
-
 data class Person(val name: String, val email: String?, val age: Int)
 
 data class Event(
@@ -121,7 +119,7 @@ val validateEvent = Validation<Event, ValidationError> {
     Event::organizer {
         // even though the email is nullable you can force it to be set in the validation
         require(Person::email) {
-            pattern(".+@bigcorp.com") { ValidationError("Organizers must have a BigCorp email address") }
+            pattern(".+@bigcorp.com") { Error("Organizers must have a BigCorp email address") }
         }
     }
 

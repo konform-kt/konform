@@ -9,6 +9,7 @@ import io.konform.validation.errors.ValidationError
 import io.konform.validation.errors.maxLength
 import io.konform.validation.errors.minLength
 import io.konform.validation.errors.require
+import io.konform.validation.errors.Error
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +47,6 @@ class ReadmeExampleTest {
 
     @Test
     fun complexValidation() {
-        data class Error(override val message: String) : ValidationError
         data class Person(val name: String, val email: String?, val age: Int)
 
         data class Event(
