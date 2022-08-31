@@ -20,7 +20,7 @@ data class ErrorWithPath<E>(val path: Path, val error: E)
 
 class Validation<T, E>(val block: Builder<T, E>.() -> Unit) {
     @OptIn(UnsafeNonEmptyCollectionApi::class)
-    fun validate(
+    operator fun invoke(
         value: T,
         properties: Properties = Properties.Any
     ): Validated<T, NonEmptyList<ErrorWithPath<E>>> {

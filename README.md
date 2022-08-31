@@ -45,7 +45,7 @@ data class UserProfile(
 Using the Konform type-safe DSL you can quickly write up a validation
 
 ```Kotlin
-val userValidation = Validation<UserProfile, ValidationError> {
+val validateUser = Validation<UserProfile, ValidationError> {
     UserProfile::fullName {
         minLength(2)
         maxLength(100)
@@ -62,7 +62,7 @@ and apply it to your data
 
 ```Kotlin
 val invalidUser = UserProfile("A", -1)
-val validationResult = userValidation.validate(invalidUser)
+val validationResult = validateUser(invalidUser)
 ```
 
 since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors:
@@ -79,7 +79,7 @@ In case the validation went through successfully you get a result of type `Valid
 
 ```Kotlin
 val validUser = UserProfile("Alice", 25)
-val validationResult = userValidation.validate(validUser)
+val validationResult = userValidation(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 

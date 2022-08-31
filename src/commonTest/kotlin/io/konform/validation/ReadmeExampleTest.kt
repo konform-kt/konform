@@ -37,7 +37,7 @@ class ReadmeExampleTest {
         }
 
         val invalidUser = UserProfile("A", -1)
-        val validationResult = validateUser.validate(invalidUser)
+        val validationResult = validateUser(invalidUser)
 
         assertTrue(validationResult is Invalid<*>)
         assertEquals(2, validationResult.errors.size)
@@ -109,7 +109,7 @@ class ReadmeExampleTest {
             )
         )
 
-        assertEquals(Valid(validEvent), validateEvent.validate(validEvent))
+        assertEquals(Valid(validEvent), validateEvent(validEvent))
 
 
         val invalidEvent = Event(
@@ -122,7 +122,7 @@ class ReadmeExampleTest {
             )
         )
 
-        val result = validateEvent.validate(invalidEvent)
+        val result = validateEvent(invalidEvent)
         assertTrue(result is Invalid<*>)
         assertEquals(3, result.errors.size)
 //        assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age]!![0])
