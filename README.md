@@ -89,7 +89,7 @@ You can define validations for nested classes and use them for new validations
 
 ```Kotlin
 val ageCheck = Validation<UserProfile, ValidationError> {
-    UserProfile::age required {
+    require(UserProfile::age) {
         minimum(18)
     }
 }
@@ -120,7 +120,7 @@ data class Event(
 val validateEvent = Validation<Event, ValidationError> {
     Event::organizer {
         // even though the email is nullable you can force it to be set in the validation
-        Person::email.required({Error("email is required")}) {
+        require(Person::email) {
             pattern(".+@bigcorp.com") { ValidationError("Organizers must have a BigCorp email address") }
         }
     }

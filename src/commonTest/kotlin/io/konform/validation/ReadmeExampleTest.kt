@@ -8,6 +8,7 @@ import io.konform.validation.errors.minimum
 import io.konform.validation.errors.ValidationError
 import io.konform.validation.errors.maxLength
 import io.konform.validation.errors.minLength
+import io.konform.validation.errors.require
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,7 +58,7 @@ class ReadmeExampleTest {
         val validateEvent = Validation<Event, ValidationError> {
             Event::organizer {
                 // even though the email is nullable you can force it to be set in the validation
-                Person::email.required({Error("email is required")}) {
+                require(Person::email) {
                     pattern("\\w+@bigcorp.com") { Error("Organizers must have a BigCorp email address") }
                 }
             }
