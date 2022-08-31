@@ -107,7 +107,7 @@ val validateUser = Validation<UserProfile, ValidationError> {
 It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
 
 ```Kotlin
-data class Person(val name: String, val email: String?, val age: Int)
+data class Person(val name: String, val email: String?, val age: Int, val parent: Person? = null)
 
 data class Event(
     val organizer: Person,
@@ -130,15 +130,21 @@ val validateEvent = Validation<Event, ValidationError> {
 
     // validation on individual attendees
     Event::attendees onEach {
-        Person::name {
-            minLength(2)
-        }
-        Person::age {
-            minimum(18) { Error("Attendees must be 18 years or older") }
-        }
-        // Email is optional but if it is set it must be valid
-        Person::email ifPresent {
-            pattern(".+@.+\..+") { Error("Please provide a valid email address (optional)") }
+        // If any validation fails – do not check rest of them
+        eager {
+            Person::name {
+                minLength(2)
+            }
+            // Age affects internal checks
+            Person::age affects { age ->
+                if (age < 18) {
+                    require(Person::parent)
+                }
+            }
+            // Email is optional but if it is set it must be valid
+            Person::email ifPresent {
+                pattern(".+@.+\..+") { Error("Please provide a valid email address (optional)") }
+            }
         }
     }
 

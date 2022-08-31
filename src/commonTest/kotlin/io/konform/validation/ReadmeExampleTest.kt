@@ -47,7 +47,7 @@ class ReadmeExampleTest {
 
     @Test
     fun complexValidation() {
-        data class Person(val name: String, val email: String?, val age: Int)
+        data class Person(val name: String, val email: String?, val age: Int, val parent: Person? = null)
 
         data class Event(
             val organizer: Person,
@@ -70,15 +70,21 @@ class ReadmeExampleTest {
 
             // validation on individual attendees
             Event::attendees onEach {
-                Person::name {
-                    minLength(2)
-                }
-                Person::age {
-                    minimum(18)
-                }
-                // Email is optional but if it is set it must be valid
-                Person::email ifPresent {
-                    pattern("\\w+@\\w+\\.\\w+") { Error("Please provide a valid email address (optional)") }
+                // If any validation fails – do not check rest of them
+                eager {
+                    Person::name {
+                        minLength(2)
+                    }
+                    // Age affects internal checks - use affect to get value
+                    Person::age affects { age ->
+                        if (age < 18) {
+                            require(Person::parent)
+                        }
+                    }
+                    // Email is optional but if it is set it must be valid
+                    Person::email ifPresent {
+                        pattern(".+@.+\\..+") { Error("Please provide a valid email address (optional)") }
+                    }
                 }
             }
 

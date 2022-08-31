@@ -12,7 +12,7 @@ interface ValidationError {
 
 data class Error(override val message: String) : ValidationError
 
-fun <T, R : Any> Builder<T, ValidationError>.require(kproperty: KProperty1<T, R?>, block: BuilderBlock<R, ValidationError>) = when (val property = kproperty(value)) {
+fun <T, R : Any> Builder<T, ValidationError>.require(kproperty: KProperty1<T, R?>, block: BuilderBlock<R, ValidationError> = {}) = when (val property = kproperty(value)) {
     null -> fail(Error("${kproperty.name} is required"))
     else -> subValidation(path + Property(kproperty), property)?.runBlock(block)
 }

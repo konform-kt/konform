@@ -28,7 +28,7 @@ class ValidationResultTest {
             }
         }
 
-        val result = personValidator.validate(Person("", addresses = listOf(Address(City("", "")))))
+        val result = personValidator(Person("", addresses = listOf(Address(City("", "")))))
 
         assertTrue(result is Invalid<*>)
         assertEquals(3, result.errors.size)
