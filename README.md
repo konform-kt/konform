@@ -79,7 +79,7 @@ In case the validation went through successfully you get a result of type `Valid
 
 ```Kotlin
 val validUser = UserProfile("Alice", 25)
-val validationResult = userValidation(validUser)
+val validationResult = validateUser(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 
