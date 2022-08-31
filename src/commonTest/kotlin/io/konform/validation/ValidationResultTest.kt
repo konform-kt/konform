@@ -6,6 +6,7 @@ import io.konform.validation.checks.pattern
 import io.konform.validation.errors.ValidationError
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ValidationResultTest {
     class PostalCodeValidationError(override val message: String) : ValidationError
@@ -29,19 +30,18 @@ class ValidationResultTest {
 
         val result = personValidator.validate(Person("", addresses = listOf(Address(City("", "")))))
 
-        if (result is Invalid<*>) {
-            assertEquals(3, result.errors.size)
-            val (firstError, secondError, thirdError) = result.errors
+        assertTrue(result is Invalid<*>)
+        assertEquals(3, result.errors.size)
+        val (firstError, secondError, thirdError) = result.errors
 
-            assertEquals(".name", firstError.path.toString())
-            assertEquals("must have at least 1 characters", (firstError.error as ValidationError).message)
+        assertEquals(".name", firstError.path.toString())
+        assertEquals("must have at least 1 characters", (firstError.error as ValidationError).message)
 
-            assertEquals(".addresses[0].city.postalCode", secondError.path.toString())
-            assertEquals("must have at least 4 characters", (secondError.error as ValidationError).message)
+        assertEquals(".addresses[0].city.postalCode", secondError.path.toString())
+        assertEquals("must have at least 4 characters", (secondError.error as ValidationError).message)
 
-            assertEquals(".addresses[0].city.postalCode", thirdError.path.toString())
-            assertEquals("must be a four or five digit number", (thirdError.error as ValidationError).message)
-        }
+        assertEquals(".addresses[0].city.postalCode", thirdError.path.toString())
+        assertEquals("must be a four or five digit number", (thirdError.error as ValidationError).message)
     }
 
     private data class Person(val name: String, val addresses: List<Address>)

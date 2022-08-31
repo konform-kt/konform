@@ -45,7 +45,7 @@ data class UserProfile(
 Using the Konform type-safe DSL you can quickly write up a validation
 
 ```Kotlin
-val validateUser = Validation<UserProfile> {
+val userValidation = Validation<UserProfile, ValidationError> {
     UserProfile::fullName {
         minLength(2)
         maxLength(100)
@@ -62,20 +62,10 @@ and apply it to your data
 
 ```Kotlin
 val invalidUser = UserProfile("A", -1)
-val validationResult = validateUser(invalidUser)
+val validationResult = userValidation.validate(invalidUser)
 ```
 
-since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors by indexed access:
-
-```Kotlin
-validationResult[UserProfile::fullName]
-// yields listOf("must have at least 2 characters")
-
-validationResult[UserProfile::age]
-// yields listOf("must be at least '0'")
-```
-
-or you can get all validation errors with details as a list:
+since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors:
 
 ```Kotlin
 validationResult.errors
@@ -89,7 +79,7 @@ In case the validation went through successfully you get a result of type `Valid
 
 ```Kotlin
 val validUser = UserProfile("Alice", 25)
-val validationResult = validateUser(validUser)
+val validationResult = userValidation.validate(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 
@@ -98,13 +88,13 @@ val validationResult = validateUser(validUser)
 You can define validations for nested classes and use them for new validations
 
 ```Kotlin
-val ageCheck = Validation<UserProfile> {
+val ageCheck = Validation<UserProfile, ValidationError> {
     UserProfile::age required {
         minimum(18)
     }
 }
 
-val validateUser = Validation<UserProfile> {
+val validateUser = Validation<UserProfile, ValidationError> {
     UserProfile::fullName {
         minLength(2)
         maxLength(100)
@@ -117,6 +107,8 @@ val validateUser = Validation<UserProfile> {
 It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
 
 ```Kotlin
+data class Error(override val message: String) : ValidationError
+
 data class Person(val name: String, val email: String?, val age: Int)
 
 data class Event(
@@ -125,11 +117,11 @@ data class Event(
     val ticketPrices: Map<String, Double?>
 )
 
-val validateEvent = Validation<Event> {
+val validateEvent = Validation<Event, ValidationError> {
     Event::organizer {
         // even though the email is nullable you can force it to be set in the validation
-        Person::email required {
-            pattern(".+@bigcorp.com") hint "Organizers must have a BigCorp email address"
+        Person::email.required({Error("email is required")}) {
+            pattern(".+@bigcorp.com") { ValidationError("Organizers must have a BigCorp email address") }
         }
     }
 
@@ -144,17 +136,17 @@ val validateEvent = Validation<Event> {
             minLength(2)
         }
         Person::age {
-            minimum(18) hint "Attendees must be 18 years or older"
+            minimum(18) { Error("Attendees must be 18 years or older") }
         }
         // Email is optional but if it is set it must be valid
         Person::email ifPresent {
-            pattern(".+@.+\..+") hint "Please provide a valid email address (optional)"
+            pattern(".+@.+\..+") { Error("Please provide a valid email address (optional)") }
         }
     }
 
     // validation on the ticketPrices Map as a whole
     Event::ticketPrices {
-        minItems(1) hint "Provide at least one ticket price"
+        minItems(1) { Error("Provide at least one ticket price") }
     }
 
     // validations for the individual entries
@@ -165,16 +157,6 @@ val validateEvent = Validation<Event> {
         }
     }
 }
-```
-
-Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
-
-```Kotlin
-// get the error messages for the first attendees age if any
-result[Event::attendees, 0, Person::age]
-
-// get the error messages for the free ticket if any
-result[Event::ticketPrices, "free"]
 ```
 
 ### Other validation libraries written in Kotlin
