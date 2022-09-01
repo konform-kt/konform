@@ -87,30 +87,30 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun validatingNullableTypes() {
-        val nullableTypeValidation = Validation<Register> {
+    fun validatingNullableFields() {
+        val nullableFieldValidation = Validation<Register> {
             Register::referredBy ifPresent {
                 matches(".+@.+".toRegex())
             }
         }
 
-        Register(referredBy = null).let { assertEquals(Valid(it), nullableTypeValidation(it)) }
-        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableTypeValidation(it)) }
-        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableTypeValidation(it), Register::referredBy)) }
+        Register(referredBy = null).let { assertEquals(Valid(it), nullableFieldValidation(it)) }
+        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableFieldValidation(it)) }
+        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
     }
 
     @Test
-    fun validatingRequiredTypes() {
-        val nullableTypeValidation = Validation<Register> {
+    fun validatingRequiredFields() {
+        val nullableFieldValidation = Validation<Register> {
             Register::referredBy required {
                 matches(".+@.+".toRegex())
             }
         }
 
-        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableTypeValidation(it)) }
+        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableFieldValidation(it)) }
 
-        Register(referredBy = null).let { assertEquals(1, countErrors(nullableTypeValidation(it), Register::referredBy)) }
-        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableTypeValidation(it), Register::referredBy)) }
+        Register(referredBy = null).let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
+        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
     }
 
     @Test
@@ -125,6 +125,33 @@ class ValidationBuilderTest {
 
         Register(home = Address("Home")).let { assertEquals(Valid(it), nestedTypeValidation(it)) }
         Register(home = Address("")).let { assertEquals(1, countErrors(nestedTypeValidation(it), Register::home, Address::address)) }
+    }
+
+    @Test
+    fun validatingOptionalNullableValues() {
+        val nullableTypeValidation = Validation<String?> {
+            ifPresent {
+                matches(".+@.+".toRegex())
+            }
+        }
+
+        null.let { assertEquals(Valid(it), nullableTypeValidation(it)) }
+        "poweruser@test.com".let { assertEquals(Valid(it), nullableTypeValidation(it)) }
+        "poweruser@".let { assertEquals(1, countErrors(nullableTypeValidation(it))) }
+    }
+
+    @Test
+    fun validatingRequiredNullableValues() {
+        val nullableRequiredValidation = Validation<String?> {
+            required {
+                matches(".+@.+".toRegex())
+            }
+        }
+
+        "poweruser@test.com".let { assertEquals(Valid(it), nullableRequiredValidation(it)) }
+
+        null.let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
+        "poweruser@".let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
     }
 
     @Test

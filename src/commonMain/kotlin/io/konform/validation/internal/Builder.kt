@@ -7,7 +7,6 @@ import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifi
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
 import kotlin.collections.Map.Entry
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {

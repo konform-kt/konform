@@ -7,6 +7,25 @@ import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
 import kotlin.reflect.KProperty1
 
+internal class OptionalValidation<T: Any>(
+    private val validation: Validation<T>
+) : Validation<T?> {
+    override fun validate(value: T?): ValidationResult<T?> {
+        val nonNullValue = value ?: return Valid(value)
+        return validation(nonNullValue)
+    }
+}
+
+internal class RequiredValidation<T: Any>(
+    private val validation: Validation<T>
+) : Validation<T?> {
+    override fun validate(value: T?): ValidationResult<T?> {
+        val nonNullValue = value
+            ?: return Invalid(mapOf("" to listOf("is required")))
+        return validation(nonNullValue)
+    }
+}
+
 internal class NonNullPropertyValidation<T, R>(
     private val property: KProperty1<T, R>,
     private val validation: Validation<R>
