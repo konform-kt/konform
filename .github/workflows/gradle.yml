@@ -12,7 +12,9 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest
+#      In order to build macOS/iOS platforms
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
