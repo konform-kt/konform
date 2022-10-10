@@ -2,90 +2,95 @@ package io.konform.validation.jsonschema
 
 import io.konform.validation.Constraint
 import io.konform.validation.ValidationBuilder
+import kotlin.jvm.JvmName
 import kotlin.math.roundToInt
 
-inline fun <reified T> ValidationBuilder<*>.type() =
-    addConstraint(
+inline fun <C, reified T> ValidationBuilder<C, *>.type() =
+    addSimpleConstraint(
         "must be of the correct type"
     ) { it is T }
 
-fun <T> ValidationBuilder<T>.enum(vararg allowed: T) =
-    addConstraint(
+@JvmName("simpleType")
+inline fun <reified T> ValidationBuilder<Unit, *>.type() = type<Unit, T>()
+
+fun <C, T> ValidationBuilder<C, T>.enum(vararg allowed: T) =
+    addSimpleConstraint(
         "must be one of: {0}",
         allowed.joinToString("', '", "'", "'")
     ) { it in allowed }
 
-inline fun <reified T : Enum<T>> ValidationBuilder<String>.enum(): Constraint<String> {
+inline fun <C, reified T : Enum<T>> ValidationBuilder<C, String>.enum(): Constraint<*, String> {
     val enumNames = enumValues<T>().map { it.name }
-    return addConstraint(
+    return addSimpleConstraint(
         "must be one of: {0}",
         enumNames.joinToString("', '", "'", "'")
     ) { it in enumNames }
 }
 
-fun <T> ValidationBuilder<T>.const(expected: T) =
-    addConstraint(
+@JvmName("simpleEnum")
+inline fun <reified T : Enum<T>> ValidationBuilder<Unit, String>.enum(): Constraint<*, String> = enum<Unit, T>()
+
+fun <C, T> ValidationBuilder<C, T>.const(expected: T) =
+    addSimpleConstraint(
         "must be {0}",
         expected?.let { "'$it'" } ?: "null"
     ) { expected == it }
 
 
-fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constraint<T> {
+fun <C, T : Number> ValidationBuilder<C, T>.multipleOf(factor: Number): Constraint<C, T> {
     val factorAsDouble = factor.toDouble()
     require(factorAsDouble > 0) { "multipleOf requires the factor to be strictly larger than 0" }
-    return addConstraint("must be a multiple of '{0}'", factor.toString()) {
+    return addSimpleConstraint("must be a multiple of '{0}'", factor.toString()) {
         val division = it.toDouble() / factorAsDouble
         division.compareTo(division.roundToInt()) == 0
     }
 }
 
-fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number) = addConstraint(
+fun <C, T : Number> ValidationBuilder<C, T>.maximum(maximumInclusive: Number) = addSimpleConstraint(
     "must be at most '{0}'",
     maximumInclusive.toString()
 ) { it.toDouble() <= maximumInclusive.toDouble() }
 
-fun <T : Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number) = addConstraint(
+fun <C, T : Number> ValidationBuilder<C, T>.exclusiveMaximum(maximumExclusive: Number) = addSimpleConstraint(
     "must be less than '{0}'",
     maximumExclusive.toString()
 ) { it.toDouble() < maximumExclusive.toDouble() }
 
-fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number) = addConstraint(
+fun <C, T : Number> ValidationBuilder<C, T>.minimum(minimumInclusive: Number) = addSimpleConstraint(
     "must be at least '{0}'",
     minimumInclusive.toString()
 ) { it.toDouble() >= minimumInclusive.toDouble() }
 
-fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number) = addConstraint(
+fun <C, T : Number> ValidationBuilder<C, T>.exclusiveMinimum(minimumExclusive: Number) = addSimpleConstraint(
     "must be greater than '{0}'",
     minimumExclusive.toString()
 ) { it.toDouble() > minimumExclusive.toDouble() }
 
-fun ValidationBuilder<String>.minLength(length: Int): Constraint<String> {
+fun <C> ValidationBuilder<C, String>.minLength(length: Int): Constraint<C, String> {
     require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
-    return addConstraint(
+    return addSimpleConstraint(
         "must have at least {0} characters",
         length.toString()
     ) { it.length >= length }
 }
 
-fun ValidationBuilder<String>.maxLength(length: Int): Constraint<String> {
+fun <C> ValidationBuilder<C, String>.maxLength(length: Int): Constraint<*, String> {
     require(length >= 0) { IllegalArgumentException("maxLength requires the length to be >= 0") }
-    return addConstraint(
+    return addSimpleConstraint(
         "must have at most {0} characters",
         length.toString()
     ) { it.length <= length }
 }
 
+fun <C> ValidationBuilder<C, String>.pattern(pattern: String) = pattern(pattern.toRegex())
 
-fun ValidationBuilder<String>.pattern(pattern: String) = pattern(pattern.toRegex())
-
-
-fun ValidationBuilder<String>.pattern(pattern: Regex) = addConstraint(
+fun <C> ValidationBuilder<C, String>.pattern(pattern: Regex) = addSimpleConstraint(
     "must match the expected pattern",
     pattern.toString()
 ) { it.matches(pattern) }
 
 
-inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Constraint<T> = addConstraint(
+inline fun <C, reified T> ValidationBuilder<C, T>.minItems(minSize: Int): Constraint<C, T> = addSimpleConstraint(
     "must have at least {0} items",
     minSize.toString()
 ) {
@@ -98,7 +103,7 @@ inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Constraint<T
 }
 
 
-inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Constraint<T> = addConstraint(
+inline fun <C, reified T> ValidationBuilder<C, T>.maxItems(maxSize: Int): Constraint<C, T> = addSimpleConstraint(
     "must have at most {0} items",
     maxSize.toString()
 ) {
@@ -110,13 +115,13 @@ inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Constraint<T
     }
 }
 
-inline fun <reified T: Map<*, *>> ValidationBuilder<T>.minProperties(minSize: Int): Constraint<T> =
+inline fun <C, reified T: Map<*, *>> ValidationBuilder<C, T>.minProperties(minSize: Int): Constraint<C, T> =
     minItems(minSize) hint "must have at least {0} properties"
 
-inline fun <reified T: Map<*, *>> ValidationBuilder<T>.maxProperties(maxSize: Int): Constraint<T> =
+inline fun <C, reified T: Map<*, *>> ValidationBuilder<C, T>.maxProperties(maxSize: Int): Constraint<C, T> =
     maxItems(maxSize) hint "must have at most {0} properties"
 
-inline fun <reified T> ValidationBuilder<T>.uniqueItems(unique: Boolean): Constraint<T> = addConstraint(
+inline fun <C, reified T> ValidationBuilder<C, T>.uniqueItems(unique: Boolean): Constraint<C, T> = addSimpleConstraint(
     "all items must be unique"
 ) {
     !unique || when (it) {

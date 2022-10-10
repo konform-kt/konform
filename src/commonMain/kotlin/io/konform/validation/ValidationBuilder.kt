@@ -13,58 +13,60 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-abstract class ValidationBuilder<T> {
-    abstract fun build(): Validation<T>
-    abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T>
-    abstract infix fun Constraint<T>.hint(hint: String): Constraint<T>
-    abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit)
-    internal abstract fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<R>.() -> Unit)
+abstract class ValidationBuilder<C, T> {
+    abstract fun build(): Validation<C, T>
+    abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: (C, T) -> Boolean): Constraint<C, T>
+    fun addSimpleConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<C, T> =
+        addConstraint(errorMessage, *templateValues) { _, value -> test(value) }
+    abstract infix fun Constraint<C, T>.hint(hint: String): Constraint<C, T>
+    abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R>.() -> Unit)
+    internal abstract fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<C, R>.() -> Unit)
     @JvmName("onEachIterable")
-    infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachIterable(this, init)
-    internal abstract fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit)
+    infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<C, R>.() -> Unit) = onEachIterable(this, init)
+    internal abstract fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<C, R>.() -> Unit)
     @JvmName("onEachArray")
-    infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachArray(this, init)
-    internal abstract fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit)
+    infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<C, R>.() -> Unit) = onEachArray(this, init)
+    internal abstract fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<C, Map.Entry<K, V>>.() -> Unit)
     @JvmName("onEachMap")
-    infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) = onEachMap(this, init)
-    abstract infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit)
-    abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit)
-    abstract fun run(validation: Validation<T>)
-    abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+    infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>>.() -> Unit) = onEachMap(this, init)
+    abstract infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<C, R>.() -> Unit)
+    abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<C, R>.() -> Unit)
+    abstract fun run(validation: Validation<C, T>)
+    abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R>
 }
 
-fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+fun <C, T : Any> ValidationBuilder<C, T?>.ifPresent(init: ValidationBuilder<C, T>.() -> Unit) {
+    val builder = ValidationBuilderImpl<C, T>()
     init(builder)
     run(OptionalValidation(builder.build()))
 }
 
-fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+fun <C, T : Any> ValidationBuilder<C, T?>.required(init: ValidationBuilder<C, T>.() -> Unit) {
+    val builder = ValidationBuilderImpl<C, T>()
     init(builder)
     run(RequiredValidation(builder.build()))
 }
 
 @JvmName("onEachIterable")
-fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
-    val builder = ValidationBuilderImpl<S>()
+fun <C, S, T : Iterable<S>> ValidationBuilder<C, T>.onEach(init: ValidationBuilder<C, S>.() -> Unit) {
+    val builder = ValidationBuilderImpl<C, S>()
     init(builder)
     @Suppress("UNCHECKED_CAST")
-    run(IterableValidation(builder.build()) as Validation<T>)
+    run(IterableValidation(builder.build()) as Validation<C, T>)
 }
 
 @JvmName("onEachArray")
-fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+fun <C, T> ValidationBuilder<C, Array<T>>.onEach(init: ValidationBuilder<C, T>.() -> Unit) {
+    val builder = ValidationBuilderImpl<C, T>()
     init(builder)
     @Suppress("UNCHECKED_CAST")
-    run(ArrayValidation(builder.build()) as Validation<Array<T>>)
+    run(ArrayValidation(builder.build()) as Validation<C, Array<T>>)
 }
 
 @JvmName("onEachMap")
-fun <K, V, T : Map<K, V>> ValidationBuilder<T>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) {
-    val builder = ValidationBuilderImpl<Map.Entry<K, V>>()
+fun <C, K, V, T : Map<K, V>> ValidationBuilder<C, T>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>>.() -> Unit) {
+    val builder = ValidationBuilderImpl<C, Map.Entry<K, V>>()
     init(builder)
     @Suppress("UNCHECKED_CAST")
-    run(MapValidation(builder.build()) as Validation<T>)
+    run(MapValidation(builder.build()) as Validation<C, T>)
 }
