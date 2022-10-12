@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.jsonschema.minItems
+import io.konform.validation.jsonschema.minLength
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -8,16 +9,16 @@ import kotlin.test.assertTrue
 class ValidationBuilderTest {
 
     // Some example constraints for Testing
-    fun ValidationBuilder<String>.minLength(minValue: Int) =
+    fun ValidationBuilder<Unit, String>.minLength(minValue: Int) =
         addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
 
-    fun ValidationBuilder<String>.maxLength(minValue: Int) =
+    fun ValidationBuilder<Unit, String>.maxLength(minValue: Int) =
         addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
 
-    fun ValidationBuilder<String>.matches(regex: Regex) =
+    fun ValidationBuilder<Unit, String>.matches(regex: Regex) =
         addConstraint("must have correct format") { it.contains(regex) }
 
-    fun ValidationBuilder<String>.containsANumber() =
+    fun ValidationBuilder<Unit, String>.containsANumber() =
         matches("[0-9]".toRegex()) hint "must have at least one number"
 
     @Test
@@ -30,6 +31,15 @@ class ValidationBuilderTest {
 
         Register(password = "a").let { assertEquals(Valid(it), oneValidation(it)) }
         Register(password = "").let { assertEquals(1, countErrors(oneValidation(it), Register::password)) }
+    }
+
+    @Test
+    fun singleValidationWithContext() {
+        val validation = Validation<Set<String>, String> {
+            addConstraint("This value is not allowed!") { value -> this.contains(value) }
+        }
+        "a".let { assertEquals(Valid(it), validation(setOf("a", "b"), it)) }
+        "c".let { assertEquals(1, countErrors(validation(setOf("a", "b"), it))) }
     }
 
     @Test
@@ -346,6 +356,26 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun composeValidationsWithContext() {
+        val addressValidation = Validation<AddressContext, Address> {
+            Address::address.has.minLength(1)
+            Address::country {
+                addConstraint("Country is not allowed") {
+                    this.validCountries.contains(it)
+                }
+            }
+        }
+
+        val validation = Validation<Context, Register> {
+            Register::home ifPresent {
+                run(addressValidation, Context::subContext)
+            }
+        }
+
+        assertEquals(1, countFieldsWithErrors(validation(Context(), Register(home = Address()))))
+    }
+
+    @Test
     fun replacePlaceholderInString() {
         val validation = Validation<Register> {
             Register::password.has.minLength(8)
@@ -355,4 +385,6 @@ class ValidationBuilderTest {
 
     private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
     private data class Address(val address: String = "", val country: String = "DE")
+    private data class Context(val subContext: AddressContext = AddressContext())
+    private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))
 }

@@ -45,6 +45,18 @@ class JSONSchemaStyleConstraintsTest {
     }
 
     @Test
+    fun typeConstraintWithContext() {
+        val anyValidation = Validation<String, Any> { type<String, String>() }
+        assertEquals(
+            Valid("This is a string"),
+            anyValidation("c", "This is a string"))
+
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", 1)))
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", 1.0)))
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", true)))
+    }
+
+    @Test
     fun nullableTypeConstraint() {
         val anyValidation = Validation<Any?> { type<String?>() }
         assertEquals<ValidationResult<Any?>>(
@@ -84,8 +96,15 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid("SYNACK"), stringifiedEnumValidation("SYNACK"))
         assertEquals(1, countFieldsWithErrors(stringifiedEnumValidation("ASDF")))
 
+        val stringifiedEnumValidationWithContext = Validation<Int, String> { enum<Int, TCPPacket>() }
+        assertEquals(Valid("SYN"), stringifiedEnumValidationWithContext(1, "SYN"))
+        assertEquals(Valid("ACK"), stringifiedEnumValidationWithContext(2, "ACK"))
+        assertEquals(Valid("SYNACK"), stringifiedEnumValidationWithContext(3, "SYNACK"))
+        assertEquals(1, countFieldsWithErrors(stringifiedEnumValidationWithContext(4, "ASDF")))
+
         assertEquals("must be one of: 'SYN', 'ACK'", partialEnumValidation(SYNACK).get()!![0])
         assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidation("").get()!![0])
+        assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidationWithContext(1, "").get()!![0])
     }
 
     @Test
