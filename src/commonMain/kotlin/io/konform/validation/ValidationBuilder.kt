@@ -16,8 +16,6 @@ private annotation class ValidationScope
 abstract class ValidationBuilder<C, T> {
     abstract fun build(): Validation<C, T>
     abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: C.(T) -> Boolean): Constraint<C, T>
-//    fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<C, T> =
-//        addConstraint(errorMessage, *templateValues) { _, value -> test(value) }
     abstract infix fun Constraint<C, T>.hint(hint: String): Constraint<C, T>
     abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R>.() -> Unit)
     internal abstract fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<C, R>.() -> Unit)
