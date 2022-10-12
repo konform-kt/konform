@@ -9,13 +9,13 @@ class ValidationBuilderTest {
 
     // Some example constraints for Testing
     fun ValidationBuilder<Unit, String>.minLength(minValue: Int) =
-        addSimpleConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
+        addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
 
     fun ValidationBuilder<Unit, String>.maxLength(minValue: Int) =
-        addSimpleConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
+        addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
 
     fun ValidationBuilder<Unit, String>.matches(regex: Regex) =
-        addSimpleConstraint("must have correct format") { it.contains(regex) }
+        addConstraint("must have correct format") { it.contains(regex) }
 
     fun ValidationBuilder<Unit, String>.containsANumber() =
         matches("[0-9]".toRegex()) hint "must have at least one number"
@@ -35,7 +35,7 @@ class ValidationBuilderTest {
     @Test
     fun singleValidationWithContext() {
         val validation = Validation<Set<String>, String> {
-            addConstraint("This value is not allowed!") { context, value -> context.contains(value) }
+            addConstraint("This value is not allowed!") { value -> this.contains(value) }
         }
         "a".let { assertEquals(Valid(it), validation(setOf("a", "b"), it)) }
         "c".let { assertEquals(1, countErrors(validation(setOf("a", "b"), it))) }

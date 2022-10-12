@@ -80,8 +80,6 @@ internal class ValidationBuilderImpl<C, T> : ValidationBuilder<C, T>() {
                 }
             }
         }
-
-
     }
 
     private val constraints = mutableListOf<Constraint<C, T>>()
