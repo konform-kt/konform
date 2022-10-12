@@ -141,6 +141,10 @@ internal class ValidationBuilderImpl<C, T> : ValidationBuilder<C, T>() {
         prebuiltValidations.add(validation)
     }
 
+    override fun <S> run(validation: Validation<S, T>, map: (C) -> S) {
+        prebuiltValidations.add(MappedValidation(validation, map))
+    }
+
     override fun build(): Validation<C, T> {
         val nestedValidations = subValidations.map { (key, builder) ->
             key.build(builder)

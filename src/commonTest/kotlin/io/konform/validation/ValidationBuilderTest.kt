@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.jsonschema.minItems
+import io.konform.validation.jsonschema.minLength
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -355,6 +356,26 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun composeValidationsWithContext() {
+        val addressValidation = Validation<AddressContext, Address> {
+            Address::address.has.minLength(1)
+            Address::country {
+                addConstraint("Country is not allowed") {
+                    this.validCountries.contains(it)
+                }
+            }
+        }
+
+        val validation = Validation<Context, Register> {
+            Register::home ifPresent {
+                run(addressValidation, Context::subContext)
+            }
+        }
+
+        assertEquals(1, countFieldsWithErrors(validation(Context(), Register(home = Address()))))
+    }
+
+    @Test
     fun replacePlaceholderInString() {
         val validation = Validation<Register> {
             Register::password.has.minLength(8)
@@ -364,4 +385,6 @@ class ValidationBuilderTest {
 
     private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
     private data class Address(val address: String = "", val country: String = "DE")
+    private data class Context(val subContext: AddressContext = AddressContext())
+    private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))
 }

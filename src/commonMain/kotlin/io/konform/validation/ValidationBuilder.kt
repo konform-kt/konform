@@ -32,6 +32,7 @@ abstract class ValidationBuilder<C, T> {
     abstract infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<C, R>.() -> Unit)
     abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<C, R>.() -> Unit)
     abstract fun run(validation: Validation<C, T>)
+    abstract fun <S> run(validation: Validation<S, T>, map: (C) -> S)
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R>
 }
 

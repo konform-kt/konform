@@ -7,6 +7,14 @@ import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
 import kotlin.reflect.KProperty1
 
+internal class MappedValidation<C, S, T>(
+    private val validation: Validation<S, T>,
+    private val map: (C) -> S,
+) : Validation<C, T> {
+    override fun validate(context: C, value: T): ValidationResult<T> =
+        validation(map(context), value)
+}
+
 internal class OptionalValidation<C, T: Any>(
     private val validation: Validation<C, T>
 ) : Validation<C, T?> {
