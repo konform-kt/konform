@@ -343,7 +343,9 @@ class ValidationBuilderTest {
     @Test
     fun composeValidations() {
         val addressValidation = Validation<Address> {
-            Address::address.has.minLength(1)
+            Address::address {
+                minLength(1)
+            }
         }
 
         val validation = Validation<Register> {
@@ -366,25 +368,38 @@ class ValidationBuilderTest {
             }
         }
 
-        val validation = Validation<Context, Register> {
+        val validation = Validation<RegisterContext, Register> {
             Register::home ifPresent {
-                run(addressValidation, Context::subContext)
+                run(addressValidation, RegisterContext::subContext)
             }
         }
 
-        assertEquals(1, countFieldsWithErrors(validation(Context(), Register(home = Address()))))
+        assertEquals(1, countFieldsWithErrors(validation(RegisterContext(), Register(home = Address()))))
     }
 
     @Test
     fun replacePlaceholderInString() {
         val validation = Validation<Register> {
-            Register::password.has.minLength(8)
+            Register::password { minLength(8) }
         }
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }
 
+    @Test
+    fun javaFunction() {
+        val s = StringBuilder("")
+
+        val validation = Validation<StringBuilder> {
+            StringBuilder::toString {
+                minLength(12)
+            }
+        }
+
+        assertEquals(1, countFieldsWithErrors(validation(s)))
+    }
+
     private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
     private data class Address(val address: String = "", val country: String = "DE")
-    private data class Context(val subContext: AddressContext = AddressContext())
+    private data class RegisterContext(val subContext: AddressContext = AddressContext())
     private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))
 }

@@ -1,13 +1,11 @@
 package io.konform.validation.internal
 
-import io.konform.validation.Constraint
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
-import kotlin.reflect.KProperty1
 
-internal class MappedValidation<C, S, T>(
+internal class MappedContextValidation<C, S, T>(
     private val validation: Validation<S, T>,
     private val map: (C) -> S,
 ) : Validation<C, T> {
@@ -15,7 +13,18 @@ internal class MappedValidation<C, S, T>(
         validation(map(context), value)
 }
 
-internal class OptionalValidation<C, T: Any>(
+internal class MappedValidation<C, T, V>(
+    private val validation: Validation<C, V>,
+    private val name: String,
+    private val mapFn: (T) -> V,
+) : Validation<C, T> {
+    override fun validate(context: C, value: T): ValidationResult<T> =
+        validation(context, mapFn(value))
+            .mapError { ".$name$it" }
+            .map { value }
+}
+
+internal class OptionalValidation<C, T : Any>(
     private val validation: Validation<C, T>
 ) : Validation<C, T?> {
     override fun validate(context: C, value: T?): ValidationResult<T?> {
@@ -31,37 +40,6 @@ internal class RequiredValidation<C, T: Any>(
         val nonNullValue = value
             ?: return Invalid(mapOf("" to listOf("is required")))
         return validation(context, nonNullValue)
-    }
-}
-
-internal class NonNullPropertyValidation<C, T, R>(
-    private val property: KProperty1<T, R>,
-    private val validation: Validation<C, R>
-) : Validation<C, T> {
-    override fun validate(context: C, value: T): ValidationResult<T> {
-        val propertyValue = property(value)
-        return validation(context, propertyValue).mapError { ".${property.name}$it" }.map { value }
-    }
-}
-
-internal class OptionalPropertyValidation<C, T, R>(
-    private val property: KProperty1<T, R?>,
-    private val validation: Validation<C, R>
-) : Validation<C, T> {
-    override fun validate(context: C, value: T): ValidationResult<T> {
-        val propertyValue = property(value) ?: return Valid(value)
-        return validation(context, propertyValue).mapError { ".${property.name}$it" }.map { value }
-    }
-}
-
-internal class RequiredPropertyValidation<C, T, R>(
-    private val property: KProperty1<T, R?>,
-    private val validation: Validation<C, R>
-) : Validation<C, T> {
-    override fun validate(context: C, value: T): ValidationResult<T> {
-        val propertyValue = property(value)
-            ?: return Invalid<T>(mapOf(".${property.name}" to listOf("is required")))
-        return validation(context, propertyValue).mapError { ".${property.name}${it}" }.map { value }
     }
 }
 
@@ -98,41 +76,34 @@ internal class MapValidation<C, K, V>(
     }
 }
 
-internal class ValidationNode<C, T>(
-    private val constraints: List<Constraint<C, T>>,
-    private val subValidations: List<Validation<C, T>>
+internal data class ConstraintValidation<C, T>(
+    private val hint: String,
+    private val templateValues: List<String>,
+    private val test: (C, T) -> Boolean,
 ) : Validation<C, T> {
-    override fun validate(context: C, value: T): ValidationResult<T> {
-        val subValidationResult = applySubValidations(context, value, keyTransform = { it })
-        val localValidationResult = localValidation(context, value)
-        return localValidationResult.combineWith(subValidationResult)
-    }
+    override fun validate(context: C, value: T): ValidationResult<T> =
+        if (test(context, value)) {
+            Valid(value)
+        } else {
+            Invalid(mapOf("" to listOf(constructHint(value))))
+        }
 
-    private fun localValidation(context: C, value: T): ValidationResult<T> {
-        return constraints
-            .filter { !it.test(context, value) }
-            .map { constructHint(value, it) }
-            .let { errors ->
-                if (errors.isEmpty()) {
-                    Valid(value)
-                } else {
-                    Invalid(mapOf("" to errors))
-                }
-            }
-    }
-
-    private fun constructHint(value: T, it: Constraint<C, T>): String {
-        val replaceValue = it.hint.replace("{value}", value.toString())
-        return it.templateValues
+    private fun constructHint(value: T): String {
+        val replaceValue = hint.replace("{value}", value.toString())
+        return templateValues
             .foldIndexed(replaceValue) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
     }
 
-    private fun applySubValidations(context: C, propertyValue: T, keyTransform: (String) -> String): ValidationResult<T> {
-        return subValidations.fold(Valid(propertyValue)) { existingValidation: ValidationResult<T>, validation ->
-            val newValidation = validation.validate(context, propertyValue).mapError(keyTransform)
+}
+
+internal class ValidationNode<C, T>(
+    private val subValidations: List<Validation<C, T>>
+) : Validation<C, T> {
+    override fun validate(context: C, value: T): ValidationResult<T> =
+        subValidations.fold(Valid(value)) { existingValidation: ValidationResult<T>, validation ->
+            val newValidation = validation.validate(context, value).mapError(::identity)
             existingValidation.combineWith(newValidation)
         }
-    }
 }
 
 internal fun <R> ValidationResult<R>.mapError(keyTransform: (String) -> String): ValidationResult<R> {
@@ -157,3 +128,5 @@ internal fun <R> ValidationResult<R>.combineWith(other: ValidationResult<R>): Va
         }
     }
 }
+
+internal fun <A> identity(a: A): A = a
