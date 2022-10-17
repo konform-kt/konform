@@ -10,16 +10,16 @@ class ValidationBuilderTest {
 
     // Some example constraints for Testing
     fun ValidationBuilder<Unit, String, String>.minLength(minValue: Int) =
-        addConstraint(StringHintBuilder("must have at least {0} characters"), minValue) { it.length >= minValue }
+        addConstraint(stringHintBuilder("must have at least {0} characters"), minValue) { it.length >= minValue }
 
     fun ValidationBuilder<Unit, String, String>.maxLength(minValue: Int) =
-        addConstraint(StringHintBuilder("must have at most {0} characters"), minValue) { it.length <= minValue }
+        addConstraint(stringHintBuilder("must have at most {0} characters"), minValue) { it.length <= minValue }
 
     fun ValidationBuilder<Unit, String, String>.matches(regex: Regex) =
-        addConstraint(StringHintBuilder("must have correct format")) { it.contains(regex) }
+        addConstraint(stringHintBuilder("must have correct format")) { it.contains(regex) }
 
     fun ValidationBuilder<Unit, String, String>.containsANumber() =
-        matches("[0-9]".toRegex()) hint StringHintBuilder("must have at least one number")
+        matches("[0-9]".toRegex()) hint stringHintBuilder("must have at least one number")
 
     @Test
     fun singleValidation() {
@@ -36,7 +36,7 @@ class ValidationBuilderTest {
     @Test
     fun singleValidationWithContext() {
         val validation = Validation<Set<String>, String> {
-            addConstraint(StringHintBuilder("This value is not allowed!")) { value -> this.contains(value) }
+            addConstraint(stringHintBuilder("This value is not allowed!")) { value -> this.contains(value) }
         }
         "a".let { assertEquals(Valid(it), validation(setOf("a", "b"), it)) }
         "c".let { assertEquals(1, countErrors(validation(setOf("a", "b"), it))) }
@@ -153,18 +153,15 @@ class ValidationBuilderTest {
     @Test
     fun validatingRequiredNullableValues() {
         val nullableRequiredValidation = Validation<String?> {
-            required(StringHintBuilder("Whhoops!")) {
+            required(stringHintBuilder("Whhoops!")) {
                 matches(".+@.+".toRegex())
             }
         }
 
-//        "poweruser@test.com".let { assertEquals(Valid(it), nullableRequiredValidation(it)) }
+        "poweruser@test.com".let { assertEquals(Valid(it), nullableRequiredValidation(it)) }
 
-        val x = nullableRequiredValidation(null)
-        val xc = countErrors(x)
-
-    //        null.let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
-//        "poweruser@".let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
+        null.let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
+        "poweruser@".let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
     }
 
     @Test
@@ -365,7 +362,7 @@ class ValidationBuilderTest {
         val addressValidation = Validation<AddressContext, Address> {
             Address::address.has.minLength(1)
             Address::country {
-                addConstraint(StringHintBuilder("Country is not allowed")) {
+                addConstraint(stringHintBuilder("Country is not allowed")) {
                     this.validCountries.contains(it)
                 }
             }

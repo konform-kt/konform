@@ -62,7 +62,7 @@ fun <C, T : Any, E> ValidationBuilder<C, T?, E>.ifPresent(init: ValidationBuilde
 
 fun <C, T : Any, E> ValidationBuilder<C, T?, E>.required(hint: HintBuilder<C, T?, E>, init: ValidationBuilder<C, T, E>.() -> Unit): ConstraintBuilder<C, T?, E> {
     val builder = ValidationNodeBuilder<C, T, E>(requiredError).also(init)
-    val requiredValidationBuilder = RequiredValidationBuilder(hint, builder, ::identity, "")
+    val requiredValidationBuilder = RequiredValidationBuilder(hint, builder)
     run(requiredValidationBuilder.build())
     return requiredValidationBuilder.requiredConstraintBuilder
 }
@@ -79,8 +79,7 @@ fun <C, S, T : Iterable<S>, E> ValidationBuilder<C, T, E>.onEach(init: Validatio
 fun <C, T, E> ValidationBuilder<C, Array<T>, E>.onEach(init: ValidationBuilder<C, T, E>.() -> Unit) {
     val builder = ValidationNodeBuilder<C, T, E>(requiredError)
     init(builder)
-    @Suppress("UNCHECKED_CAST")
-    run(ArrayValidation(builder.build()) as Validation<C, Array<T>, E>)
+    run(ArrayValidation(builder.build()))
 }
 
 @JvmName("onEachMap")
@@ -94,7 +93,7 @@ fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: Validati
 typealias HintArguments = List<Any>
 typealias HintBuilder<C, T, E> = C.(T, HintArguments) -> E
 
-fun <C, T> StringHintBuilder(template: String): HintBuilder<C, T, String> = { value, args ->
+fun <C, T> stringHintBuilder(template: String): HintBuilder<C, T, String> = { value, args ->
     args
         .map(Any::toString)
         .foldIndexed(template.replace("{value}", value.toString())) { index, acc, arg ->

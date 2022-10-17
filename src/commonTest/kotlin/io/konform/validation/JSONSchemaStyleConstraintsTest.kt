@@ -1,22 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.*
-import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.enum
-import io.konform.validation.jsonschema.exclusiveMaximum
-import io.konform.validation.jsonschema.exclusiveMinimum
-import io.konform.validation.jsonschema.maxItems
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.maxProperties
-import io.konform.validation.jsonschema.maximum
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.minProperties
-import io.konform.validation.jsonschema.minimum
-import io.konform.validation.jsonschema.multipleOf
-import io.konform.validation.jsonschema.pattern
-import io.konform.validation.jsonschema.type
-import io.konform.validation.jsonschema.uniqueItems
+import io.konform.validation.jsonschema.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -47,7 +32,7 @@ class JSONSchemaStyleConstraintsTest {
     @Test
     fun genericTypeConstraint() {
         val anyValidation = Validation<String, Any> {
-            type<String, Any, String> { _, t ->  "Expected object of type '$t'" }
+            type<String, String, String> { _, t ->  "Expected object of type '${t[0]}'" }
         }
         assertEquals(
             Valid("This is a string"),
@@ -98,7 +83,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(stringifiedEnumValidation("ASDF")))
 
         val stringifiedEnumValidationWithContext = Validation<Int, String> {
-            enum<Int, TCPPacket, String> { value, expected -> "$value is not any of $expected"}
+            enum<Int, TCPPacket, String>(enumHintBuilder())
         }
         assertEquals(Valid("SYN"), stringifiedEnumValidationWithContext(1, "SYN"))
         assertEquals(Valid("ACK"), stringifiedEnumValidationWithContext(2, "ACK"))

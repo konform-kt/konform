@@ -23,20 +23,20 @@ internal class ValidationNodeBuilder<C, T, E>(
         add(MappedValidationBuilder(createBuilder(init), this.name,this))
 
     override fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(IterableValidationBuilder(createBuilder(init), mapFn, name))
+        add(MappedValidationBuilder(IterableValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R> onEachArray(name: String, mapFn: (T) -> Array<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(ArrayValidationBuilder(createBuilder(init), mapFn, name))
+        add(MappedValidationBuilder(ArrayValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <K, V> onEachMap(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, Entry<K, V>, E>.() -> Unit) =
-        add(MapValidationBuilder(createBuilder(init), mapFn, name))
+        add(MappedValidationBuilder(MapValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(OptionalValidationBuilder(createBuilder(init),mapFn, name))
+        add(MappedValidationBuilder(OptionalValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> =
-        RequiredValidationBuilder(hint, createBuilder(init), mapFn, name)
-            .also { add(it) }
+        RequiredValidationBuilder(hint, createBuilder(init))
+            .also { add(MappedValidationBuilder(it, name, mapFn)) }
             .requiredConstraintBuilder
 
     override fun <S> run(validation: Validation<S, T, E>, map: (C) -> S) =
@@ -59,64 +59,47 @@ internal interface ComposableBuilder<C, T, E> {
 }
 
 internal class MappedValidationBuilder<C, T, V, E>(
-    private val subBuilder: ValidationBuilder<C, V, E>,
+    private val subBuilder: ComposableBuilder<C, V, E>,
     private val name: String,
     private val mapFn: (T) -> V,
 ) : ComposableBuilder<C, T, E> {
     override fun build(): Validation<C, T, E> = MappedValidation(subBuilder.build(), name, mapFn)
 }
 
-internal class IterableValidationBuilder<C, T, V, E>(
-    private val subBuilder: ValidationBuilder<C, V, E>,
-    private val mapFn: (T) -> Iterable<V>,
-    private val name: String,
-) : ComposableBuilder<C, T, E> {
-    override fun build(): Validation<C, T, E> = MappedValidation(IterableValidation(subBuilder.build()), name, mapFn)
+internal class IterableValidationBuilder<C, T, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, Iterable<T>, E> {
+    override fun build(): Validation<C, Iterable<T>, E> = IterableValidation(subBuilder.build())
 }
 
-internal class ArrayValidationBuilder<C, T, V, E>(
-    private val subBuilder: ValidationBuilder<C, V, E>,
-    private val mapFn: (T) -> Array<V>,
-    private val name: String,
-) : ComposableBuilder<C, T, E> {
-    override fun build(): Validation<C, T, E> = MappedValidation(ArrayValidation(subBuilder.build()), name, mapFn)
+internal class ArrayValidationBuilder<C, T, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, Array<T>, E> {
+    override fun build(): Validation<C, Array<T>, E> = ArrayValidation(subBuilder.build())
 }
 
-internal class MapValidationBuilder<C, T, K, V, E>(
-    private val subBuilder: ValidationBuilder<C, Entry<K, V>, E>,
-    private val mapFn: (T) -> Map<K, V>,
-    private val name: String,
-) : ComposableBuilder<C, T, E> {
-    override fun build(): Validation<C, T, E> = MappedValidation(MapValidation(subBuilder.build()), name, mapFn)
+internal class MapValidationBuilder<C, K, V, E>(
+    private val subBuilder: ComposableBuilder<C, Entry<K, V>, E>,
+) : ComposableBuilder<C, Map<K, V>, E> {
+    override fun build(): Validation<C, Map<K, V>, E> = MapValidation(subBuilder.build())
 }
 
-internal class OptionalValidationBuilder<C, T, V: Any, E>(
-    private val subBuilder: ValidationBuilder<C, V, E>,
-    private val mapFn: (T) -> V?,
-    private val name: String,
-) : ComposableBuilder<C, T, E> {
-    override fun build(): Validation<C, T, E> = MappedValidation(OptionalValidation(subBuilder.build()), name, mapFn)
+internal class OptionalValidationBuilder<C, T : Any, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, T?, E> {
+    override fun build(): Validation<C, T?, E> = OptionalValidation(subBuilder.build())
 }
 
-internal class RequiredValidationBuilder<C, T, V: Any, E>(
-    hint: HintBuilder<C, V?, E>,
-    private val subBuilder: ValidationBuilder<C, V, E>,
-    private val mapFn: (T) -> V?,
-    private val name: String,
-) : ComposableBuilder<C, T, E> {
-    val requiredConstraintBuilder: ConstraintValidationBuilder<C, V?, E> =
-        ConstraintValidationBuilder(hint, emptyList()) { _, value ->
-            value != null
-        }
-
-    override fun build(): Validation<C, T, E> =
-        MappedValidation(
-            RequiredValidation(
-                requiredConstraintBuilder.build(),
-                subBuilder.build(),
-            ),
-            name,
-            mapFn,
+internal class RequiredValidationBuilder<C, T : Any, E>(
+    hint: HintBuilder<C, T?, E>,
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, T?, E> {
+    val requiredConstraintBuilder: ConstraintValidationBuilder<C, T?, E> =
+        ConstraintValidationBuilder(hint, emptyList()) { _, value -> value != null }
+    override fun build(): Validation<C, T?, E> =
+        RequiredValidation(
+            requiredConstraintBuilder.build(),
+            subBuilder.build(),
         )
 }
 
