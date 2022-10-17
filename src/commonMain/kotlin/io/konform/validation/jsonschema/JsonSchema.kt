@@ -1,132 +1,166 @@
 package io.konform.validation.jsonschema
 
-import io.konform.validation.ConstraintBuilder
-import io.konform.validation.ValidationBuilder
+import io.konform.validation.*
 import kotlin.jvm.JvmName
 import kotlin.math.roundToInt
 
-inline fun <C, reified T> ValidationBuilder<C, *>.type() =
-    addConstraint(
-        "must be of the correct type"
-    ) { it is T }
+inline fun <C, reified T, E> ValidationBuilder<C, *, E>.type(noinline hint: HintBuilder<C, Any?, E>) =
+    addConstraint(hint, T::class) { it is T }
 
 @JvmName("simpleType")
-inline fun <reified T> ValidationBuilder<Unit, *>.type() = type<Unit, T>()
+inline fun <reified T> ValidationBuilder<Unit, *, String>.type() =
+    type<Unit, T, String>(StringHintBuilder("must be of the correct type"))
 
-fun <C, T> ValidationBuilder<C, T>.enum(vararg allowed: T) =
-    addConstraint(
-        "must be one of: {0}",
-        allowed.joinToString("', '", "'", "'")
-    ) { it in allowed }
+fun <C, T, E> ValidationBuilder<C, T, E>.enum(hint: HintBuilder<C, T, E>, vararg allowed: T) =
+    addConstraint(hint, allowed.toList()) { it in allowed }
 
-inline fun <C, reified T : Enum<T>> ValidationBuilder<C, String>.enum(): ConstraintBuilder {
-    val enumNames = enumValues<T>().map { it.name }
-    return addConstraint(
-        "must be one of: {0}",
-        enumNames.joinToString("', '", "'", "'")
-    ) { it in enumNames }
+fun <C, T> ValidationBuilder<C, T, String>.enum(vararg allowed: T): ConstraintBuilder<C, T, String> {
+    val hint: HintBuilder<C, T, String> = { _, arguments ->
+        val names = (arguments[0] as List<String>).joinToString("', '", "'", "'")
+        "must be one of: $names"
+    }
+    return enum(hint, *allowed)
 }
 
+// StringHintBuilder("must be one of: {0}")
+inline fun <C, reified T : Enum<T>, E> ValidationBuilder<C, String, E>.enum(noinline hint: HintBuilder<C, String, E>) =
+    enumValues<T>()
+        .map { it.name }
+        .let { enumNames -> addConstraint(hint, enumNames) { it in enumNames } }
+
+inline fun <C, reified T : Enum<T>> ValidationBuilder<C, String, String>.enum() =
+    enum<C, T, String>(StringHintBuilder("must be one of: {0}"))
+
 @JvmName("simpleEnum")
-inline fun <reified T : Enum<T>> ValidationBuilder<Unit, String>.enum(): ConstraintBuilder = enum<Unit, T>()
+inline fun <reified T : Enum<T>> ValidationBuilder<Unit, String, String>.enum() =
+    enum<Unit, T>()
 
-fun <C, T> ValidationBuilder<C, T>.const(expected: T) =
-    addConstraint(
-        "must be {0}",
-        expected?.let { "'$it'" } ?: "null"
-    ) { expected == it }
+fun <C, T, E> ValidationBuilder<C, T, E>.const(hint: HintBuilder<C, T, E>, expected: T) =
+    addConstraint(hint, expected?.let { "'$it'" } ?: "null") { expected == it }
 
+fun <C, T> ValidationBuilder<C, T, String>.const(expected: T) =
+    const(StringHintBuilder("must be {0}"), expected)
 
-fun <C, T : Number> ValidationBuilder<C, T>.multipleOf(factor: Number): ConstraintBuilder {
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.multipleOf(hint: HintBuilder<C, T, E>, factor: Number): ConstraintBuilder<C, T, E> {
     val factorAsDouble = factor.toDouble()
     require(factorAsDouble > 0) { "multipleOf requires the factor to be strictly larger than 0" }
-    return addConstraint("must be a multiple of '{0}'", factor.toString()) {
+    return addConstraint(hint, factor) {
         val division = it.toDouble() / factorAsDouble
         division.compareTo(division.roundToInt()) == 0
     }
 }
 
-fun <C, T : Number> ValidationBuilder<C, T>.maximum(maximumInclusive: Number) = addConstraint(
-    "must be at most '{0}'",
-    maximumInclusive.toString()
-) { it.toDouble() <= maximumInclusive.toDouble() }
+fun <C, T : Number> ValidationBuilder<C, T, String>.multipleOf(factor: Number): ConstraintBuilder<C, T, String> =
+    multipleOf(StringHintBuilder("must be a multiple of '{0}'"), factor)
 
-fun <C, T : Number> ValidationBuilder<C, T>.exclusiveMaximum(maximumExclusive: Number) = addConstraint(
-    "must be less than '{0}'",
-    maximumExclusive.toString()
-) { it.toDouble() < maximumExclusive.toDouble() }
 
-fun <C, T : Number> ValidationBuilder<C, T>.minimum(minimumInclusive: Number) = addConstraint(
-    "must be at least '{0}'",
-    minimumInclusive.toString()
-) { it.toDouble() >= minimumInclusive.toDouble() }
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.maximum(hint: HintBuilder<C, T, E>, maximumInclusive: Number) =
+    addConstraint(hint, maximumInclusive) { it.toDouble() <= maximumInclusive.toDouble() }
 
-fun <C, T : Number> ValidationBuilder<C, T>.exclusiveMinimum(minimumExclusive: Number) = addConstraint(
-    "must be greater than '{0}'",
-    minimumExclusive.toString()
-) { it.toDouble() > minimumExclusive.toDouble() }
+fun <C, T : Number> ValidationBuilder<C, T, String>.maximum(maximumInclusive: Number) =
+    maximum(StringHintBuilder("must be at most '{0}'"), maximumInclusive)
 
-fun <C> ValidationBuilder<C, String>.minLength(length: Int): ConstraintBuilder {
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.exclusiveMaximum(hint: HintBuilder<C, T, E>, maximumExclusive: Number) =
+    addConstraint(hint, maximumExclusive) { it.toDouble() < maximumExclusive.toDouble() }
+
+fun <C, T : Number> ValidationBuilder<C, T, String>.exclusiveMaximum(maximumExclusive: Number) =
+    exclusiveMaximum(StringHintBuilder("must be less than '{0}'"), maximumExclusive)
+
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.minimum(hint: HintBuilder<C, T, E>, minimumInclusive: Number) =
+    addConstraint(hint, minimumInclusive) { it.toDouble() >= minimumInclusive.toDouble() }
+
+fun <C, T : Number> ValidationBuilder<C, T, String>.minimum(minimumInclusive: Number) =
+    minimum(StringHintBuilder("must be at least '{0}'"), minimumInclusive)
+
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.exclusiveMinimum(hint: HintBuilder<C, T, E>, minimumExclusive: Number) =
+    addConstraint(hint, minimumExclusive) { it.toDouble() > minimumExclusive.toDouble() }
+
+fun <C, T : Number> ValidationBuilder<C, T, String>.exclusiveMinimum(minimumExclusive: Number) =
+    exclusiveMinimum(StringHintBuilder("must be greater than '{0}'"), minimumExclusive)
+
+fun <C, E> ValidationBuilder<C, String, E>.minLength(hint: HintBuilder<C, String, E>, length: Int): ConstraintBuilder<C, String, E> {
     require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
-    return addConstraint(
-        "must have at least {0} characters",
-        length.toString()
-    ) { it.length >= length }
+    return addConstraint(hint, length) { it.length >= length }
 }
+fun <C> ValidationBuilder<C, String, String>.minLength(length: Int) =
+    minLength(StringHintBuilder("must have at least {0} characters"), length)
 
-fun <C> ValidationBuilder<C, String>.maxLength(length: Int): ConstraintBuilder {
+fun <C, E> ValidationBuilder<C, String, E>.maxLength(hint: HintBuilder<C, String, E>, length: Int): ConstraintBuilder<C, String, E> {
     require(length >= 0) { IllegalArgumentException("maxLength requires the length to be >= 0") }
-    return addConstraint(
-        "must have at most {0} characters",
-        length.toString()
-    ) { it.length <= length }
+    return addConstraint(hint, length) { it.length <= length }
 }
 
-fun <C> ValidationBuilder<C, String>.pattern(pattern: String) = pattern(pattern.toRegex())
+fun <C> ValidationBuilder<C, String, String>.maxLength(length: Int) =
+    maxLength(StringHintBuilder("must have at most {0} characters"), length)
 
-fun <C> ValidationBuilder<C, String>.pattern(pattern: Regex) = addConstraint(
-    "must match the expected pattern",
-    pattern.toString()
-) { it.matches(pattern) }
+fun <C, E> ValidationBuilder<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: Regex) =
+    addConstraint(hint, pattern) { it.matches(pattern) }
+
+fun <C> ValidationBuilder<C, String, String>.pattern(pattern: Regex) =
+    pattern(StringHintBuilder("must match the expected pattern"), pattern)
+
+fun <C, E> ValidationBuilder<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: String) =
+    pattern(hint, pattern.toRegex())
+
+fun <C> ValidationBuilder<C, String, String>.pattern(pattern: String) =
+    pattern(pattern.toRegex())
+
+private const val minItemsTemplate = "must have at least {0} items"
+
+@JvmName("minItemsIterable")
+fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.minItems(hint: HintBuilder<C, T, E>, minSize: Int) =
+    addConstraint(hint, minSize) { it.count() >= minSize }
+
+@JvmName("minItemsIterable")
+fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.minItems(minSize: Int) =
+    minItems(StringHintBuilder(minItemsTemplate), minSize)
+
+@JvmName("minItemsMap")
+fun <C, T : Map<*, *>, E> ValidationBuilder<C, T, E>.minItems(hint: HintBuilder<C, T, E>, minSize: Int) =
+    addConstraint(hint, minSize) { it.count() >= minSize }
+
+@JvmName("minItemsMap")
+fun <C, T : Map<*, *>> ValidationBuilder<C, T, String>.minItems(minSize: Int) =
+    minItems(StringHintBuilder(minItemsTemplate), minSize)
 
 
-inline fun <C, reified T> ValidationBuilder<C, T>.minItems(minSize: Int): ConstraintBuilder = addConstraint(
-    "must have at least {0} items",
-    minSize.toString()
-) {
-    when (it) {
-        is Iterable<*> -> it.count() >= minSize
-        is Array<*> -> it.count() >= minSize
-        is Map<*, *> -> it.count() >= minSize
-        else -> throw IllegalStateException("minItems can not be applied to type ${T::class}")
-    }
-}
+private const val maxItemsTemplate = "must have at most {0} items"
+
+@JvmName("maxItemsIterable")
+fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.maxItems(hint: HintBuilder<C, T, E>, maxSize: Int) =
+    addConstraint(hint, maxSize) { it.count() <= maxSize }
+
+@JvmName("maxItemsIterable")
+fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.maxItems(maxSize: Int) =
+    maxItems(StringHintBuilder(maxItemsTemplate), maxSize)
+
+@JvmName("maxItemsMap")
+fun <C, T : Map<*, *>, E> ValidationBuilder<C, T, E>.maxItems(hint: HintBuilder<C, T, E>, maxSize: Int) =
+    addConstraint(hint, maxSize) { it.count() <= maxSize }
+
+@JvmName("maxItemsMap")
+fun <C, T : Map<*, *>> ValidationBuilder<C, T, String>.maxItems(maxSize: Int) =
+    maxItems(StringHintBuilder(maxItemsTemplate), maxSize)
+
+fun <C, T : Map<*, *>, E> ValidationBuilder<C, T, E>.minProperties(hint: HintBuilder<C, T, E>, minSize: Int) =
+    minItems(hint, minSize)
+
+fun <C, T : Map<*, *>> ValidationBuilder<C, T, String>.minProperties(minSize: Int) =
+    minProperties(StringHintBuilder("must have at least {0} properties"), minSize)
+
+fun <C, T : Map<*, *>, E> ValidationBuilder<C, T, E>.maxProperties(hint: HintBuilder<C, T, E>, maxSize: Int) =
+    maxItems(hint, maxSize)
+
+fun <C, T : Map<*, *>> ValidationBuilder<C, T, String>.maxProperties(maxSize: Int) =
+    maxProperties(StringHintBuilder("must have at most {0} properties"), maxSize)
 
 
-inline fun <C, reified T> ValidationBuilder<C, T>.maxItems(maxSize: Int): ConstraintBuilder = addConstraint(
-    "must have at most {0} items",
-    maxSize.toString()
-) {
-    when (it) {
-        is Iterable<*> -> it.count() <= maxSize
-        is Array<*> -> it.count() <= maxSize
-        is Map<*, *> -> it.count() <= maxSize
-        else -> throw IllegalStateException("maxItems can not be applied to type ${T::class}")
-    }
-}
+private const val uniqueItemsTemplate = "all items must be unique"
 
-inline fun <C, reified T: Map<*, *>> ValidationBuilder<C, T>.minProperties(minSize: Int): ConstraintBuilder =
-    minItems(minSize) hint "must have at least {0} properties"
+@JvmName("uniqueItemsIterable")
+fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.uniqueItems(hint: HintBuilder<C, T, E>, unique: Boolean) =
+    addConstraint(hint, unique) { !unique || it.distinct().count() == it.count() }
 
-inline fun <C, reified T: Map<*, *>> ValidationBuilder<C, T>.maxProperties(maxSize: Int): ConstraintBuilder =
-    maxItems(maxSize) hint "must have at most {0} properties"
-
-inline fun <C, reified T> ValidationBuilder<C, T>.uniqueItems(unique: Boolean): ConstraintBuilder = addConstraint(
-    "all items must be unique"
-) {
-    !unique || when (it) {
-        is Iterable<*> -> it.distinct().count() == it.count()
-        is Array<*> -> it.distinct().count() == it.count()
-        else -> throw IllegalStateException("uniqueItems can not be applied to type ${T::class}")
-    }
-}
+@JvmName("uniqueItemsIterable")
+fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.uniqueItems(unique: Boolean) =
+    uniqueItems(StringHintBuilder(uniqueItemsTemplate), unique)
