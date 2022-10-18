@@ -273,13 +273,12 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation(emptyList())))
 
+        val arrayValidation = Validation<Array<String>> { minItems(1) }
 
-//        val arrayValidation = Validation<Array<String>> { minItems(1) }
-//
-//        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
-//        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
-//
-//        assertEquals(1, countFieldsWithErrors(arrayValidation(emptyArray())))
+        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(emptyArray())))
 
         val mapValidation = Validation<Map<String, Int>> { minItems(1) }
 
@@ -300,12 +299,12 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation(listOf("a", "b"))))
 
-//        val arrayValidation = Validation<Array<String>> { maxItems(1) }
-//
-//        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
-//        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
-//
-//        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "b"))))
+        val arrayValidation = Validation<Array<String>> { maxItems(1) }
+
+        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "b"))))
 
         val mapValidation = Validation<Map<String, Int>> { maxItems(1) }
 
@@ -351,13 +350,13 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation(listOf("a", "a"))))
 
-//        val arrayValidation = Validation<Array<String>> { uniqueItems(true) }
-//
-//        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
-//        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
-//        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
-//
-//        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "a"))))
+        val arrayValidation = Validation<Array<String>> { uniqueItems(true) }
+
+        emptyArray<String>().let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a").let { assertEquals(Valid(it), arrayValidation(it)) }
+        arrayOf("a", "b").let { assertEquals(Valid(it), arrayValidation(it)) }
+
+        assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "a"))))
 
         assertEquals("all items must be unique", validation(listOf("a", "a")).get()!![0])
     }

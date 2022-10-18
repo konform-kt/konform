@@ -117,6 +117,14 @@ fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.minItems(hint: HintBuilde
 fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.minItems(minSize: Int) =
     minItems(stringHintBuilder(minItemsTemplate), minSize)
 
+@JvmName("minItemsArray")
+fun <C, T, E> ValidationBuilder<C, Array<T>, E>.minItems(hint: HintBuilder<C, Array<T>, E>, minSize: Int) =
+    addConstraint(hint, minSize) { it.count() >= minSize }
+
+@JvmName("minItemsArray")
+fun <C, T> ValidationBuilder<C, Array<T>, String>.minItems(minSize: Int) =
+    minItems(stringHintBuilder(minItemsTemplate), minSize)
+
 @JvmName("minItemsMap")
 fun <C, T : Map<*, *>, E> ValidationBuilder<C, T, E>.minItems(hint: HintBuilder<C, T, E>, minSize: Int) =
     addConstraint(hint, minSize) { it.count() >= minSize }
@@ -134,6 +142,14 @@ fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.maxItems(hint: HintBuilde
 
 @JvmName("maxItemsIterable")
 fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.maxItems(maxSize: Int) =
+    maxItems(stringHintBuilder(maxItemsTemplate), maxSize)
+
+@JvmName("maxItemsArray")
+fun <C, T, E> ValidationBuilder<C, Array<T>, E>.maxItems(hint: HintBuilder<C, Array<T>, E>, maxSize: Int) =
+    addConstraint(hint, maxSize) { it.count() <= maxSize }
+
+@JvmName("maxItemsArray")
+fun <C, T> ValidationBuilder<C, Array<T>, String>.maxItems(maxSize: Int) =
     maxItems(stringHintBuilder(maxItemsTemplate), maxSize)
 
 @JvmName("maxItemsMap")
@@ -165,4 +181,12 @@ fun <C, T : Iterable<*>, E> ValidationBuilder<C, T, E>.uniqueItems(hint: HintBui
 
 @JvmName("uniqueItemsIterable")
 fun <C, T : Iterable<*>> ValidationBuilder<C, T, String>.uniqueItems(unique: Boolean) =
+    uniqueItems(stringHintBuilder(uniqueItemsTemplate), unique)
+
+@JvmName("uniqueItemsArray")
+fun <C, T, E> ValidationBuilder<C, Array<T>, E>.uniqueItems(hint: HintBuilder<C, Array<T>, E>, unique: Boolean) =
+    addConstraint(hint, unique) { !unique || it.distinct().count() == it.count() }
+
+@JvmName("uniqueItemsArray")
+fun <C, T> ValidationBuilder<C, Array<T>, String>.uniqueItems(unique: Boolean) =
     uniqueItems(stringHintBuilder(uniqueItemsTemplate), unique)
