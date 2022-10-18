@@ -100,10 +100,12 @@ fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: Validati
 typealias HintArguments = List<Any>
 typealias HintBuilder<C, T, E> = C.(T, HintArguments) -> E
 
-fun <C, T> stringHintBuilder(template: String): HintBuilder<C, T, String> = { value, args ->
+fun <C, T> stringHint(template: String): HintBuilder<C, T, String> = { value, args ->
     args
         .map(Any::toString)
         .foldIndexed(template.replace("{value}", value.toString())) { index, acc, arg ->
             acc.replace("{$index}", arg)
         }
 }
+
+fun <C, T, E> staticHint(e: E): HintBuilder<C, T, E> = { _, _ -> e }

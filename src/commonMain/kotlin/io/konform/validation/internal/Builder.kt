@@ -41,7 +41,7 @@ internal class ValidationNodeBuilder<C, T, E>: ValidationBuilder<C, T, E>() {
         RequiredHintBuilder(hint, init)
 
     override fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedRequiredBuilder<C, R, String> =
-        RequiredHintBuilder(stringHintBuilder("is required"), init)
+        RequiredHintBuilder(stringHint("is required"), init)
 
     override fun <S> run(validation: Validation<S, T, E>, map: (C) -> S) =
         add(PrebuildValidationBuilder(validation, map))

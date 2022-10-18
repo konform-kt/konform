@@ -20,7 +20,7 @@ class ValidationResultTest {
                     City::postalCode {
                         minLength(4)
                         maxLength(5)
-                        pattern("\\d{4,5}") hint stringHintBuilder("must be a four or five digit number")
+                        pattern("\\d{4,5}") hint stringHint("must be a four or five digit number")
                     }
                 }
             }
