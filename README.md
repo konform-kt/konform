@@ -99,7 +99,7 @@ You can define validations for nested classes and use them for new validations
 
 ```Kotlin
 val ageCheck = Validation<UserProfile> {
-    UserProfile::age required {
+    UserProfile::age required with {
         minimum(18)
     }
 }
@@ -128,8 +128,8 @@ data class Event(
 val validateEvent = Validation<Event> {
     Event::organizer {
         // even though the email is nullable you can force it to be set in the validation
-        Person::email required {
-            pattern(".+@bigcorp.com") hint "Organizers must have a BigCorp email address"
+        Person::email required with {
+            pattern("\\w+@bigcorp.com") hint staticHint("Organizers must have a BigCorp email address")
         }
     }
 
@@ -144,22 +144,22 @@ val validateEvent = Validation<Event> {
             minLength(2)
         }
         Person::age {
-            minimum(18) hint "Attendees must be 18 years or older"
+            minimum(18) hint stringHint("Attendees must be 18 years or older")
         }
         // Email is optional but if it is set it must be valid
         Person::email ifPresent {
-            pattern(".+@.+\..+") hint "Please provide a valid email address (optional)"
+            pattern("\\w+@\\w+\\.\\w+") hint stringHint("Please provide a valid email address (optional)")
         }
     }
 
     // validation on the ticketPrices Map as a whole
     Event::ticketPrices {
-        minItems(1) hint "Provide at least one ticket price"
+        minItems(1) hint stringHint("Provide at least one ticket price")
     }
 
     // validations for the individual entries
     Event::ticketPrices onEach {
-        // Tickets may be free in which case they are null
+        // Tickets may be free
         Entry<String, Double?>::value ifPresent {
             minimum(0.01)
         }
