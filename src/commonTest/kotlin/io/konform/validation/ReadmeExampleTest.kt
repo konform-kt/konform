@@ -53,7 +53,7 @@ class ReadmeExampleTest {
         val validateEvent = Validation<Event> {
             Event::organizer {
                 // even though the email is nullable you can force it to be set in the validation
-                Person::email required {
+                Person::email required with {
                     pattern("\\w+@bigcorp.com") hint { _, _ -> "Organizers must have a BigCorp email address" }
                 }
             }

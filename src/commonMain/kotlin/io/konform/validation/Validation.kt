@@ -6,20 +6,20 @@ import kotlin.jvm.JvmName
 interface Validation<C, T, E> {
 
     companion object {
-        operator fun <C, T, E> invoke(requiredError: E, init: ValidationBuilder<C, T, E>.() -> Unit): Validation<C, T, E> {
-            val builder = ValidationNodeBuilder<C, T, E>(requiredError)
+        operator fun <C, T, E> invoke(init: ValidationBuilder<C, T, E>.() -> Unit): Validation<C, T, E> {
+            val builder = ValidationNodeBuilder<C, T, E>()
             return builder.apply(init).build()
         }
 
         @JvmName("contextInvoke")
         operator fun <C, T> invoke(init: ValidationBuilder<C, T, String>.() -> Unit): Validation<C, T, String> {
-            val builder = ValidationNodeBuilder<C, T, String>("is required")
+            val builder = ValidationNodeBuilder<C, T, String>()
             return builder.apply(init).build()
         }
 
         @JvmName("simpleInvoke")
         operator fun <T> invoke(init: ValidationBuilder<Unit, T, String>.() -> Unit): Validation<Unit, T, String> {
-            val builder = ValidationNodeBuilder<Unit, T, String>("is required")
+            val builder = ValidationNodeBuilder<Unit, T, String>()
             return builder.apply(init).build()
         }
     }

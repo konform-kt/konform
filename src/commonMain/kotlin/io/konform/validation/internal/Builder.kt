@@ -5,9 +5,7 @@ import kotlin.collections.Map.Entry
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
-internal class ValidationNodeBuilder<C, T, E>(
-    override val requiredError: E,
-) : ValidationBuilder<C, T, E>() {
+internal class ValidationNodeBuilder<C, T, E>: ValidationBuilder<C, T, E>() {
     private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
 
     override fun build(): Validation<C, T, E> =
@@ -39,17 +37,23 @@ internal class ValidationNodeBuilder<C, T, E>(
             .also { add(MappedValidationBuilder(it, name, mapFn)) }
             .requiredConstraintBuilder
 
+    override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedRequiredBuilder<C, R, E> =
+        RequiredHintBuilder(hint, init)
+
+    override fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedRequiredBuilder<C, R, String> =
+        RequiredHintBuilder(stringHintBuilder("is required"), init)
+
     override fun <S> run(validation: Validation<S, T, E>, map: (C) -> S) =
         add(PrebuildValidationBuilder(validation, map))
 
     override val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
-        get() = ValidationNodeBuilder<C, R, E>(requiredError)
+        get() = ValidationNodeBuilder<C, R, E>()
             .also { add(MappedValidationBuilder(it, this.name,this)) }
 
     private fun <D, S> createBuilder(init: ValidationBuilder<D, S, E>.() -> Unit) =
-        ValidationNodeBuilder<D, S, E>(requiredError).also(init)
+        ValidationNodeBuilder<D, S, E>().also(init)
 
-    private fun add(builder: ComposableBuilder<C, T, E>) {
+    override fun add(builder: ComposableBuilder<C, T, E>) {
         subBuilders.add(builder)
     }
 }
@@ -57,6 +61,11 @@ internal class ValidationNodeBuilder<C, T, E>(
 internal interface ComposableBuilder<C, T, E> {
     fun build(): Validation<C, T, E>
 }
+
+internal data class RequiredHintBuilder<C, T, E>(
+    override val hint: HintBuilder<C, T?, E>,
+    override val init: ValidationBuilder<C, T, E>.() -> Unit
+) : HintedRequiredBuilder<C, T, E>
 
 internal class MappedValidationBuilder<C, T, V, E>(
     private val subBuilder: ComposableBuilder<C, V, E>,

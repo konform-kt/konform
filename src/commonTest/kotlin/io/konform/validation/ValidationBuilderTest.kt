@@ -112,7 +112,7 @@ class ValidationBuilderTest {
     @Test
     fun validatingRequiredFields() {
         val nullableFieldValidation = Validation<Register> {
-            Register::referredBy required {
+            Register::referredBy required with(stringHintBuilder("is required")) {
                 matches(".+@.+".toRegex())
             }
         }

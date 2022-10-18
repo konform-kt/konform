@@ -10,7 +10,6 @@ private annotation class ValidationScope
 
 @ValidationScope
 abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
-    abstract val requiredError: E
     abstract override fun build(): Validation<C, T, E>
 
     abstract fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, E>
@@ -41,11 +40,18 @@ abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
     infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)
 
     internal abstract fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E>
-    infix fun <R : Any> KProperty1<T, R?>.required(init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> = required(this.name, { _, _ -> requiredError }, this, init)
-    infix fun <R : Any> KFunction1<T, R?>.required(init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> = required(this.name, { _, _ -> requiredError }, this, init)
+    infix fun <R : Any> KProperty1<T, R?>.required(hintedBuilder: HintedRequiredBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
+        required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
+    infix fun <R : Any> KFunction1<T, R?>.required(hintedBuilder: HintedRequiredBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
+        required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
+
+    abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedRequiredBuilder<C, R, E>
+    abstract fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedRequiredBuilder<C, R, String>
 
     abstract fun <S> run(validation: Validation<S, T, E>, map: (C) -> S)
     fun run(validation: Validation<C, T, E>) = run(validation, ::identity)
+
+    internal abstract fun add(builder: ComposableBuilder<C, T, E>)
 
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
 }
@@ -54,40 +60,41 @@ interface ConstraintBuilder<C, T, E> {
     infix fun hint(hint: HintBuilder<C, T, E>) : ConstraintBuilder<C, T, E>
 }
 
+interface HintedRequiredBuilder<C, T, E> {
+    val hint: HintBuilder<C, T?, E>
+    val init: ValidationBuilder<C, T, E>.() -> Unit
+}
+
 fun <C, T : Any, E> ValidationBuilder<C, T?, E>.ifPresent(init: ValidationBuilder<C, T, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, T, E>(this.requiredError)
-    init(builder)
-    run(OptionalValidation(builder.build()))
+    val builder = ValidationNodeBuilder<C, T, E>().also(init)
+    add(OptionalValidationBuilder(builder))
 }
 
 fun <C, T : Any, E> ValidationBuilder<C, T?, E>.required(hint: HintBuilder<C, T?, E>, init: ValidationBuilder<C, T, E>.() -> Unit): ConstraintBuilder<C, T?, E> {
-    val builder = ValidationNodeBuilder<C, T, E>(requiredError).also(init)
+    val builder = ValidationNodeBuilder<C, T, E>().also(init)
     val requiredValidationBuilder = RequiredValidationBuilder(hint, builder)
-    run(requiredValidationBuilder.build())
+    add(requiredValidationBuilder)
     return requiredValidationBuilder.requiredConstraintBuilder
 }
 
 @JvmName("onEachIterable")
 fun <C, S, T : Iterable<S>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, S, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, S, E>(requiredError)
-    init(builder)
+    val builder = ValidationNodeBuilder<C, S, E>().also(init)
     @Suppress("UNCHECKED_CAST")
-    run(IterableValidation(builder.build()) as Validation<C, T, E>)
+    add(IterableValidationBuilder(builder) as ComposableBuilder<C, T, E>)
 }
 
 @JvmName("onEachArray")
 fun <C, T, E> ValidationBuilder<C, Array<T>, E>.onEach(init: ValidationBuilder<C, T, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, T, E>(requiredError)
-    init(builder)
-    run(ArrayValidation(builder.build()))
+    val builder = ValidationNodeBuilder<C, T, E>().also(init)
+    add(ArrayValidationBuilder(builder))
 }
 
 @JvmName("onEachMap")
 fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, Map.Entry<K, V>, E>(requiredError)
-    init(builder)
+    val builder = ValidationNodeBuilder<C, Map.Entry<K, V>, E>().also(init)
     @Suppress("UNCHECKED_CAST")
-    run(MapValidation(builder.build()) as Validation<C, T, E>)
+    add(MapValidationBuilder(builder) as ComposableBuilder<C, T, E>)
 }
 
 typealias HintArguments = List<Any>
