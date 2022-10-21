@@ -56,9 +56,14 @@ abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
 }
 
+fun <C, T> ValidationBuilder<C, T, String>.addConstraint(hint: String, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, String> =
+    addConstraint(stringHint(hint), values) { test(it) }
+
 interface ConstraintBuilder<C, T, E> {
     infix fun hint(hint: HintBuilder<C, T, E>) : ConstraintBuilder<C, T, E>
 }
+
+infix fun <C,T> ConstraintBuilder<C,T,String>.hint(hint: String) = hint(stringHint(hint))
 
 interface HintedRequiredBuilder<C, T, E> {
     val hint: HintBuilder<C, T?, E>

@@ -13,13 +13,13 @@ class ValidationBuilderTest {
 
     // Some example constraints for Testing
     fun ValidationBuilder<Unit, String, String>.minLength(minValue: Int) =
-        addConstraint(stringHint("must have at least {0} characters"), minValue) { it.length >= minValue }
+        addConstraint("must have at least {0} characters", minValue) { it.length >= minValue }
 
     fun ValidationBuilder<Unit, String, String>.maxLength(minValue: Int) =
-        addConstraint(stringHint("must have at most {0} characters"), minValue) { it.length <= minValue }
+        addConstraint("must have at most {0} characters", minValue) { it.length <= minValue }
 
     fun ValidationBuilder<Unit, String, String>.matches(regex: Regex) =
-        addConstraint(stringHint("must have correct format")) { it.contains(regex) }
+        addConstraint("must have correct format") { it.contains(regex) }
 
     fun ValidationBuilder<Unit, String, String>.containsANumber() =
         matches("[0-9]".toRegex()) hint stringHint("must have at least one number")
@@ -39,7 +39,7 @@ class ValidationBuilderTest {
     @Test
     fun singleValidationWithContext() {
         val validation = Validation<Set<String>, String> {
-            addConstraint(stringHint("This value is not allowed!")) { value -> this.contains(value) }
+            addConstraint("This value is not allowed!") { value -> this.contains(value) }
         }
         "a".let { assertEquals(Valid(it), validation(setOf("a", "b"), it)) }
         "c".let { assertEquals(1, countErrors(validation(setOf("a", "b"), it))) }
@@ -381,7 +381,7 @@ class ValidationBuilderTest {
         val addressValidation = Validation<AddressContext, Address> {
             Address::address.has.minLength(1)
             Address::country {
-                addConstraint(stringHint("Country is not allowed")) {
+                addConstraint("Country is not allowed") {
                     this.validCountries.contains(it)
                 }
             }
