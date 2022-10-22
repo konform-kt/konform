@@ -1,22 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.*
-import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.enum
-import io.konform.validation.jsonschema.exclusiveMaximum
-import io.konform.validation.jsonschema.exclusiveMinimum
-import io.konform.validation.jsonschema.maxItems
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.maxProperties
-import io.konform.validation.jsonschema.maximum
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.minProperties
-import io.konform.validation.jsonschema.minimum
-import io.konform.validation.jsonschema.multipleOf
-import io.konform.validation.jsonschema.pattern
-import io.konform.validation.jsonschema.type
-import io.konform.validation.jsonschema.uniqueItems
+import io.konform.validation.jsonschema.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -26,7 +11,7 @@ class JSONSchemaStyleConstraintsTest {
     @Test
     fun typeConstraint() {
         val anyValidation = Validation<Any> { type<String>() }
-        assertEquals<ValidationResult<Any>>(
+        assertEquals(
             Valid("This is a string"),
             anyValidation("This is a string"))
 
@@ -36,7 +21,7 @@ class JSONSchemaStyleConstraintsTest {
 
 
         val anyNumberValidation = Validation<Any> { type<Int>() }
-        assertEquals<ValidationResult<Any>>(Valid(1), anyNumberValidation(1))
+        assertEquals(Valid(1), anyNumberValidation(1))
         assertEquals(1, countFieldsWithErrors(anyNumberValidation("String")))
         assertEquals(1, countFieldsWithErrors(anyNumberValidation(true)))
 
@@ -45,12 +30,26 @@ class JSONSchemaStyleConstraintsTest {
     }
 
     @Test
+    fun genericTypeConstraint() {
+        val anyValidation = Validation<String, Any> {
+            type<String, String, String> { _, t ->  "Expected object of type '${t[0]}'" }
+        }
+        assertEquals(
+            Valid("This is a string"),
+            anyValidation("c", "This is a string"))
+
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", 1)))
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", 1.0)))
+        assertEquals(1, countFieldsWithErrors(anyValidation("c", true)))
+    }
+
+    @Test
     fun nullableTypeConstraint() {
         val anyValidation = Validation<Any?> { type<String?>() }
-        assertEquals<ValidationResult<Any?>>(
+        assertEquals(
             Valid("This is a string"),
             anyValidation("This is a string"))
-        assertEquals<ValidationResult<Any?>>(
+        assertEquals(
             Valid(null),
             anyValidation(null))
     }
@@ -65,7 +64,6 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals("must be one of: 'OK', 'CANCEL'", validation("").get()!![0])
     }
-
 
     enum class TCPPacket {
         SYN, ACK, SYNACK
@@ -84,8 +82,17 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid("SYNACK"), stringifiedEnumValidation("SYNACK"))
         assertEquals(1, countFieldsWithErrors(stringifiedEnumValidation("ASDF")))
 
+        val stringifiedEnumValidationWithContext = Validation<Int, String> {
+            enum<Int, TCPPacket, String>(enumHintBuilder())
+        }
+        assertEquals(Valid("SYN"), stringifiedEnumValidationWithContext(1, "SYN"))
+        assertEquals(Valid("ACK"), stringifiedEnumValidationWithContext(2, "ACK"))
+        assertEquals(Valid("SYNACK"), stringifiedEnumValidationWithContext(3, "SYNACK"))
+        assertEquals(1, countFieldsWithErrors(stringifiedEnumValidationWithContext(4, "ASDF")))
+
         assertEquals("must be one of: 'SYN', 'ACK'", partialEnumValidation(SYNACK).get()!![0])
         assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidation("").get()!![0])
+        assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidationWithContext(1, "").get()!![0])
     }
 
     @Test
@@ -96,12 +103,12 @@ class JSONSchemaStyleConstraintsTest {
 
 
         val nullableConstNullValidation = Validation<String?> { const(null) }
-        assertEquals<ValidationResult<String?>>(Valid(null), nullableConstNullValidation(null))
+        assertEquals(Valid(null), nullableConstNullValidation(null))
         assertEquals(1, countFieldsWithErrors(nullableConstNullValidation("")))
         assertEquals(1, countFieldsWithErrors(nullableConstNullValidation("Konform")))
 
         val nullableConstValidation = Validation<String?> { const("Konform") }
-        assertEquals<ValidationResult<String?>>(Valid("Konform"), nullableConstValidation("Konform"))
+        assertEquals(Valid("Konform"), nullableConstValidation("Konform"))
         assertEquals(1, countFieldsWithErrors(nullableConstValidation(null)))
         assertEquals(1, countFieldsWithErrors(nullableConstValidation("Konverse")))
 
@@ -113,11 +120,11 @@ class JSONSchemaStyleConstraintsTest {
     @Test
     fun multipleOfConstraint() {
         val validation = Validation<Number> { multipleOf(2.5) }
-        assertEquals<ValidationResult<Number>>(Valid(0), validation(0))
-        assertEquals<ValidationResult<Number>>(Valid(-2.5), validation(-2.5))
-        assertEquals<ValidationResult<Number>>(Valid(2.5), validation(2.5))
-        assertEquals<ValidationResult<Number>>(Valid(5), validation(5))
-        assertEquals<ValidationResult<Number>>(Valid(25), validation(25))
+        assertEquals(Valid(0), validation(0))
+        assertEquals(Valid(-2.5), validation(-2.5))
+        assertEquals(Valid(2.5), validation(2.5))
+        assertEquals(Valid(5), validation(5))
+        assertEquals(Valid(25), validation(25))
 
         assertEquals(1, countFieldsWithErrors(validation(1)))
         assertEquals(1, countFieldsWithErrors(validation(1.0)))
@@ -134,17 +141,17 @@ class JSONSchemaStyleConstraintsTest {
     fun maximumConstraint() {
         val validation = Validation<Number> { maximum(10) }
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(-10), validation(-10))
-        assertEquals<ValidationResult<Number>>(Valid(9), validation(9))
-        assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
-        assertEquals<ValidationResult<Number>>(Valid(10.0), validation(10.0))
+        assertEquals(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
+        assertEquals(Valid(-10), validation(-10))
+        assertEquals(Valid(9), validation(9))
+        assertEquals(Valid(10), validation(10))
+        assertEquals(Valid(10.0), validation(10.0))
 
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
         assertEquals(1, countFieldsWithErrors(validation(11)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), Validation<Number> { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY))
+        assertEquals(Valid(Double.POSITIVE_INFINITY), Validation<Number> { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY))
 
         assertEquals("must be at most '10'", validation(11).get()!![0])
     }
@@ -153,10 +160,10 @@ class JSONSchemaStyleConstraintsTest {
     fun exclusiveMaximumConstraint() {
         val validation = Validation<Number> { exclusiveMaximum(10) }
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(-10), validation(-10))
-        assertEquals<ValidationResult<Number>>(Valid(9), validation(9))
-        assertEquals<ValidationResult<Number>>(Valid(9.99999999), validation(9.99999999))
+        assertEquals(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
+        assertEquals(Valid(-10), validation(-10))
+        assertEquals(Valid(9), validation(9))
+        assertEquals(Valid(9.99999999), validation(9.99999999))
 
         assertEquals(1, countFieldsWithErrors(validation(10)))
         assertEquals(1, countFieldsWithErrors(validation(10.0)))
@@ -173,17 +180,17 @@ class JSONSchemaStyleConstraintsTest {
     fun minimumConstraint() {
         val validation = Validation<Number> { minimum(10) }
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
-        assertEquals<ValidationResult<Number>>(Valid(11), validation(11))
-        assertEquals<ValidationResult<Number>>(Valid(10.1), validation(10.1))
-        assertEquals<ValidationResult<Number>>(Valid(10.0), validation(10.0))
+        assertEquals(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
+        assertEquals(Valid(20), validation(20))
+        assertEquals(Valid(11), validation(11))
+        assertEquals(Valid(10.1), validation(10.1))
+        assertEquals(Valid(10.0), validation(10.0))
 
         assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
         assertEquals(1, countFieldsWithErrors(validation(8)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), Validation<Number> { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY))
+        assertEquals(Valid(Double.NEGATIVE_INFINITY), Validation<Number> { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY))
 
         assertEquals("must be at least '10'", validation(9).get()!![0])
     }
@@ -192,10 +199,10 @@ class JSONSchemaStyleConstraintsTest {
     fun minimumExclusiveConstraint() {
         val validation = Validation<Number> { exclusiveMinimum(10) }
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
-        assertEquals<ValidationResult<Number>>(Valid(11), validation(11))
-        assertEquals<ValidationResult<Number>>(Valid(10.1), validation(10.1))
+        assertEquals(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
+        assertEquals(Valid(20), validation(20))
+        assertEquals(Valid(11), validation(11))
+        assertEquals(Valid(10.1), validation(10.1))
 
         assertEquals(1, countFieldsWithErrors(validation(10)))
         assertEquals(1, countFieldsWithErrors(validation(10.0)))
@@ -265,7 +272,6 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid(listOf("a")), validation(listOf("a")))
 
         assertEquals(1, countFieldsWithErrors(validation(emptyList())))
-
 
         val arrayValidation = Validation<Array<String>> { minItems(1) }
 

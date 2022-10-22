@@ -1,19 +1,31 @@
 package io.konform.validation
 
-import io.konform.validation.internal.ValidationBuilderImpl
+import io.konform.validation.internal.ValidationNodeBuilder
+import kotlin.jvm.JvmName
 
-interface Validation<T> {
+interface Validation<C, T, E> {
 
     companion object {
-        operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
-            val builder = ValidationBuilderImpl<T>()
+        operator fun <C, T, E> invoke(init: ValidationBuilder<C, T, E>.() -> Unit): Validation<C, T, E> {
+            val builder = ValidationNodeBuilder<C, T, E>()
+            return builder.apply(init).build()
+        }
+
+        @JvmName("contextInvoke")
+        operator fun <C, T> invoke(init: ValidationBuilder<C, T, String>.() -> Unit): Validation<C, T, String> {
+            val builder = ValidationNodeBuilder<C, T, String>()
+            return builder.apply(init).build()
+        }
+
+        @JvmName("simpleInvoke")
+        operator fun <T> invoke(init: ValidationBuilder<Unit, T, String>.() -> Unit): Validation<Unit, T, String> {
+            val builder = ValidationNodeBuilder<Unit, T, String>()
             return builder.apply(init).build()
         }
     }
 
-    fun validate(value: T): ValidationResult<T>
-    operator fun invoke(value: T) = validate(value)
+    fun validate(context: C, value: T): ValidationResult<E, T>
+    operator fun invoke(context: C, value: T) = validate(context, value)
 }
 
-
-class Constraint<R> internal constructor(val hint: String, val templateValues: List<String>, val test: (R) -> Boolean)
+operator fun <T, E> Validation<Unit, T, E>.invoke(value: T) = validate(Unit, value)

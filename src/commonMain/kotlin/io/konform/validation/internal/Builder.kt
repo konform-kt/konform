@@ -1,152 +1,132 @@
 package io.konform.validation.internal
 
-import io.konform.validation.Constraint
-import io.konform.validation.Validation
-import io.konform.validation.ValidationBuilder
-import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.NonNull
-import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
-import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
+import io.konform.validation.*
 import kotlin.collections.Map.Entry
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
-internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
-    companion object {
-        private enum class PropModifier {
-            NonNull, Optional, OptionalRequired
-        }
+internal class ValidationNodeBuilder<C, T, E>: ValidationBuilder<C, T, E>() {
+    private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
 
-        private abstract class PropKey<T> {
-            abstract fun build(builder: ValidationBuilderImpl<*>): Validation<T>
-        }
+    override fun build(): Validation<C, T, E> =
+        ValidationNode(subBuilders.map { it.build() })
 
-        private data class SingleValuePropKey<T, R>(
-            val property: KProperty1<T, R>,
-            val modifier: PropModifier
-        ) : PropKey<T>() {
-            override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
-                @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).build()
-                return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, validations)
-                    Optional -> OptionalPropertyValidation(property, validations)
-                    OptionalRequired -> RequiredPropertyValidation(property, validations)
-                }
-            }
-        }
+    override fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: (C, T) -> Boolean): ConstraintBuilder<C, T, E> =
+        ConstraintValidationBuilder(hint, values.toList(), test).also { add(it) }
 
-        private data class IterablePropKey<T, R>(
-            val property: KProperty1<T, Iterable<R>>,
-            val modifier: PropModifier
-        ) : PropKey<T>() {
-            override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
-                @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).build()
-                @Suppress("UNCHECKED_CAST")
-                return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, IterableValidation(validations))
-                    Optional -> OptionalPropertyValidation(property, IterableValidation(validations))
-                    OptionalRequired -> RequiredPropertyValidation(property, IterableValidation(validations))
-                }
-            }
-        }
+    override fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(MappedValidationBuilder(createBuilder(init), this.name,this))
 
-        private data class ArrayPropKey<T, R>(
-            val property: KProperty1<T, Array<R>>,
-            val modifier: PropModifier
-        ) : PropKey<T>() {
-            override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
-                @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<R>).build()
-                @Suppress("UNCHECKED_CAST")
-                return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, ArrayValidation(validations))
-                    Optional -> OptionalPropertyValidation(property, ArrayValidation(validations))
-                    OptionalRequired -> RequiredPropertyValidation(property, ArrayValidation(validations))
-                }
-            }
-        }
+    override fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(MappedValidationBuilder(createBuilder(init), this.name,this))
 
-        private data class MapPropKey<T, K, V>(
-            val property: KProperty1<T, Map<K, V>>,
-            val modifier: PropModifier
-        ) : PropKey<T>() {
-            override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
-                @Suppress("UNCHECKED_CAST")
-                val validations = (builder as ValidationBuilderImpl<Map.Entry<K, V>>).build()
-                return when (modifier) {
-                    NonNull -> NonNullPropertyValidation(property, MapValidation(validations))
-                    Optional -> OptionalPropertyValidation(property, MapValidation(validations))
-                    OptionalRequired -> RequiredPropertyValidation(property, MapValidation(validations))
-                }
-            }
-        }
+    override fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(MappedValidationBuilder(IterableValidationBuilder(createBuilder(init)), name, mapFn))
 
+    override fun <R> onEachArray(name: String, mapFn: (T) -> Array<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(MappedValidationBuilder(ArrayValidationBuilder(createBuilder(init)), name, mapFn))
 
+    override fun <K, V> onEachMap(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, Entry<K, V>, E>.() -> Unit) =
+        add(MappedValidationBuilder(MapValidationBuilder(createBuilder(init)), name, mapFn))
+
+    override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(MappedValidationBuilder(OptionalValidationBuilder(createBuilder(init)), name, mapFn))
+
+    override fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> =
+        RequiredValidationBuilder(hint, createBuilder(init))
+            .also { add(MappedValidationBuilder(it, name, mapFn)) }
+            .requiredConstraintBuilder
+
+    override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedRequiredBuilder<C, R, E> =
+        RequiredHintBuilder(hint, init)
+
+    override fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedRequiredBuilder<C, R, String> =
+        RequiredHintBuilder(stringHint("is required"), init)
+
+    override fun <S> run(validation: Validation<S, T, E>, map: (C) -> S) =
+        add(PrebuildValidationBuilder(validation, map))
+
+    override val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
+        get() = ValidationNodeBuilder<C, R, E>()
+            .also { add(MappedValidationBuilder(it, this.name,this)) }
+
+    private fun <D, S> createBuilder(init: ValidationBuilder<D, S, E>.() -> Unit) =
+        ValidationNodeBuilder<D, S, E>().also(init)
+
+    override fun add(builder: ComposableBuilder<C, T, E>) {
+        subBuilders.add(builder)
     }
+}
 
-    private val constraints = mutableListOf<Constraint<T>>()
-    private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilderImpl<*>>()
-    private val prebuiltValidations = mutableListOf<Validation<T>>()
+internal interface ComposableBuilder<C, T, E> {
+    fun build(): Validation<C, T, E>
+}
 
-    override fun Constraint<T>.hint(hint: String): Constraint<T> =
-        Constraint(hint, this.templateValues, this.test).also { constraints.remove(this); constraints.add(it) }
+internal data class RequiredHintBuilder<C, T, E>(
+    override val hint: HintBuilder<C, T?, E>,
+    override val init: ValidationBuilder<C, T, E>.() -> Unit
+) : HintedRequiredBuilder<C, T, E>
 
-    override fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T> {
-        return Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
-    }
+internal class MappedValidationBuilder<C, T, V, E>(
+    private val subBuilder: ComposableBuilder<C, V, E>,
+    private val name: String,
+    private val mapFn: (T) -> V,
+) : ComposableBuilder<C, T, E> {
+    override fun build(): Validation<C, T, E> = MappedValidation(subBuilder.build(), name, mapFn)
+}
 
-    private fun <R> KProperty1<T, R?>.getOrCreateBuilder(modifier: PropModifier): ValidationBuilder<R> {
-        val key = SingleValuePropKey(this, modifier)
-        @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
-    }
+internal class IterableValidationBuilder<C, T, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, Iterable<T>, E> {
+    override fun build(): Validation<C, Iterable<T>, E> = IterableValidation(subBuilder.build())
+}
 
-    private fun <R> KProperty1<T, Iterable<R>>.getOrCreateIterablePropertyBuilder(modifier: PropModifier): ValidationBuilder<R> {
-        val key = IterablePropKey(this, modifier)
-        @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
-    }
+internal class ArrayValidationBuilder<C, T, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, Array<T>, E> {
+    override fun build(): Validation<C, Array<T>, E> = ArrayValidation(subBuilder.build())
+}
 
-    private fun <R> PropKey<T>.getOrCreateBuilder(): ValidationBuilder<R> {
-        @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(this, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
-    }
+internal class MapValidationBuilder<C, K, V, E>(
+    private val subBuilder: ComposableBuilder<C, Entry<K, V>, E>,
+) : ComposableBuilder<C, Map<K, V>, E> {
+    override fun build(): Validation<C, Map<K, V>, E> = MapValidation(subBuilder.build())
+}
 
-    override fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit) {
-        getOrCreateBuilder(NonNull).also(init)
-    }
+internal class OptionalValidationBuilder<C, T : Any, E>(
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, T?, E> {
+    override fun build(): Validation<C, T?, E> = OptionalValidation(subBuilder.build())
+}
 
-    override fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<R>.() -> Unit) {
-        prop.getOrCreateIterablePropertyBuilder(NonNull).also(init)
-    }
+internal class RequiredValidationBuilder<C, T : Any, E>(
+    hint: HintBuilder<C, T?, E>,
+    private val subBuilder: ComposableBuilder<C, T, E>,
+) : ComposableBuilder<C, T?, E> {
+    val requiredConstraintBuilder: ConstraintValidationBuilder<C, T?, E> =
+        ConstraintValidationBuilder(hint, emptyList()) { _, value -> value != null }
+    override fun build(): Validation<C, T?, E> =
+        RequiredValidation(
+            requiredConstraintBuilder.build(),
+            subBuilder.build(),
+        )
+}
 
-    override fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit) {
-        ArrayPropKey(prop, NonNull).getOrCreateBuilder<R>().also(init)
-    }
+internal class PrebuildValidationBuilder<C, T, S, E>(
+    private val validation: Validation<S, T, E>,
+    private val mapFn: (C) -> S,
+) : ComposableBuilder<C, T, E> {
+    override fun build(): Validation<C, T, E> = MappedContextValidation(validation, mapFn)
+}
 
-    override fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Entry<K, V>>.() -> Unit) {
-        MapPropKey(prop, NonNull).getOrCreateBuilder<Map.Entry<K, V>>().also(init)
-    }
-
-    override fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit) {
-        getOrCreateBuilder(Optional).also(init)
-    }
-
-    override fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit) {
-        getOrCreateBuilder(OptionalRequired).also(init)
-    }
-
-    override val <R> KProperty1<T, R>.has: ValidationBuilder<R>
-        get() = getOrCreateBuilder(NonNull)
-
-    override fun run(validation: Validation<T>) {
-        prebuiltValidations.add(validation)
-    }
-
-    override fun build(): Validation<T> {
-        val nestedValidations = subValidations.map { (key, builder) ->
-            key.build(builder)
-        }
-        return ValidationNode(constraints, nestedValidations + prebuiltValidations)
+internal class ConstraintValidationBuilder<C, T, E>(
+    private var hint: HintBuilder<C, T, E>,
+    private val arguments: HintArguments,
+    private val test: (C, T) -> Boolean,
+) : ComposableBuilder<C, T, E>, ConstraintBuilder<C, T, E> {
+    override fun build(): Validation<C, T, E> = ConstraintValidation(hint, arguments, test)
+    override infix fun hint(hint: HintBuilder<C, T, E>): ConstraintValidationBuilder<C, T, E> {
+        this.hint = hint
+        return this
     }
 }
