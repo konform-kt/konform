@@ -57,7 +57,7 @@ abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
 }
 
 fun <C, T> ValidationBuilder<C, T, String>.addConstraint(hint: String, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, String> =
-    addConstraint(stringHint(hint), values) { test(it) }
+    addConstraint(stringHint(hint), *values) { test(it) }
 
 interface ConstraintBuilder<C, T, E> {
     infix fun hint(hint: HintBuilder<C, T, E>) : ConstraintBuilder<C, T, E>
