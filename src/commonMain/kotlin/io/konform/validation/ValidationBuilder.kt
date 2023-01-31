@@ -7,6 +7,7 @@ import io.konform.validation.internal.OptionalValidation
 import io.konform.validation.internal.RequiredValidation
 import io.konform.validation.internal.ValidationBuilderImpl
 import kotlin.jvm.JvmName
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
 @DslMarker
@@ -17,20 +18,33 @@ abstract class ValidationBuilder<T> {
     abstract fun build(): Validation<T>
     abstract fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T>
     abstract infix fun Constraint<T>.hint(hint: String): Constraint<T>
-    abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit)
-    internal abstract fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<R>.() -> Unit)
-    @JvmName("onEachIterable")
-    infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachIterable(this, init)
-    internal abstract fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit)
+    abstract operator fun <R> ((T) -> R).invoke(name: String, init: ValidationBuilder<R>.() -> Unit)
+    internal abstract fun <R> onEachIterable(name: String, prop: (T) -> Iterable<R>, init: ValidationBuilder<R>.() -> Unit)
+    internal abstract fun <R> onEachArray(name: String, prop: (T) -> Array<R>, init: ValidationBuilder<R>.() -> Unit)
+    internal abstract fun <K, V> onEachMap(name: String, prop: (T) -> Map<K, V>, init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit)
+    abstract fun <R> ((T) -> R?).ifPresent(name: String, init: ValidationBuilder<R>.() -> Unit)
+    abstract fun <R> ((T) -> R?).required(name: String, init: ValidationBuilder<R>.() -> Unit)
+    operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit) = invoke(name, init)
+    operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit) = invoke("$name()", init)
     @JvmName("onEachArray")
-    infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachArray(this, init)
-    internal abstract fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit)
+    infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachArray(name, this, init)
+    @JvmName("onEachIterable")
+    infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachIterable(name, this, init)
     @JvmName("onEachMap")
-    infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) = onEachMap(this, init)
-    abstract infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit)
-    abstract infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit)
+    infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) = onEachMap(name, this, init)
+    @JvmName("onEachArray")
+    infix fun <R> KFunction1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachArray("$name()", this, init)
+    @JvmName("onEachIterable")
+    infix fun <R> KFunction1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit) = onEachIterable("$name()", this, init)
+    @JvmName("onEachMap")
+    infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) = onEachMap("$name()", this, init)
+    infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit) = ifPresent(name, init)
+    infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit) = required(name, init)
+    infix fun <R> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit) = ifPresent("$name()", init)
+    infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit) = required("$name()", init)
     abstract fun run(validation: Validation<T>)
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+    abstract val <R> KFunction1<T, R>.has: ValidationBuilder<R>
 }
 
 fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
