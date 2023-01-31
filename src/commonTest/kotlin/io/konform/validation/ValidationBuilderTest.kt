@@ -1,5 +1,7 @@
 package io.konform.validation
 
+import io.konform.validation.jsonschema.const
+import io.konform.validation.jsonschema.enum
 import io.konform.validation.jsonschema.minItems
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -166,6 +168,95 @@ class ValidationBuilderTest {
         Register(email = "tester@test.com", password = "").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
         Register(email = "tester@test.com", password = "aaaaaaaaaaa").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
         Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+    }
+
+    @Test
+    fun functionAccessorSyntax() {
+        val splitDoubleValidation = Validation<Register> {
+            Register::getPasswordFun {
+                minLength(1)
+            }
+            Register::getPasswordFun {
+                maxLength(10)
+            }
+            Register::getEmailFun {
+                matches(".+@.+".toRegex())
+            }
+        }
+
+        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
+        Register(email = "tester@test.com", password = "").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
+        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
+        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+    }
+
+    @Test
+    fun lambdaAccessorSyntax() {
+        val splitDoubleValidation = Validation<Register> {
+            val getPassword = { r: Register -> r.password }
+            val getEmail = { r: Register -> r.email }
+            getPassword("getPasswordLambda") {
+                minLength(1)
+            }
+            getPassword("getPasswordLambda") {
+                maxLength(10)
+            }
+            getEmail("getEmailLambda") {
+                matches(".+@.+".toRegex())
+            }
+        }
+
+        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
+        Register(email = "tester@test.com", password = "").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
+        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
+        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+    }
+
+    @Test
+    fun complexLambdaAccessors() {
+        data class Token(
+            val claims: Map<String, String>
+        )
+
+        fun ValidationBuilder<Token>.validateClaim(
+            key: String,
+            validations: ValidationBuilder<String>.() -> Unit
+        ) {
+            val getClaimValue = { data: Token -> data.claims[key]}
+            getClaimValue.required(".claims[$key]") {
+                validations()
+            }
+        }
+
+        val accessTokenValidation = Validation<Token> {
+            validateClaim("scope") {
+                const("access")
+            }
+            validateClaim("issuer") {
+                enum("bob", "eve")
+            }
+        }
+        val refreshTokenVerification = Validation<Token> {
+            validateClaim("scope") {
+                const("refresh")
+            }
+            validateClaim("issuer") {
+                enum("bob", "eve")
+            }
+        }
+
+        Token(mapOf("scope" to "access", "issuer" to "bob")).let {
+            assertEquals(Valid(it), accessTokenValidation(it))
+            assertEquals(1, countFieldsWithErrors(refreshTokenVerification(it)))
+        }
+        Token(mapOf("scope" to "refresh", "issuer" to "eve")).let {
+            assertEquals(Valid(it), refreshTokenVerification(it))
+            assertEquals(1, countFieldsWithErrors(accessTokenValidation(it)))
+        }
+        Token(mapOf("issuer" to "alice")).let {
+            assertEquals(2, countFieldsWithErrors(accessTokenValidation(it)))
+            assertEquals(2, countFieldsWithErrors(refreshTokenVerification(it)))
+        }
     }
 
     @Test
@@ -353,6 +444,9 @@ class ValidationBuilderTest {
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }
 
-    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
+    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null) {
+        fun getPasswordFun() = password
+        fun getEmailFun() = email
+    }
     private data class Address(val address: String = "", val country: String = "DE")
 }
