@@ -5,6 +5,7 @@ import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
 internal class OptionalValidation<T: Any>(
@@ -23,6 +24,37 @@ internal class RequiredValidation<T: Any>(
         val nonNullValue = value
             ?: return Invalid(mapOf("" to listOf("is required")))
         return validation(nonNullValue)
+    }
+}
+
+internal class NonNullMethodValidation<T,R>(
+    private val method: KFunction1<T, R>,
+    private val validation: Validation<R>
+):Validation<T> {
+    override fun validate(value: T): ValidationResult<T> {
+        val methodValue=method.invoke(value)
+        return validation(methodValue).mapError { ".${method.name}$it" }.map { value }
+    }
+}
+
+internal class OptionalMethodValidation<T,R>(
+    private val method: KFunction1<T, R>,
+    private val validation: Validation<R>
+):Validation<T> {
+    override fun validate(value: T): ValidationResult<T> {
+        val propertyValue = method.invoke(value) ?: return Valid(value)
+        return validation(propertyValue).mapError { ".${method.name}$it" }.map { value }
+    }
+}
+
+internal class RequiredMethodValidation<T, R>(
+    private val method: KFunction1<T, R>,
+    private val validation: Validation<R>
+) : Validation<T> {
+    override fun validate(value: T): ValidationResult<T> {
+        val propertyValue = method.invoke(value)
+            ?: return Invalid<T>(mapOf(".${method.name}" to listOf("is required")))
+        return validation(propertyValue).mapError { ".${method.name}${it}" }.map { value }
     }
 }
 
