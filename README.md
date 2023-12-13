@@ -95,6 +95,42 @@ val validationResult = validateUser(validUser)
 
 ### Advanced use
 
+#### Hints
+
+You can add custom hints to validations
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::age ifPresent {
+        minimum(0) hint "Registering before birth is not supported"
+    }
+}
+```
+
+You can use `{value}` to include the `.toString()`-ed data in the hint
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::fullName {
+        minLength(2) hint "'{value}' is too short a name, must be at least 2 characters long."
+    }
+}
+```
+
+#### Custom validations
+
+You can add custom validations a a predicate using `addConstraint`
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::fullName {
+     addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+    }
+}
+```
+
+#### Nested validations
+
 You can define validations for nested classes and use them for new validations
 
 ```Kotlin
