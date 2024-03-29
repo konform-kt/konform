@@ -188,7 +188,7 @@ result[Event::ticketPrices, "free"]
 
 ##### Author
 
-[Niklas Lochschmidt](https://twitter.com/niklas_l)
+[Niklas Lochschmidt](https://niklaslochschmidt.com)
 
 ##### License
 
