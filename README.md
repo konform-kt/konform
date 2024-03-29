@@ -1,4 +1,4 @@
-[![Test](https://github.com/konform-kt/konform/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
+[![Test](https://github.com/konform-kt/konform/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
@@ -192,4 +192,4 @@ result[Event::ticketPrices, "free"]
 
 ##### License
 
-[MIT License](https://github.com/konform-kt/konform/blob/master/LICENSE)
+[MIT License](https://github.com/konform-kt/konform/blob/main/LICENSE)
