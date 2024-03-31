@@ -3,9 +3,9 @@
 
 # Portable validations for Kotlin
 
-  - **✅ Type-safe DSL**
-  - **🔗 Multi-platform support** (JVM, JS)
-  - **🐥 Zero dependencies**
+- **✅ Type-safe DSL**
+- **🔗 Multi-platform support** (JVM, JS)
+- **🐥 Zero dependencies**
 
 ### Installation
 
@@ -119,12 +119,12 @@ val validateUser = Validation<UserProfile> {
 
 #### Custom validations
 
-You can add custom validations a a predicate using `addConstraint`
+You can add custom validations by using `addConstraint`
 
 ```Kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::fullName {
-     addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+        addConstraint("Name cannot contain a tab") { !it.contains("\t") }
     }
 }
 ```
@@ -145,7 +145,7 @@ val validateUser = Validation<UserProfile> {
         minLength(2)
         maxLength(100)
     }
-    
+
     run(ageCheck)
 }
 ```
@@ -215,12 +215,12 @@ result[Event::ticketPrices, "free"]
 
 ### Other validation libraries written in Kotlin
 
-  - Valikator: https://github.com/valiktor/valiktor
-  - Kalidation: https://github.com/rcapraro/kalidation
-  
+- Valikator: https://github.com/valiktor/valiktor
+- Kalidation: https://github.com/rcapraro/kalidation
+
 ### Integration with testing libraries
 
-  - [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object is validated successfully or fails validation with specific error messages. See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
+- [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object is validated successfully or fails validation with specific error messages. See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
 
 ##### Author
 
