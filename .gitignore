@@ -29,3 +29,6 @@ local.properties
 
 # Javascript
 node_modules/
+
+# Secrets
+.github/workflows/pgp/github_actions.key.passphrase
