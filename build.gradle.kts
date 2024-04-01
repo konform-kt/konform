@@ -11,7 +11,7 @@ val projectDevelName = "Niklas Lochschmidt"
 val projectInceptionYear = 2018
 
 plugins {
-    kotlin("multiplatform") version "1.7.10"
+    kotlin("multiplatform") version "1.9.23"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
