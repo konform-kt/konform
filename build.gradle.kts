@@ -22,6 +22,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     idea
 }
 
@@ -98,11 +99,14 @@ kotlin {
         }
     }
 }
-
-val javaDocJar = tasks.register<Jar>("stubJavadoc") {
-    archiveClassifier.set("javadoc")
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("1.2.1")
 }
 
+val javaDocJar =
+    tasks.register<Jar>("stubJavadoc") {
+        archiveClassifier.set("javadoc")
+    }
 
 publishing {
     publications {
