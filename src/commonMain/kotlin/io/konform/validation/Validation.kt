@@ -2,17 +2,21 @@ package io.konform.validation
 
 import io.konform.validation.internal.ValidationBuilderImpl
 
-interface Validation<T> {
-    companion object {
-        operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
+public interface Validation<T> {
+    public companion object {
+        public operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
             val builder = ValidationBuilderImpl<T>()
             return builder.apply(init).build()
         }
     }
 
-    fun validate(value: T): ValidationResult<T>
+    public fun validate(value: T): ValidationResult<T>
 
-    operator fun invoke(value: T) = validate(value)
+    public operator fun invoke(value: T): ValidationResult<T> = validate(value)
 }
 
-class Constraint<R> internal constructor(val hint: String, val templateValues: List<String>, val test: (R) -> Boolean)
+public class Constraint<R> internal constructor(
+    public val hint: String,
+    public val templateValues: List<String>,
+    public val test: (R) -> Boolean,
+)
