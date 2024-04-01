@@ -34,6 +34,9 @@ group = projectGroup
 version = projectVersion
 
 kotlin {
+    // Since we are a library, prevent accidentally making things part of the public API
+    explicitApi()
+
     sourceSets.all {
         languageSettings {
             languageVersion = kotlinApiTarget
