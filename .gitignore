@@ -29,6 +29,3 @@ local.properties
 
 # Javascript
 node_modules/
-
-# KotlinJS
-kotlin-js-store/
