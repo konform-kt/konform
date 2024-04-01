@@ -8,6 +8,7 @@ val projectHost = "github"
 val projectOrg = "konform-kt"
 val projectLicense = "MIT"
 val projectLicenseUrl = "https://opensource.org/licenses/MIT"
+val projectScmUrl = "https://github.com/konform-kt/konform.git"
 val projectDevelNick = "nlochschmidt"
 val projectDevelName = "Niklas Lochschmidt"
 val projectInceptionYear = 2018
@@ -17,7 +18,7 @@ val jvmTarget = JvmTarget.JVM_1_8
 val javaVersion = 8
 
 plugins {
-    kotlin("multiplatform") version "1.8.20"
+    kotlin("multiplatform") version "1.9.23"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
@@ -98,36 +99,34 @@ kotlin {
     }
 }
 
-tasks.create<Jar>("stubJavadoc") {
+val javaDocJar = tasks.register<Jar>("stubJavadoc") {
     archiveClassifier.set("javadoc")
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-                artifact(tasks["stubJavadoc"])
-                pom {
-                    name.set(projectName)
-                    description.set(projectDesc)
-                    url.set("https://github.com/konform-kt/konform")
-                    licenses {
-                        license {
-                            name.set(projectLicense)
-                            url.set(projectLicenseUrl)
-                            distribution.set("repo")
-                        }
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifact(javaDocJar)
+            pom {
+                name.set(projectName)
+                description.set(projectDesc)
+                url.set("https://github.com/konform-kt/konform")
+                licenses {
+                    license {
+                        name.set(projectLicense)
+                        url.set(projectLicenseUrl)
+                        distribution.set("repo")
                     }
-                    developers {
-                        developer {
-                            id.set(projectDevelNick)
-                            name.set(projectDevelName)
-                        }
+                }
+                developers {
+                    developer {
+                        id.set(projectDevelNick)
+                        name.set(projectDevelName)
                     }
-                    scm {
-                        url.set("https://github.com/konform-kt/konform.git")
-                    }
+                }
+                scm {
+                    url.set(projectScmUrl)
                 }
             }
         }
