@@ -12,7 +12,9 @@ import kotlin.reflect.KProperty1
 internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     companion object {
         private enum class PropModifier {
-            NonNull, Optional, OptionalRequired
+            NonNull,
+            Optional,
+            OptionalRequired,
         }
 
         private abstract class PropKey<T> {
@@ -21,7 +23,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
         private data class SingleValuePropKey<T, R>(
             val property: KProperty1<T, R>,
-            val modifier: PropModifier
+            val modifier: PropModifier,
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
@@ -36,7 +38,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
         private data class IterablePropKey<T, R>(
             val property: KProperty1<T, Iterable<R>>,
-            val modifier: PropModifier
+            val modifier: PropModifier,
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
@@ -52,7 +54,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
         private data class ArrayPropKey<T, R>(
             val property: KProperty1<T, Array<R>>,
-            val modifier: PropModifier
+            val modifier: PropModifier,
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
@@ -68,7 +70,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
         private data class MapPropKey<T, K, V>(
             val property: KProperty1<T, Map<K, V>>,
-            val modifier: PropModifier
+            val modifier: PropModifier,
         ) : PropKey<T>() {
             override fun build(builder: ValidationBuilderImpl<*>): Validation<T> {
                 @Suppress("UNCHECKED_CAST")
@@ -80,8 +82,6 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
                 }
             }
         }
-
-
     }
 
     private val constraints = mutableListOf<Constraint<T>>()
@@ -89,9 +89,16 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     private val prebuiltValidations = mutableListOf<Validation<T>>()
 
     override fun Constraint<T>.hint(hint: String): Constraint<T> =
-        Constraint(hint, this.templateValues, this.test).also { constraints.remove(this); constraints.add(it) }
+        Constraint(hint, this.templateValues, this.test).also {
+            constraints.remove(this)
+            constraints.add(it)
+        }
 
-    override fun addConstraint(errorMessage: String, vararg templateValues: String, test: (T) -> Boolean): Constraint<T> {
+    override fun addConstraint(
+        errorMessage: String,
+        vararg templateValues: String,
+        test: (T) -> Boolean,
+    ): Constraint<T> {
         return Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
     }
 
@@ -116,15 +123,24 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         getOrCreateBuilder(NonNull).also(init)
     }
 
-    override fun <R> onEachIterable(prop: KProperty1<T, Iterable<R>>, init: ValidationBuilder<R>.() -> Unit) {
+    override fun <R> onEachIterable(
+        prop: KProperty1<T, Iterable<R>>,
+        init: ValidationBuilder<R>.() -> Unit,
+    ) {
         prop.getOrCreateIterablePropertyBuilder(NonNull).also(init)
     }
 
-    override fun <R> onEachArray(prop: KProperty1<T, Array<R>>, init: ValidationBuilder<R>.() -> Unit) {
+    override fun <R> onEachArray(
+        prop: KProperty1<T, Array<R>>,
+        init: ValidationBuilder<R>.() -> Unit,
+    ) {
         ArrayPropKey(prop, NonNull).getOrCreateBuilder<R>().also(init)
     }
 
-    override fun <K, V> onEachMap(prop: KProperty1<T, Map<K, V>>, init: ValidationBuilder<Entry<K, V>>.() -> Unit) {
+    override fun <K, V> onEachMap(
+        prop: KProperty1<T, Map<K, V>>,
+        init: ValidationBuilder<Entry<K, V>>.() -> Unit,
+    ) {
         MapPropKey(prop, NonNull).getOrCreateBuilder<Map.Entry<K, V>>().also(init)
     }
 
@@ -144,9 +160,10 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     }
 
     override fun build(): Validation<T> {
-        val nestedValidations = subValidations.map { (key, builder) ->
-            key.build(builder)
-        }
+        val nestedValidations =
+            subValidations.map { (key, builder) ->
+                key.build(builder)
+            }
         return ValidationNode(constraints, nestedValidations + prebuiltValidations)
     }
 }
