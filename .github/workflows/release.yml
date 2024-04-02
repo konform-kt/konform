@@ -3,8 +3,7 @@ on:
   push:
     branches:
       - main
-      # For testing
-      - "dhoepelman/auto_publish_ci"
+      - dhoepelman/auto_publish_ci
     tags:
       - 'v*'
 permissions:
@@ -51,33 +50,12 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Is snapshot: $IS_SNAPSHOT"
           echo "is_snapshot=$IS_SNAPSHOT" >> $GITHUB_OUTPUT
-      - name: Publish version '${{ steps.get-version.outputs.version }}' to sonatype & close staging repo
+      - name: Release version '${{ steps.get-version.outputs.version }}' to maven central
         env:
           CI_VERSION: ${{ steps.get-version.outputs.version }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
           MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
         run: |
-          echo "Publishing version '$CI_VERSION' to sonatype."
-          ./gradlew publishToSonatype closeSonatypeStagingRepository --info
-
-      - uses: trstringer/manual-approval@v1
-        name: "Wait for approval to publish version '${{ steps.get-version.outputs.version }}'"
-        if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: dhoepelman,nlochschmidt
-          minimum-approvals: 1
-          issue-title: "Release version '${{ steps.get-version.outputs.version }}'"
-          issue-body: "Please approve or deny the release of version '${{ steps.get-version.outputs.version }}'."
-          # Default included: "approve", "approved", "lgtm", "yes"
-          additional-approved-words: ''
-          # Default included: "deny", "denied", "no"
-          additional-denied-words: ''
-
-      - name: "Release version '${{ steps.get-version.outputs.version }}'"
-        env:
-          CI_VERSION: ${{ steps.get-version.outputs.version }}
-          MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
-          MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
-        run: ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository --info
+          echo "Publishing version '$CI_VERSION' to maven central."
+          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --info
