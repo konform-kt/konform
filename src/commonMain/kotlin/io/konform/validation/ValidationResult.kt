@@ -29,17 +29,20 @@ internal class DefaultValidationErrors(private val errors: List<ValidationError>
 public sealed class ValidationResult<out T> {
     public abstract operator fun get(vararg propertyPath: Any): List<String>?
 
-    public abstract fun <R> map(transform: (T) -> R): ValidationResult<R>
+    /**  If this is a valid result, returns the result of applying the given [transform] function to the value. Otherwise, return the original error. */
+    public inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
+        when (this) {
+            is Valid -> Valid(transform(this.value))
+            is Invalid -> this
+        }
 
     public abstract val errors: ValidationErrors
 }
 
-public data class Invalid<T>(
+public data class Invalid(
     internal val internalErrors: Map<String, List<String>>,
-) : ValidationResult<T>() {
+) : ValidationResult<Nothing>() {
     override fun get(vararg propertyPath: Any): List<String>? = internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
-
-    override fun <R> map(transform: (T) -> R): ValidationResult<R> = Invalid(this.internalErrors)
 
     private fun toPathSegment(it: Any): String {
         return when (it) {
@@ -64,8 +67,6 @@ public data class Invalid<T>(
 
 public data class Valid<T>(val value: T) : ValidationResult<T>() {
     override fun get(vararg propertyPath: Any): List<String>? = null
-
-    override fun <R> map(transform: (T) -> R): ValidationResult<R> = Valid(transform(this.value))
 
     override val errors: ValidationErrors
         get() = DefaultValidationErrors(emptyList())

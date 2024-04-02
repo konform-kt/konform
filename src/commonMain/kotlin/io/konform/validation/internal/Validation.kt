@@ -54,7 +54,7 @@ internal class RequiredPropertyValidation<T, R>(
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue =
             property(value)
-                ?: return Invalid<T>(mapOf(".${property.name}" to listOf("is required")))
+                ?: return Invalid(mapOf(".${property.name}" to listOf("is required")))
         return validation(propertyValue).mapError { ".${property.name}$it" }.map { value }
     }
 }
