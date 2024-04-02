@@ -63,7 +63,7 @@ jobs:
 
       - uses: trstringer/manual-approval@v1
         name: "Wait for approval to publish version '${{ steps.get-version.outputs.version }}'"
-        #if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
+        if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
         with:
           secret: ${{ github.TOKEN }}
           approvers: dhoepelman,nlochschmidt
