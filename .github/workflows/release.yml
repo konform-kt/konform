@@ -59,11 +59,11 @@ jobs:
           MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
         run: |
           echo "Publishing version '$CI_VERSION' to sonatype."
-          ./gradlew publishToSonatype closeSonatypeStagingRepository
+          ./gradlew publishToSonatype closeSonatypeStagingRepository --info
 
       - uses: trstringer/manual-approval@v1
         name: "Wait for approval to publish version '${{ steps.get-version.outputs.version }}'"
-        if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
+        #if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
         with:
           secret: ${{ github.TOKEN }}
           approvers: dhoepelman,nlochschmidt
@@ -80,4 +80,4 @@ jobs:
           CI_VERSION: ${{ steps.get-version.outputs.version }}
           MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
           MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
-        run: ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
+        run: ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository --info
