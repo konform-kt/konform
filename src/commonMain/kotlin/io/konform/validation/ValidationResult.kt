@@ -58,9 +58,13 @@ public data class Invalid(
 }
 
 public data class Valid<T>(val value: T) : ValidationResult<T>() {
+    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
+    // that it is nonsensical to do.
     @Deprecated("It is not useful to index a valid result, it will always return null", ReplaceWith("null"))
     override fun get(vararg propertyPath: Any): List<String>? = null
 
+    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
+    // that it is nonsensical to do.
     @Deprecated("It is not useful to call errors on a valid result, it will always return an empty list.", ReplaceWith("emptyList()"))
     override val errors: List<ValidationError>
         get() = emptyList()
