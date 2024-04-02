@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.config.JvmTarget
 
 val projectVersion = "0.5.0-SNAPSHOT"
@@ -16,6 +17,9 @@ val projectInceptionYear = 2018
 val kotlinApiTarget = "1.7"
 val jvmTarget = JvmTarget.JVM_1_8
 val javaVersion = 8
+
+/** The "CI" env var is a a quasi-standard way to indicate that we're running on CI. */
+val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
     kotlin("multiplatform") version "1.9.23"
@@ -141,7 +145,17 @@ publishing {
 }
 
 signing {
-    useGpgCmd()
+    if (onCI) {
+        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/pgp/github_actions.key.asc").asFile.readText()
+        val pgpPassphrase = System.getenv("PGP_PASSPHRASE")
+        if (pgpPassphrase == null) {
+            logger.warn("PGP_PASSPHRASE env var is not set, cannot sign. This is expected in PR builds of forked repositories.")
+        } else {
+            useInMemoryPgpKeys(encryptedSigningKey, pgpPassphrase)
+        }
+    } else {
+        useGpgCmd()
+    }
     sign(publishing.publications)
 }
 
