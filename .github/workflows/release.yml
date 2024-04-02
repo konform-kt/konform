@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-      # For testing
-      - "dhoepelman/auto_publish_ci"
     tags:
       - 'v*'
 permissions:
