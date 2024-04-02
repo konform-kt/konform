@@ -1,4 +1,4 @@
-name: Release
+name: Test & Release
 on:
   push:
     branches:
@@ -11,12 +11,12 @@ permissions:
   contents: read
   issues: write
 jobs:
-  tests:
+  test:
     uses: ./.github/workflows/test.yml
   release:
     name: release
     # First run the normal tests
-    needs: [tests]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
