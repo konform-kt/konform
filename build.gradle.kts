@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.config.JvmTarget
 
-val projectVersion = "0.5.0-SNAPSHOT"
+val projectVersion = "0.5.0"
 val projectName = "konform"
 val projectGroup = "io.konform"
 val projectDesc = "Konform: Portable validations for Kotlin"

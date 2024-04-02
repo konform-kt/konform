@@ -82,4 +82,4 @@ jobs:
           MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
         run: |
           echo "Here is where I would release '$CI_VERSION'."
-          #./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
+          # ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
