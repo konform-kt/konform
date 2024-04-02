@@ -16,17 +16,11 @@ internal data class PropertyValidationError(
     }
 }
 
+@Deprecated("Replace with directly using List<ValidationError>", ReplaceWith("List<ValidationError>"))
 public interface ValidationErrors : List<ValidationError>
 
-internal object NoValidationErrors : ValidationErrors, List<ValidationError> by emptyList()
-
-internal class DefaultValidationErrors(private val errors: List<ValidationError>) : ValidationErrors, List<ValidationError> by errors {
-    override fun toString(): String {
-        return errors.toString()
-    }
-}
-
 public sealed class ValidationResult<out T> {
+    /** Get the validation errors at a specific path. Will return null for a valid result. */
     public abstract operator fun get(vararg propertyPath: Any): List<String>?
 
     /**  If this is a valid result, returns the result of applying the given [transform] function to the value. Otherwise, return the original error. */
@@ -36,7 +30,7 @@ public sealed class ValidationResult<out T> {
             is Invalid -> this
         }
 
-    public abstract val errors: ValidationErrors
+    public abstract val errors: List<ValidationError>
 }
 
 public data class Invalid(
@@ -52,12 +46,10 @@ public data class Invalid(
         }
     }
 
-    override val errors: ValidationErrors by lazy {
-        DefaultValidationErrors(
-            internalErrors.flatMap { (path, errors) ->
-                errors.map { PropertyValidationError(path, it) }
-            },
-        )
+    override val errors: List<ValidationError> by lazy {
+        internalErrors.flatMap { (path, errors) ->
+            errors.map { PropertyValidationError(path, it) }
+        }
     }
 
     override fun toString(): String {
@@ -66,8 +58,14 @@ public data class Invalid(
 }
 
 public data class Valid<T>(val value: T) : ValidationResult<T>() {
+    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
+    // that it is nonsensical to do.
+    @Deprecated("It is not useful to index a valid result, it will always return null", ReplaceWith("null"))
     override fun get(vararg propertyPath: Any): List<String>? = null
 
-    override val errors: ValidationErrors
-        get() = DefaultValidationErrors(emptyList())
+    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
+    // that it is nonsensical to do.
+    @Deprecated("It is not useful to call errors on a valid result, it will always return an empty list.", ReplaceWith("emptyList()"))
+    override val errors: List<ValidationError>
+        get() = emptyList()
 }
