@@ -18,7 +18,7 @@ val kotlinApiTarget = "1.7"
 val jvmTarget = JvmTarget.JVM_1_8
 val javaVersion = 8
 
-/** The "CI" env var is a a quasi-standard way to indicate that we're running on CI. */
+/** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
@@ -35,7 +35,7 @@ repositories {
 }
 
 group = projectGroup
-version = projectVersion
+version = System.getenv("CI_VERSION") ?: projectVersion
 
 kotlin {
     // Since we are a library, prevent accidentally making things part of the public API
@@ -147,7 +147,7 @@ publishing {
 signing {
     if (onCI) {
         val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/pgp/github_actions.key.asc").asFile.readText()
-        val pgpPassphrase = System.getenv("PGP_PASSPHRASE")
+        val pgpPassphrase: String? = System.getenv("PGP_PASSPHRASE")
         if (pgpPassphrase == null) {
             logger.warn("PGP_PASSPHRASE env var is not set, cannot sign. This is expected in PR builds of forked repositories.")
         } else {
@@ -161,7 +161,12 @@ signing {
 
 nexusPublishing {
     repositories {
-        sonatype()
+        sonatype {
+            // Fallback to empty for local and CI builds with no access to the secrets
+            // They should not need to publish anyway
+            username.set(System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: "")
+            password.set(System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: "")
+        }
     }
 }
 

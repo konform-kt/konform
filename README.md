@@ -1,4 +1,4 @@
-[![Test](https://github.com/konform-kt/konform/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
+[![Test](https://github.com/konform-kt/konform/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
@@ -203,7 +203,8 @@ val validateEvent = Validation<Event> {
 }
 ```
 
-Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
+Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the
+numerical index and in case of `Maps` you use the key as string.
 
 ```Kotlin
 // get the error messages for the first attendees age if any
@@ -220,7 +221,9 @@ result[Event::ticketPrices, "free"]
 
 ### Integration with testing libraries
 
-- [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object is validated successfully or fails validation with specific error messages. See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
+- [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object
+  is validated successfully or fails validation with specific error messages.
+  See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
 
 ##### Author
 
