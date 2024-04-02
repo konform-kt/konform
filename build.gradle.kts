@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.config.JvmTarget
 
 val projectVersion = "0.5.0-SNAPSHOT"
@@ -17,6 +18,9 @@ val kotlinApiTarget = "1.7"
 val jvmTarget = JvmTarget.JVM_1_8
 val javaVersion = 8
 
+/** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
+val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
+
 plugins {
     kotlin("multiplatform") version "1.9.23"
     id("maven-publish")
@@ -31,7 +35,7 @@ repositories {
 }
 
 group = projectGroup
-version = projectVersion
+version = System.getenv("CI_VERSION") ?: projectVersion
 
 kotlin {
     // Since we are a library, prevent accidentally making things part of the public API
@@ -141,13 +145,23 @@ publishing {
 }
 
 signing {
-    useGpgCmd()
+    if (onCI) {
+        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/publishing/github_actions.key.asc").asFile.readText()
+        useInMemoryPgpKeys(encryptedSigningKey, System.getenv("PGP_PASSPHRASE"))
+    } else {
+        useGpgCmd()
+    }
     sign(publishing.publications)
 }
 
 nexusPublishing {
     repositories {
-        sonatype()
+        sonatype {
+            // Fallback to empty for local and CI builds with no access to the secrets
+            // They should not need to publish anyway
+            username.set(System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: "")
+            password.set(System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: "")
+        }
     }
 }
 
