@@ -146,12 +146,12 @@ publishing {
 
 signing {
     if (onCI) {
-        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/pgp/github_actions.key.asc").asFile.readText()
+        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/publishing/github_actions.key.asc").asFile.readText()
         val pgpPassphrase: String? = System.getenv("PGP_PASSPHRASE")
-        if (pgpPassphrase == null) {
-            logger.warn("PGP_PASSPHRASE env var is not set, cannot sign. This is expected in PR builds of forked repositories.")
-        } else {
+        if (pgpPassphrase != null) {
             useInMemoryPgpKeys(encryptedSigningKey, pgpPassphrase)
+        } else {
+            logger.info("Publishing is disabled because the PGP_PASSPHRASE environment variable is not set.")
         }
     } else {
         useGpgCmd()
