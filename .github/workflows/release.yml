@@ -54,6 +54,9 @@ jobs:
       - name: Publish version '${{ steps.get-version.outputs.version }}' to sonatype & close staging repo
         env:
           CI_VERSION: ${{ steps.get-version.outputs.version }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
+          MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
         run: |
           echo "Publishing version '$CI_VERSION' to sonatype."
           ./gradlew publishToSonatype closeSonatypeStagingRepository
@@ -75,6 +78,8 @@ jobs:
       - name: "Release version '${{ steps.get-version.outputs.version }}'"
         env:
           CI_VERSION: ${{ steps.get-version.outputs.version }}
+          MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
+          MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
         run: |
           echo "Here is where I would release '$CI_VERSION'."
           #./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
