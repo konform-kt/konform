@@ -80,6 +80,4 @@ jobs:
           CI_VERSION: ${{ steps.get-version.outputs.version }}
           MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
           MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
-        run: |
-          echo "Here is where I would release '$CI_VERSION'."
-          # ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
+        run: ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository
