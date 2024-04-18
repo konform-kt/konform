@@ -58,6 +58,10 @@ public abstract class ValidationBuilder<T> {
     public abstract fun run(validation: Validation<T>)
 
     public abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+
+    public val context: Context<T> get() = TODO("not implemented")
+
+    public class Context<T>(public val value: T)
 }
 
 public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {

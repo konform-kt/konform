@@ -116,6 +116,20 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validatingDependentFields() {
+        val nullableFieldValidation =
+            Validation<Register> {
+                val register = context.value
+                Register::password {
+                    addConstraint("cannot equal email") { it != register.email }
+                }
+            }
+
+        Register(email = "sillyuser@test.com", password = "sillyuser@test.com")
+            .let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::password)) }
+    }
+
+    @Test
     fun validatingNestedTypesDirectly() {
         val nestedTypeValidation =
             Validation<Register> {
