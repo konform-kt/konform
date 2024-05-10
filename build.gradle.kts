@@ -25,7 +25,7 @@ plugins {
     kotlin("multiplatform") version "1.9.24"
     id("maven-publish")
     id("signing")
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     idea
 }
