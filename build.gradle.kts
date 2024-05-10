@@ -15,8 +15,8 @@ val projectDevelName = "Niklas Lochschmidt"
 val projectInceptionYear = 2018
 
 val kotlinApiTarget = "1.7"
-val jvmTarget = JvmTarget.JVM_1_8
-val javaVersion = 8
+val jvmTarget = JvmTarget.JVM_11
+val javaVersion = 11
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
