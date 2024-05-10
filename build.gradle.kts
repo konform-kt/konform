@@ -57,7 +57,7 @@ kotlin {
         }
     }
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        languageVersion = JavaLanguageVersion.of(javaVersion)
     }
     js(IR) {
         browser {}
@@ -107,12 +107,12 @@ kotlin {
     }
 }
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version.set("1.2.1")
+    version = "1.2.1"
 }
 
 val javaDocJar =
     tasks.register<Jar>("stubJavadoc") {
-        archiveClassifier.set("javadoc")
+        archiveClassifier = "javadoc"
     }
 
 publishing {
@@ -120,24 +120,24 @@ publishing {
         create<MavenPublication>("mavenJava") {
             artifact(javaDocJar)
             pom {
-                name.set(projectName)
-                description.set(projectDesc)
-                url.set("https://github.com/konform-kt/konform")
+                name = projectName
+                description = projectDesc
+                url = "https://github.com/konform-kt/konform"
                 licenses {
                     license {
-                        name.set(projectLicense)
-                        url.set(projectLicenseUrl)
-                        distribution.set("repo")
+                        name = projectLicense
+                        url = projectLicenseUrl
+                        distribution = "repo"
                     }
                 }
                 developers {
                     developer {
-                        id.set(projectDevelNick)
-                        name.set(projectDevelName)
+                        id = projectDevelNick
+                        name = projectDevelName
                     }
                 }
                 scm {
-                    url.set(projectScmUrl)
+                    url = projectScmUrl
                 }
             }
         }
@@ -159,8 +159,8 @@ nexusPublishing {
         sonatype {
             // Fallback to empty for local and CI builds with no access to the secrets
             // They should not need to publish anyway
-            username.set(System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: "")
-            password.set(System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: "")
+            username = System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: ""
+            password = System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: ""
         }
     }
 }
