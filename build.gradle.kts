@@ -23,7 +23,7 @@ val javaVersion = 8
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
-    kotlin("multiplatform") version "2.0.0-RC2"
+    kotlin("multiplatform") version "2.0.0-RC3"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
