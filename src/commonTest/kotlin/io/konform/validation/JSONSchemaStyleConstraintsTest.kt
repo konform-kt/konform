@@ -19,6 +19,7 @@ import io.konform.validation.jsonschema.multipleOf
 import io.konform.validation.jsonschema.pattern
 import io.konform.validation.jsonschema.type
 import io.konform.validation.jsonschema.uniqueItems
+import io.konform.validation.jsonschema.uuid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -267,6 +268,16 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example.com ")))
 
         assertEquals("must match the expected pattern", compiledRegexValidation("").get()!![0])
+    }
+
+    @Test
+    fun uuidConstraint() {
+        val validation = Validation<String> { uuid() }
+
+        assertEquals(Valid("ae40fe0d-05cb-4796-be1f-a1798fec52cf"), validation("ae40fe0d-05cb-4796-be1f-a1798fec52cf"))
+
+        assertEquals(1, countFieldsWithErrors(validation("a")))
+        assertEquals("must be a valid UUID string", validation("").get()!![0])
     }
 
     @Test
