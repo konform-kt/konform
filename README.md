@@ -1,11 +1,11 @@
-[![Test](https://github.com/konform-kt/konform/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
+[![Test](https://github.com/konform-kt/konform/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
 
-  - **✅ Type-safe DSL**
-  - **🔗 Multi-platform support** (JVM, JS)
-  - **🐥 Zero dependencies**
+- **✅ Type-safe DSL**
+- **🔗 Multi-platform support** (JVM, JS)
+- **🐥 Zero dependencies**
 
 ### Installation
 
@@ -95,6 +95,42 @@ val validationResult = validateUser(validUser)
 
 ### Advanced use
 
+#### Hints
+
+You can add custom hints to validations
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::age ifPresent {
+        minimum(0) hint "Registering before birth is not supported"
+    }
+}
+```
+
+You can use `{value}` to include the `.toString()`-ed data in the hint
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::fullName {
+        minLength(2) hint "'{value}' is too short a name, must be at least 2 characters long."
+    }
+}
+```
+
+#### Custom validations
+
+You can add custom validations by using `addConstraint`
+
+```Kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::fullName {
+        addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+    }
+}
+```
+
+#### Nested validations
+
 You can define validations for nested classes and use them for new validations
 
 ```Kotlin
@@ -109,7 +145,7 @@ val validateUser = Validation<UserProfile> {
         minLength(2)
         maxLength(100)
     }
-    
+
     run(ageCheck)
 }
 ```
@@ -167,7 +203,8 @@ val validateEvent = Validation<Event> {
 }
 ```
 
-Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the numerical index and in case of `Maps` you use the key as string.
+Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the
+numerical index and in case of `Maps` you use the key as string.
 
 ```Kotlin
 // get the error messages for the first attendees age if any
@@ -179,17 +216,19 @@ result[Event::ticketPrices, "free"]
 
 ### Other validation libraries written in Kotlin
 
-  - Valikator: https://github.com/valiktor/valiktor
-  - Kalidation: https://github.com/rcapraro/kalidation
-  
+- Valikator: https://github.com/valiktor/valiktor
+- Kalidation: https://github.com/rcapraro/kalidation
+
 ### Integration with testing libraries
 
-  - [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object is validated successfully or fails validation with specific error messages. See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
+- [Kotest](https://kotest.io) provides various matchers for use with Konform. They can be used in your tests to assert that a given object
+  is validated successfully or fails validation with specific error messages.
+  See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
 
 ##### Author
 
-[Niklas Lochschmidt](https://twitter.com/niklas_l)
+[Niklas Lochschmidt](https://niklaslochschmidt.com)
 
 ##### License
 
-[MIT License](https://github.com/konform-kt/konform/blob/master/LICENSE)
+[MIT License](https://github.com/konform-kt/konform/blob/main/LICENSE)

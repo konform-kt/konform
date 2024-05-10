@@ -1,0 +1,88 @@
+name: Test & Release
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+permissions:
+  contents: read
+  issues: write
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+  release:
+    name: release
+    # First run the normal tests
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
+      - name: Get Version
+        id: get-version
+        shell: bash
+        run: |
+          if [[ $GITHUB_REF =~ refs/tags/v(.+) ]]; then
+            echo "Version is determined by git tag."
+            VERSION=${BASH_REMATCH[1]}
+            IS_SNAPSHOT="false"
+          else
+            echo "Version is determined by Gradle properties."
+            VERSION=$(./gradlew properties --console=plain -q | grep "^version:" | awk '{print $2}')
+
+            if [[ $VERSION != *"SNAPSHOT"* ]]; then
+              echo "Error: Non-tagged versions must be SNAPSHOT versions."
+              echo "::error file=build.gradle.kts,line=4::Must be SNAPSHOT version"
+              exit 1
+            fi
+            IS_SNAPSHOT="true"
+          fi
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Is snapshot: $IS_SNAPSHOT"
+          echo "is_snapshot=$IS_SNAPSHOT" >> $GITHUB_OUTPUT
+      - name: Publish version '${{ steps.get-version.outputs.version }}' to sonatype & close staging repo
+        env:
+          CI_VERSION: ${{ steps.get-version.outputs.version }}
+          IS_SNAPSHOT: ${{ steps.get-version.outputs.is_snapshot }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
+          MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
+        run: |
+          echo "Publishing version '$CI_VERSION' to sonatype."
+          if [[ $IS_SNAPSHOT == "true" ]]; then
+            ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --info
+          else
+            ./gradlew publishToSonatype closeSonatypeStagingRepository --info
+          fi
+
+
+      - uses: trstringer/manual-approval@v1
+        name: "Wait for approval to publish version '${{ steps.get-version.outputs.version }}'"
+        if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: dhoepelman,nlochschmidt
+          minimum-approvals: 1
+          issue-title: "Release version '${{ steps.get-version.outputs.version }}'"
+          issue-body: "Please approve or deny the release of version '${{ steps.get-version.outputs.version }}'."
+          # Default included: "approve", "approved", "lgtm", "yes"
+          additional-approved-words: ''
+          # Default included: "deny", "denied", "no"
+          additional-denied-words: ''
+
+      - name: "Release version '${{ steps.get-version.outputs.version }}'"
+        if: ${{ steps.get-version.outputs.is_snapshot == 'false' }}
+        env:
+          CI_VERSION: ${{ steps.get-version.outputs.version }}
+          MAVEN_CENTRAL_TOKEN_USER: ${{ secrets.MAVEN_CENTRAL_TOKEN_USER }}
+          MAVEN_CENTRAL_TOKEN_PW: ${{ secrets.MAVEN_CENTRAL_TOKEN_PW }}
+        run: ./gradlew findSonatypeStagingRepository releaseSonatypeStagingRepository --info

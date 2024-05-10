@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
+      - name: Assemble & Test project
+        run: ./gradlew build
