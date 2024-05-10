@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.config.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 val projectVersion = "0.5.0-SNAPSHOT"
 val projectName = "konform"
@@ -22,7 +23,7 @@ val javaVersion = 8
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
-    kotlin("multiplatform") version "1.9.24"
+    kotlin("multiplatform") version "2.0.0-RC2"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
@@ -48,71 +49,50 @@ kotlin {
         }
     }
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = jvmTarget.toString()
-        }
-        withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
-    }
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
     }
     js(IR) {
         browser {}
         nodejs {}
     }
-    //    linuxX64()
-    //    linuxArm64()
-    //    linuxArm32Hfp()
-    //    linuxMips32()
-    //    linuxMipsel32()
-    //    ios()
-    //    iosX64()
-    //    iosArm64()
-    //    iosSimulatorArm64()
-    //    macosX64()
-    //    macosArm64()
-    //    tvos()
-    //    tvosArm64()
-    //    tvosSimulatorArm64()
-    //    tvosX64()
-    //    watchos()
-    //    watchosArm32()
-    //    watchosSimulatorArm64()
-    //    watchosArm64()
-    //    watchosX86()
-    //    watchosX64()
-    //    wasm()
-    //    wasm32()
-    //    mingwX86()
-    //    mingwX64()
+    linuxX64()
+    linuxArm64()
+    iosX64()
+    iosArm64()
+    macosX64()
+    macosArm64()
+    tvosArm64()
+    tvosX64()
+    watchosArm32()
+    watchosArm64()
+    watchosX64()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi()
+    mingwX64()
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
-                compileOnly(kotlin("stdlib"))
+                api(kotlin("stdlib"))
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                compileOnly(kotlin("stdlib-jdk8"))
             }
         }
     }
 }
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version.set("1.2.1")
+    version = "1.2.1"
 }
 
 val javaDocJar =
     tasks.register<Jar>("stubJavadoc") {
-        archiveClassifier.set("javadoc")
+        archiveClassifier = "javadoc"
     }
 
 publishing {
@@ -120,24 +100,24 @@ publishing {
         create<MavenPublication>("mavenJava") {
             artifact(javaDocJar)
             pom {
-                name.set(projectName)
-                description.set(projectDesc)
-                url.set("https://github.com/konform-kt/konform")
+                name = projectName
+                description = projectDesc
+                url = "https://github.com/konform-kt/konform"
                 licenses {
                     license {
-                        name.set(projectLicense)
-                        url.set(projectLicenseUrl)
-                        distribution.set("repo")
+                        name = projectLicense
+                        url = projectLicenseUrl
+                        distribution = "repo"
                     }
                 }
                 developers {
                     developer {
-                        id.set(projectDevelNick)
-                        name.set(projectDevelName)
+                        id = projectDevelNick
+                        name = projectDevelName
                     }
                 }
                 scm {
-                    url.set(projectScmUrl)
+                    url = projectScmUrl
                 }
             }
         }
