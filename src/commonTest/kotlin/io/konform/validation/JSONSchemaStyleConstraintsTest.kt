@@ -19,6 +19,7 @@ import io.konform.validation.jsonschema.multipleOf
 import io.konform.validation.jsonschema.pattern
 import io.konform.validation.jsonschema.type
 import io.konform.validation.jsonschema.uniqueItems
+import io.konform.validation.jsonschema.uuid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
