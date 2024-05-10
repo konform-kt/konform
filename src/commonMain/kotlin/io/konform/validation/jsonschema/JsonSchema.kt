@@ -83,15 +83,6 @@ public fun ValidationBuilder<String>.pattern(pattern: String): Constraint<String
 /** Enforces the string must be UUID hex format. */
 fun ValidationBuilder<String>.uuid() = pattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
-
-fun ValidationBuilder<String>.pattern(pattern: String) = pattern(pattern.toRegex())
-
-
-fun ValidationBuilder<String>.pattern(pattern: Regex) = addConstraint(
-    "must match the expected pattern",
-    pattern.toString()
-) { it.matches(pattern) }
-
 public fun ValidationBuilder<String>.pattern(pattern: Regex): Constraint<String> =
     addConstraint(
         "must match the expected pattern",
