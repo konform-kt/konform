@@ -81,7 +81,7 @@ public fun ValidationBuilder<String>.maxLength(length: Int): Constraint<String> 
 public fun ValidationBuilder<String>.pattern(pattern: String): Constraint<String> = pattern(pattern.toRegex())
 
 /** Enforces the string must be UUID hex format. */
-fun ValidationBuilder<String>.uuid() = pattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+public fun ValidationBuilder<String>.uuid(): Constraint<String> = pattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 public fun ValidationBuilder<String>.pattern(pattern: Regex): Constraint<String> =
     addConstraint(
