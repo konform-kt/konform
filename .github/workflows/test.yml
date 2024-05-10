@@ -17,7 +17,9 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 11
+          # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
+          # and the publishing plugin requires it
+          java-version: 21
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
