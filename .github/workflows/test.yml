@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
+          # and the publishing plugin requires it
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
+      - name: Assemble & Test project
+        run: ./gradlew build

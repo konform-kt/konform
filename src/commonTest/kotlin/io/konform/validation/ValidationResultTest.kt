@@ -7,24 +7,24 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ValidationResultTest {
-
     @Test
     fun singleValidation() {
-        val validation = Validation<Person> {
-            Person::name {
-                minLength(1)
-            }
+        val validation =
+            Validation<Person> {
+                Person::name {
+                    minLength(1)
+                }
 
-            Person::addresses onEach {
-                Address::city {
-                    City::postalCode {
-                        minLength(4)
-                        maxLength(5)
-                        pattern("\\d{4,5}") hint ("must be a four or five digit number")
+                Person::addresses onEach {
+                    Address::city {
+                        City::postalCode {
+                            minLength(4)
+                            maxLength(5)
+                            pattern("\\d{4,5}") hint ("must be a four or five digit number")
+                        }
                     }
                 }
             }
-        }
 
         val result = validation(Person("", addresses = listOf(Address(City("", "")))))
         assertEquals(3, result.errors.size)
@@ -41,7 +41,8 @@ class ValidationResultTest {
     }
 
     private data class Person(val name: String, val addresses: List<Address>)
+
     private data class Address(val city: City)
+
     private data class City(val postalCode: String, val cityName: String)
 }
-
