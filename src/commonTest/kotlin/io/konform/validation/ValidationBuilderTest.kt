@@ -116,17 +116,29 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun validatingDependentFields() {
-        val nullableFieldValidation =
-            Validation<Register> {
-                val register = context.value
+    fun validatingFieldsWithContext() {
+        val fieldValidation =
+            Validation<Register> { context ->
+                Register::password {
+                    addConstraint("cannot equal email") { it != context.subject.email }
+                }
+            }
+
+        Register(email = "sillyuser@test.com", password = "sillyuser@test.com")
+            .let { assertEquals(1, countErrors(fieldValidation(it), Register::password)) }
+    }
+
+    @Test
+    fun validatingFieldsWithDestructuredContext() {
+        val fieldValidation =
+            Validation<Register> { (register) ->
                 Register::password {
                     addConstraint("cannot equal email") { it != register.email }
                 }
             }
 
         Register(email = "sillyuser@test.com", password = "sillyuser@test.com")
-            .let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::password)) }
+            .let { assertEquals(1, countErrors(fieldValidation(it), Register::password)) }
     }
 
     @Test
@@ -142,6 +154,17 @@ class ValidationBuilderTest {
 
         Register(home = Address("Home")).let { assertEquals(Valid(it), nestedTypeValidation(it)) }
         Register(home = Address("")).let { assertEquals(1, countErrors(nestedTypeValidation(it), Register::home, Address::address)) }
+    }
+
+    @Test
+    fun validatingNullableValues() {
+        val nullableValueValidation =
+            Validation<String?> {
+                addConstraint("cannot be null") { it != null}
+            }
+
+        "poweruser@test.com".let { assertEquals(Valid(it), nullableValueValidation(it)) }
+        null.let { assertEquals(1, countErrors(nullableValueValidation(it))) }
     }
 
     @Test
