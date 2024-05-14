@@ -160,7 +160,7 @@ class ValidationBuilderTest {
     fun validatingNullableValues() {
         val nullableValueValidation =
             Validation<String?> {
-                addConstraint("cannot be null") { it != null}
+                addConstraint("cannot be null") { it != null }
             }
 
         "poweruser@test.com".let { assertEquals(Valid(it), nullableValueValidation(it)) }
