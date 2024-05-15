@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.config.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
-val projectVersion = "0.5.0-SNAPSHOT"
 val projectName = "konform"
 val projectGroup = "io.konform"
 val projectDesc = "Konform: Portable validations for Kotlin"
@@ -11,8 +10,6 @@ val projectOrg = "konform-kt"
 val projectLicense = "MIT"
 val projectLicenseUrl = "https://opensource.org/licenses/MIT"
 val projectScmUrl = "https://github.com/konform-kt/konform.git"
-val projectDevelNick = "nlochschmidt"
-val projectDevelName = "Niklas Lochschmidt"
 val projectInceptionYear = 2018
 
 val kotlinApiTarget = "1.7"
@@ -36,7 +33,8 @@ repositories {
 }
 
 group = projectGroup
-version = System.getenv("CI_VERSION") ?: projectVersion
+val projectVersion = System.getenv("CI_VERSION") ?: "0.6.0-SNAPSHOT"
+version = projectVersion
 
 kotlin {
     // Since we are a library, prevent accidentally making things part of the public API
@@ -97,7 +95,7 @@ val javaDocJar =
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        publications.withType(MavenPublication::class) {
             artifact(javaDocJar)
             pom {
                 name = projectName
@@ -112,8 +110,12 @@ publishing {
                 }
                 developers {
                     developer {
-                        id = projectDevelNick
-                        name = projectDevelName
+                        id = "nlochschmidt"
+                        name = "Niklas Lochschmidt"
+                    }
+                    developer {
+                        id = "dhoepelman"
+                        name = "David Hoepelman"
                     }
                 }
                 scm {
@@ -133,14 +135,20 @@ signing {
     }
     sign(publishing.publications)
 }
+//region Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
+// https://github.com/gradle/gradle/issues/26091
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    val signingTasks = tasks.withType<Sign>()
+    mustRunAfter(signingTasks)
+}
 
 nexusPublishing {
     repositories {
         sonatype {
             // Fallback to empty for local and CI builds with no access to the secrets
             // They should not need to publish anyway
-            username.set(System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: "")
-            password.set(System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: "")
+            username = System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: ""
+            password = System.getenv("MAVEN_CENTRAL_TOKEN_PW") ?: ""
         }
     }
 }
