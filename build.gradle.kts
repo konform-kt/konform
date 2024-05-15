@@ -56,7 +56,6 @@ kotlin {
             // because gradle no longer supports running on java 8
             jvmTarget = jvm
         }
-
     }
     js(IR) {
         browser {}
