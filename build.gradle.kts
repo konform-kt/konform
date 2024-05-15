@@ -52,7 +52,9 @@ kotlin {
         }
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-           jvmTarget=jvm
+            // note lang toolchain cannot be used here
+            // because gradle no longer supports running on java 8
+            jvmTarget = jvm
         }
 
     }
