@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
-import org.jetbrains.kotlin.config.JvmTarget
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 val projectName = "konform"
@@ -13,8 +14,7 @@ val projectScmUrl = "https://github.com/konform-kt/konform.git"
 val projectInceptionYear = 2018
 
 val kotlinApiTarget = "1.7"
-val jvmTarget = JvmTarget.JVM_1_8
-val javaVersion = 8
+val jvm = JvmTarget.JVM_10
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
@@ -50,6 +50,11 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+           jvmTarget=jvm
+        }
+
     }
     js(IR) {
         browser {}
