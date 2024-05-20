@@ -5,28 +5,33 @@ import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.pattern
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ValidationResultTest {
-    @Test
-    fun singleValidation() {
-        val validation =
-            Validation<Person> {
-                Person::name {
-                    minLength(1)
-                }
+    private val validation =
+        Validation {
+            Person::name {
+                minLength(1)
+            }
 
-                Person::addresses onEach {
-                    Address::city {
-                        City::postalCode {
-                            minLength(4)
-                            maxLength(5)
-                            pattern("\\d{4,5}") hint ("must be a four or five digit number")
-                        }
+            Person::addresses onEach {
+                Address::city {
+                    City::postalCode {
+                        minLength(4)
+                        maxLength(5)
+                        pattern("\\d{4,5}") hint ("must be a four or five digit number")
                     }
                 }
             }
+        }
 
+    @Test
+    fun singleValidation() {
         val result = validation(Person("", addresses = listOf(Address(City("", "")))))
+
+        assertFalse(result.isValid)
+
         assertEquals(3, result.errors.size)
         val (firstError, secondError, thirdError) = result.errors
 
@@ -38,6 +43,17 @@ class ValidationResultTest {
 
         assertEquals(".addresses[0].city.postalCode", thirdError.dataPath)
         assertEquals("must be a four or five digit number", thirdError.message)
+    }
+
+    @Test
+    fun positiveValidation() {
+        val result = validation(
+            Person(
+                name = "Jane Doe",
+                addresses = listOf(Address(City("10115", "Berlin")))
+            ))
+
+        assertTrue(result.isValid)
     }
 
     private data class Person(val name: String, val addresses: List<Address>)

@@ -69,3 +69,14 @@ public data class Valid<T>(val value: T) : ValidationResult<T>() {
     override val errors: List<ValidationError>
         get() = emptyList()
 }
+
+public val <T> ValidationResult<T>.isValid: Boolean
+    get() =
+        when (this) {
+            is Invalid -> {
+                false
+            }
+            is Valid -> {
+                true
+            }
+        }
