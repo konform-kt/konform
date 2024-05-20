@@ -47,11 +47,13 @@ class ValidationResultTest {
 
     @Test
     fun positiveValidation() {
-        val result = validation(
-            Person(
-                name = "Jane Doe",
-                addresses = listOf(Address(City("10115", "Berlin")))
-            ))
+        val result =
+            validation(
+                Person(
+                    name = "Jane Doe",
+                    addresses = listOf(Address(City("10115", "Berlin"))),
+                ),
+            )
 
         assertTrue(result.isValid)
     }
