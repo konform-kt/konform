@@ -34,13 +34,13 @@ public sealed class ValidationResult<out T> {
 
     public abstract val errors: List<ValidationError>
 
-    public val isValid: Boolean
-        get()  {
-            return when (this) {
-                is Invalid -> false
-                is Valid -> true
-            }
-        }
+    /**
+     * Returns true if the [ValidationResult] is [Valid].
+     */
+    public val isValid: Boolean = when (this) {
+        is Invalid -> false
+        is Valid -> true
+    }
 }
 
 public data class Invalid(
