@@ -1,7 +1,5 @@
 package io.konform.validation
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.reflect.KProperty1
 
 public interface ValidationError {
@@ -37,10 +35,11 @@ public sealed class ValidationResult<out T> {
     /**
      * Returns true if the [ValidationResult] is [Valid].
      */
-    public val isValid: Boolean = when (this) {
-        is Invalid -> false
-        is Valid -> true
-    }
+    public val isValid: Boolean =
+        when (this) {
+            is Invalid -> false
+            is Valid -> true
+        }
 }
 
 public data class Invalid(
@@ -79,4 +78,3 @@ public data class Valid<T>(val value: T) : ValidationResult<T>() {
     override val errors: List<ValidationError>
         get() = emptyList()
 }
-
