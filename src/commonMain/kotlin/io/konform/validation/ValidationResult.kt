@@ -73,10 +73,6 @@ public data class Valid<T>(val value: T) : ValidationResult<T>() {
 public val <T> ValidationResult<T>.isValid: Boolean
     get() =
         when (this) {
-            is Invalid -> {
-                false
-            }
-            is Valid -> {
-                true
-            }
+            is Invalid -> false
+            is Valid -> true
         }
