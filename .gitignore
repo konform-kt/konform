@@ -32,3 +32,6 @@ node_modules/
 
 # Secrets
 *.secret
+
+# created by kotlin 2.0
+.kotlin
