@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
-import org.jetbrains.kotlin.config.JvmTarget
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 val projectName = "konform"
 val projectGroup = "io.konform"
@@ -12,14 +14,13 @@ val projectScmUrl = "https://github.com/konform-kt/konform.git"
 val projectInceptionYear = 2018
 
 val kotlinApiTarget = "1.7"
-val jvmTarget = JvmTarget.JVM_1_8
-val javaVersion = 8
+val jvm = JvmTarget.JVM_1_8
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
-    kotlin("multiplatform") version "1.9.24"
+    kotlin("multiplatform") version "2.0.0"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
@@ -46,60 +47,51 @@ kotlin {
         }
     }
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = jvmTarget.toString()
-        }
-        withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
-    }
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion)
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            // note lang toolchain cannot be used here
+            // because gradle no longer supports running on java 8
+            jvmTarget = jvm
+        }
     }
     js(IR) {
         browser {}
         nodejs {}
     }
-    //    linuxX64()
-    //    linuxArm64()
-    //    linuxArm32Hfp()
-    //    linuxMips32()
-    //    linuxMipsel32()
-    //    ios()
-    //    iosX64()
-    //    iosArm64()
-    //    iosSimulatorArm64()
-    //    macosX64()
-    //    macosArm64()
-    //    tvos()
-    //    tvosArm64()
-    //    tvosSimulatorArm64()
-    //    tvosX64()
-    //    watchos()
-    //    watchosArm32()
-    //    watchosSimulatorArm64()
-    //    watchosArm64()
-    //    watchosX86()
-    //    watchosX64()
-    //    wasm()
-    //    wasm32()
-    //    mingwX86()
-    //    mingwX64()
+    linuxX64()
+    linuxArm64()
+    iosX64()
+    iosArm64()
+    macosX64()
+    macosArm64()
+    tvosArm64()
+    tvosX64()
+    watchosArm32()
+    watchosArm64()
+    watchosX64()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+        d8()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+    }
+    mingwX64()
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
-                compileOnly(kotlin("stdlib"))
+                api(kotlin("stdlib"))
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                compileOnly(kotlin("stdlib-jdk8"))
             }
         }
     }

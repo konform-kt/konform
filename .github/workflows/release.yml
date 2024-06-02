@@ -24,10 +24,7 @@ jobs:
           # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
           # and the publishing plugin requires it
           java-version: 21
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.7
+          cache: 'gradle'
       - name: Get Version
         id: get-version
         shell: bash
@@ -65,7 +62,6 @@ jobs:
           else
             ./gradlew publishToSonatype closeSonatypeStagingRepository --info
           fi
-
 
       - uses: trstringer/manual-approval@v1
         name: "Wait for approval to publish version '${{ steps.get-version.outputs.version }}'"

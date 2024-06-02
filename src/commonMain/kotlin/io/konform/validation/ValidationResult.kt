@@ -32,6 +32,15 @@ public sealed class ValidationResult<out T> {
         }
 
     public abstract val errors: List<ValidationError>
+
+    /**
+     * Returns true if the [ValidationResult] is [Valid].
+     */
+    public val isValid: Boolean =
+        when (this) {
+            is Invalid -> false
+            is Valid -> true
+        }
 }
 
 public data class Invalid(
