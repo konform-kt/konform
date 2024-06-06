@@ -1,5 +1,6 @@
 package io.konform.validation
 
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
 public interface ValidationError {
@@ -50,6 +51,7 @@ public data class Invalid(
     private fun toPathSegment(it: Any): String {
         return when (it) {
             is KProperty1<*, *> -> ".${it.name}"
+            is KFunction1<*, *> -> ".${it.name}()"
             is Int -> "[$it]"
             else -> ".$it"
         }
