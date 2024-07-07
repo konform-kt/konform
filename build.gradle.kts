@@ -33,7 +33,7 @@ repositories {
 }
 
 group = projectGroup
-val projectVersion = System.getenv("CI_VERSION") ?: "0.6.0-SNAPSHOT"
+val projectVersion = System.getenv("CI_VERSION") ?: "0.6.1-SNAPSHOT"
 version = projectVersion
 
 kotlin {
