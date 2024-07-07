@@ -27,6 +27,16 @@ jobs:
           # and the publishing plugin requires it
           java-version: 21
           cache: 'gradle'
+      - name: Restore caches
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.konan
+            ~/.npm
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: build-${{ runner.os }}-${{ hashFiles('build.gradle.kts', '**/gradle-wrapper.properties', 'settings.gradle.kts', 'kotlin-js-store/yarn.lock') }}
+          # There should've been at least one test run that creates the cache at this point
+          fail-on-cache-miss: true
       - name: Get Version
         id: get-version
         shell: bash
