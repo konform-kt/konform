@@ -27,6 +27,9 @@ jobs:
           # and the publishing plugin requires it
           java-version: 21
           cache: 'gradle'
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       - name: Restore caches
         uses: actions/cache/restore@v4
         with:
