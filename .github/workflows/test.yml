@@ -10,7 +10,14 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          # Test on macOS for the macOS build targets
+          - macos-latest
+    runs-on: ${{matrix.os}}
+    name: Test on ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
         name: Checkout
