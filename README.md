@@ -16,7 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("io.konform:konform:0.6.1")
+                implementation("io.konform:konform:0.6.2")
             }
         }
     }
@@ -27,7 +27,7 @@ For jvm-only projects add:
 
 ```
 dependencies {
-    implementation("io.konform:konform-jvm:0.6.1")
+    implementation("io.konform:konform-jvm:0.6.2")
 }
 ```
 

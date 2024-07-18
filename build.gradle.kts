@@ -33,7 +33,7 @@ repositories {
 }
 
 group = projectGroup
-val projectVersion = System.getenv("CI_VERSION") ?: "0.6.1-SNAPSHOT"
+val projectVersion = System.getenv("CI_VERSION") ?: "0.6.2-SNAPSHOT"
 version = projectVersion
 
 kotlin {
@@ -46,6 +46,12 @@ kotlin {
             apiVersion = kotlinApiTarget
         }
     }
+
+    // start of kotlin targets
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
     jvm {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
@@ -61,16 +67,21 @@ kotlin {
         browser {}
         nodejs {}
     }
-    linuxX64()
-    linuxArm64()
-    iosX64()
     iosArm64()
-    macosX64()
+    iosSimulatorArm64()
+    iosX64()
+    linuxArm64()
+    linuxX64()
     macosArm64()
+    macosX64()
+    mingwX64()
     tvosArm64()
+    tvosSimulatorArm64()
     tvosX64()
     watchosArm32()
     watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
     watchosX64()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -82,7 +93,8 @@ kotlin {
     wasmWasi {
         nodejs()
     }
-    mingwX64()
+    // end of kotlin targets
+
     sourceSets {
         commonMain {
             dependencies {
