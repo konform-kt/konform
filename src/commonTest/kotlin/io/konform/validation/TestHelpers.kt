@@ -5,5 +5,4 @@ fun <T> countFieldsWithErrors(validationResult: ValidationResult<T>) = (validati
 fun countErrors(
     validationResult: ValidationResult<*>,
     vararg properties: Any,
-) = validationResult.get(*properties)?.size
-    ?: 0
+) = validationResult.get(*properties)?.size ?: 0
