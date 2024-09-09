@@ -8,8 +8,8 @@ kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
-# Not actually used as dependency, but hopefully this causes dependabot to pick up on ktlint versions
-ktlint = { module = "com.pinterest:ktlint-bom", version.ref = "ktlint" }
+# Not actually used as dependency, but cause renovate to update ktlint
+ktlint = { module = "com.pinterest.ktlint:ktlint-bom", version.ref = "ktlint" }
 
 [plugins]
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
