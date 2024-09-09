@@ -290,7 +290,9 @@ class ValidationBuilderTest {
 
     @Test
     fun validateLists() {
-        data class Data(val registrations: List<Register> = emptyList())
+        data class Data(
+            val registrations: List<Register> = emptyList(),
+        )
 
         val listValidation =
             Validation<Data> {
@@ -315,7 +317,9 @@ class ValidationBuilderTest {
 
     @Test
     fun validateNullableLists() {
-        data class Data(val registrations: List<Register>?)
+        data class Data(
+            val registrations: List<Register>?,
+        )
 
         val listValidation =
             Validation<Data> {
@@ -344,7 +348,9 @@ class ValidationBuilderTest {
 
     @Test
     fun validateArrays() {
-        data class Data(val registrations: Array<Register> = emptyArray())
+        data class Data(
+            val registrations: Array<Register> = emptyArray(),
+        )
 
         val arrayValidation =
             Validation<Data> {
@@ -369,7 +375,9 @@ class ValidationBuilderTest {
 
     @Test
     fun validateNullableArrays() {
-        data class Data(val registrations: Array<Register>?)
+        data class Data(
+            val registrations: Array<Register>?,
+        )
 
         val arrayValidation =
             Validation<Data> {
@@ -398,7 +406,9 @@ class ValidationBuilderTest {
 
     @Test
     fun validateHashMaps() {
-        data class Data(val registrations: Map<String, Register> = emptyMap())
+        data class Data(
+            val registrations: Map<String, Register> = emptyMap(),
+        )
 
         val mapValidation =
             Validation<Data> {
@@ -418,16 +428,17 @@ class ValidationBuilderTest {
                     "user1" to Register(email = "valid"),
                     "user2" to Register(email = "a"),
                 ),
-        )
-            .let {
-                assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
-                assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
-            }
+        ).let {
+            assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
+            assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
+        }
     }
 
     @Test
     fun validateNullableHashMaps() {
-        data class Data(val registrations: Map<String, Register>? = null)
+        data class Data(
+            val registrations: Map<String, Register>? = null,
+        )
 
         val mapValidation =
             Validation<Data> {
@@ -450,11 +461,10 @@ class ValidationBuilderTest {
                     "user1" to Register(email = "valid"),
                     "user2" to Register(email = "a"),
                 ),
-        )
-            .let {
-                assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
-                assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
-            }
+        ).let {
+            assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
+            assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
+        }
     }
 
     @Test
@@ -494,5 +504,8 @@ class ValidationBuilderTest {
         fun getEmailFun() = email
     }
 
-    private data class Address(val address: String = "", val country: String = "DE")
+    private data class Address(
+        val address: String = "",
+        val country: String = "DE",
+    )
 }

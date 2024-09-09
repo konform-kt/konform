@@ -64,34 +64,31 @@ internal class RequiredPropertyValidation<T, R>(
 internal class IterableValidation<T>(
     private val validation: Validation<T>,
 ) : Validation<Iterable<T>> {
-    override fun validate(value: Iterable<T>): ValidationResult<Iterable<T>> {
-        return value.foldIndexed(Valid(value)) { index, result: ValidationResult<Iterable<T>>, propertyValue ->
+    override fun validate(value: Iterable<T>): ValidationResult<Iterable<T>> =
+        value.foldIndexed(Valid(value)) { index, result: ValidationResult<Iterable<T>>, propertyValue ->
             val propertyValidation = validation(propertyValue).mapError { "[$index]$it" }.map { value }
             result.combineWith(propertyValidation)
         }
-    }
 }
 
 internal class ArrayValidation<T>(
     private val validation: Validation<T>,
 ) : Validation<Array<T>> {
-    override fun validate(value: Array<T>): ValidationResult<Array<T>> {
-        return value.foldIndexed(Valid(value)) { index, result: ValidationResult<Array<T>>, propertyValue ->
+    override fun validate(value: Array<T>): ValidationResult<Array<T>> =
+        value.foldIndexed(Valid(value)) { index, result: ValidationResult<Array<T>>, propertyValue ->
             val propertyValidation = validation(propertyValue).mapError { "[$index]$it" }.map { value }
             result.combineWith(propertyValidation)
         }
-    }
 }
 
 internal class MapValidation<K, V>(
     private val validation: Validation<Map.Entry<K, V>>,
 ) : Validation<Map<K, V>> {
-    override fun validate(value: Map<K, V>): ValidationResult<Map<K, V>> {
-        return value.asSequence().fold(Valid(value)) { result: ValidationResult<Map<K, V>>, entry ->
+    override fun validate(value: Map<K, V>): ValidationResult<Map<K, V>> =
+        value.asSequence().fold(Valid(value)) { result: ValidationResult<Map<K, V>>, entry ->
             val propertyValidation = validation(entry).mapError { ".${entry.key}${it.removePrefix(".value")}" }.map { value }
             result.combineWith(propertyValidation)
         }
-    }
 }
 
 internal class ValidationNode<T>(
@@ -104,8 +101,8 @@ internal class ValidationNode<T>(
         return localValidationResult.combineWith(subValidationResult)
     }
 
-    private fun localValidation(value: T): ValidationResult<T> {
-        return constraints
+    private fun localValidation(value: T): ValidationResult<T> =
+        constraints
             .filter { !it.test(value) }
             .map { constructHint(value, it) }
             .let { errors ->
@@ -115,7 +112,6 @@ internal class ValidationNode<T>(
                     Invalid(mapOf("" to errors))
                 }
             }
-    }
 
     private fun constructHint(
         value: T,
@@ -129,16 +125,15 @@ internal class ValidationNode<T>(
     private fun applySubValidations(
         propertyValue: T,
         keyTransform: (String) -> String,
-    ): ValidationResult<T> {
-        return subValidations.fold(Valid(propertyValue)) { existingValidation: ValidationResult<T>, validation ->
+    ): ValidationResult<T> =
+        subValidations.fold(Valid(propertyValue)) { existingValidation: ValidationResult<T>, validation ->
             val newValidation = validation.validate(propertyValue).mapError(keyTransform)
             existingValidation.combineWith(newValidation)
         }
-    }
 }
 
-internal fun <R> ValidationResult<R>.mapError(keyTransform: (String) -> String): ValidationResult<R> {
-    return when (this) {
+internal fun <R> ValidationResult<R>.mapError(keyTransform: (String) -> String): ValidationResult<R> =
+    when (this) {
         is Valid -> this
         is Invalid ->
             Invalid(
@@ -147,7 +142,6 @@ internal fun <R> ValidationResult<R>.mapError(keyTransform: (String) -> String):
                 },
             )
     }
-}
 
 internal fun <R> ValidationResult<R>.combineWith(other: ValidationResult<R>): ValidationResult<R> {
     return when (this) {

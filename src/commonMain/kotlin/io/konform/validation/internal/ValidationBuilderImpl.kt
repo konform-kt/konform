@@ -101,9 +101,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         errorMessage: String,
         vararg templateValues: String,
         test: (T) -> Boolean,
-    ): Constraint<T> {
-        return Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
-    }
+    ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
     private fun <R> ((T) -> R?).getOrCreateBuilder(
         name: String,

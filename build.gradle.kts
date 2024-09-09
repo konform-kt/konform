@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 val projectName = "konform"
 val projectGroup = "io.konform"
@@ -20,7 +20,7 @@ val jvm = JvmTarget.JVM_1_8
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
-    kotlin("multiplatform") version "2.0.0"
+    kotlin("multiplatform") version "2.0.20"
     id("maven-publish")
     id("signing")
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
@@ -33,7 +33,7 @@ repositories {
 }
 
 group = projectGroup
-val projectVersion = System.getenv("CI_VERSION") ?: "0.6.0-SNAPSHOT"
+val projectVersion = System.getenv("CI_VERSION") ?: "0.6.2-SNAPSHOT"
 version = projectVersion
 
 kotlin {
@@ -46,6 +46,12 @@ kotlin {
             apiVersion = kotlinApiTarget
         }
     }
+
+    // start of kotlin targets
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
     jvm {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
@@ -61,16 +67,21 @@ kotlin {
         browser {}
         nodejs {}
     }
-    linuxX64()
-    linuxArm64()
-    iosX64()
     iosArm64()
-    macosX64()
+    iosSimulatorArm64()
+    iosX64()
+    linuxArm64()
+    linuxX64()
     macosArm64()
+    macosX64()
+    mingwX64()
     tvosArm64()
+    tvosSimulatorArm64()
     tvosX64()
     watchosArm32()
     watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
     watchosX64()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -82,7 +93,8 @@ kotlin {
     wasmWasi {
         nodejs()
     }
-    mingwX64()
+    // end of kotlin targets
+
     sourceSets {
         commonMain {
             dependencies {
@@ -97,7 +109,7 @@ kotlin {
     }
 }
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version = "1.2.1"
+    version = "1.3.1"
 }
 
 val javaDocJar =
@@ -140,7 +152,11 @@ publishing {
 
 signing {
     if (onCI) {
-        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/publishing/github_actions.key.asc").asFile.readText()
+        val encryptedSigningKey =
+            layout.projectDirectory
+                .file(".github/workflows/publishing/github_actions.key.asc")
+                .asFile
+                .readText()
         useInMemoryPgpKeys(encryptedSigningKey, System.getenv("PGP_PASSPHRASE"))
     } else {
         useGpgCmd()

@@ -4,7 +4,7 @@
 # Portable validations for Kotlin
 
 - **✅ Type-safe DSL**
-- **🔗 Multi-platform support** (JVM, JS)
+- **🔗 Multi-platform support** (JVM, JS, Native, Wasm)
 - **🐥 Zero dependencies**
 
 ### Installation
@@ -16,7 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("io.konform:konform:0.5.0")
+                implementation("io.konform:konform:0.6.2")
             }
         }
     }
@@ -27,7 +27,7 @@ For jvm-only projects add:
 
 ```
 dependencies {
-    implementation("io.konform:konform-jvm:0.5.0")
+    implementation("io.konform:konform-jvm:0.6.2")
 }
 ```
 
@@ -225,9 +225,10 @@ result[Event::ticketPrices, "free"]
   is validated successfully or fails validation with specific error messages.
   See [documentation](https://kotest.io/docs/assertions/konform-matchers.html).
 
-##### Author
+##### Maintainer
 
-[Niklas Lochschmidt](https://niklaslochschmidt.com)
+[David Hoepelman](https://hoepelman.dev/) (Current maintainer)
+[Niklas Lochschmidt](https://niklaslochschmidt.com) (Original author, co-maintainer)
 
 ##### License
 
