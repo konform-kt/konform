@@ -58,9 +58,17 @@ class ValidationResultTest {
         assertTrue(result.isValid)
     }
 
-    private data class Person(val name: String, val addresses: List<Address>)
+    private data class Person(
+        val name: String,
+        val addresses: List<Address>,
+    )
 
-    private data class Address(val city: City)
+    private data class Address(
+        val city: City,
+    )
 
-    private data class City(val postalCode: String, val cityName: String)
+    private data class City(
+        val postalCode: String,
+        val cityName: String,
+    )
 }

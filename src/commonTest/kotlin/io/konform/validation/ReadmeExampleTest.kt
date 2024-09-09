@@ -42,7 +42,11 @@ class ReadmeExampleTest {
 
     @Test
     fun complexValidation() {
-        data class Person(val name: String, val email: String?, val age: Int)
+        data class Person(
+            val name: String,
+            val email: String?,
+            val age: Int,
+        )
 
         data class Event(
             val organizer: Person,

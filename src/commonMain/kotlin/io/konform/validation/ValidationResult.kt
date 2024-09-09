@@ -11,9 +11,7 @@ internal data class PropertyValidationError(
     override val dataPath: String,
     override val message: String,
 ) : ValidationError {
-    override fun toString(): String {
-        return "ValidationError(dataPath=$dataPath, message=$message)"
-    }
+    override fun toString(): String = "ValidationError(dataPath=$dataPath, message=$message)"
 }
 
 @Deprecated("Replace with directly using List<ValidationError>", ReplaceWith("List<ValidationError>"))
@@ -47,13 +45,12 @@ public data class Invalid(
 ) : ValidationResult<Nothing>() {
     override fun get(vararg propertyPath: Any): List<String>? = internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
 
-    private fun toPathSegment(it: Any): String {
-        return when (it) {
+    private fun toPathSegment(it: Any): String =
+        when (it) {
             is KProperty1<*, *> -> ".${it.name}"
             is Int -> "[$it]"
             else -> ".$it"
         }
-    }
 
     override val errors: List<ValidationError> by lazy {
         internalErrors.flatMap { (path, errors) ->
@@ -61,12 +58,12 @@ public data class Invalid(
         }
     }
 
-    override fun toString(): String {
-        return "Invalid(errors=$errors)"
-    }
+    override fun toString(): String = "Invalid(errors=$errors)"
 }
 
-public data class Valid<T>(val value: T) : ValidationResult<T>() {
+public data class Valid<T>(
+    val value: T,
+) : ValidationResult<T>() {
     // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
     // that it is nonsensical to do.
     @Deprecated("It is not useful to index a valid result, it will always return null", ReplaceWith("null"))

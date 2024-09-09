@@ -109,7 +109,7 @@ kotlin {
     }
 }
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version = "1.2.1"
+    version = "1.3.1"
 }
 
 val javaDocJar =
@@ -152,7 +152,11 @@ publishing {
 
 signing {
     if (onCI) {
-        val encryptedSigningKey = layout.projectDirectory.file(".github/workflows/publishing/github_actions.key.asc").asFile.readText()
+        val encryptedSigningKey =
+            layout.projectDirectory
+                .file(".github/workflows/publishing/github_actions.key.asc")
+                .asFile
+                .readText()
         useInMemoryPgpKeys(encryptedSigningKey, System.getenv("PGP_PASSPHRASE"))
     } else {
         useGpgCmd()

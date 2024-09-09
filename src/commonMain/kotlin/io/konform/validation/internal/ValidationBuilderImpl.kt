@@ -98,9 +98,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         errorMessage: String,
         vararg templateValues: String,
         test: (T) -> Boolean,
-    ): Constraint<T> {
-        return Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
-    }
+    ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
     private fun <R> KProperty1<T, R?>.getOrCreateBuilder(modifier: PropModifier): ValidationBuilder<R> {
         val key = SingleValuePropKey(this, modifier)
