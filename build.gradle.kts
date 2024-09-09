@@ -20,11 +20,12 @@ val jvm = JvmTarget.JVM_1_8
 val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
 
 plugins {
-    kotlin("multiplatform") version "2.0.20"
+    alias(libs.plugins.kotest.multiplatform)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.nexuspublish)
     id("maven-publish")
     id("signing")
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     idea
 }
 
@@ -36,6 +37,7 @@ group = projectGroup
 val projectVersion = System.getenv("CI_VERSION") ?: "0.6.2-SNAPSHOT"
 version = projectVersion
 
+//region Kotlin and test configuration
 kotlin {
     // Since we are a library, prevent accidentally making things part of the public API
     explicitApi()
@@ -47,15 +49,12 @@ kotlin {
         }
     }
 
-    // start of kotlin targets
+    //region kotlin targets
     androidNativeArm32()
     androidNativeArm64()
     androidNativeX86()
     androidNativeX64()
     jvm {
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             // note lang toolchain cannot be used here
@@ -93,25 +92,49 @@ kotlin {
     wasmWasi {
         nodejs()
     }
-    // end of kotlin targets
+    //endregion
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(kotlin("stdlib"))
-            }
+        // Shared dependencies
+        commonMain.dependencies {
+            api(kotlin("stdlib"))
         }
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        // Shared test dependencies
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            //            implementation(kotlin("test-annotations-common"))
+            //            implementation(kotlin("test-common"))
+            //            implementation(libs.kotest.assertions.core)
+            //            implementation(libs.kotest.framework.datatest)
+            //            implementation(libs.kotest.framework.engine)
+        }
+        jvmTest.dependencies {
+            //            implementation(libs.kotest.runner.junit5)
         }
     }
 }
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    version = "1.3.1"
+    version = libs.versions.ktlint.get()
 }
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
+    filter {
+        isFailOnNoMatchingTests = true
+    }
+    testLogging {
+        showExceptions = true
+        showStandardStreams = true
+        events =
+            setOf(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+            )
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+//endregion
 
+//region Publishing configuration
 val javaDocJar =
     tasks.register<Jar>("stubJavadoc") {
         archiveClassifier = "javadoc"
@@ -163,7 +186,8 @@ signing {
     }
     sign(publishing.publications)
 }
-//region Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
+
+// Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
 // https://github.com/gradle/gradle/issues/26091
 tasks.withType<AbstractPublishToMaven>().configureEach {
     val signingTasks = tasks.withType<Sign>()
@@ -180,10 +204,13 @@ nexusPublishing {
         }
     }
 }
+//endregion
 
+//region IDE configuration
 idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
     }
 }
+//endregion
