@@ -109,7 +109,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     ): ValidationBuilder<R> {
         val key = SingleValuePropKey(this, name, modifier)
         @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
+        return (subValidations.getOrPut(key) { ValidationBuilderImpl<R>() } as ValidationBuilder<R>)
     }
 
     private fun <R> ((T) -> Iterable<R>).getOrCreateIterablePropertyBuilder(
@@ -124,13 +124,6 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     private fun <R> PropKey<T>.getOrCreateBuilder(): ValidationBuilder<R> {
         @Suppress("UNCHECKED_CAST")
         return (subValidations.getOrPut(this, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
-    }
-
-    override fun <R> ((T) -> R).invoke(
-        name: String,
-        init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        getOrCreateBuilder(name, NonNull).also(init)
     }
 
     override fun <R> onEachIterable(
@@ -178,6 +171,14 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
 
     override fun run(validation: Validation<T>) {
         prebuiltValidations.add(validation)
+    }
+
+    override fun <R> validate(
+        name: String,
+        f: (T) -> R,
+        init: ValidationBuilder<R>.() -> Unit,
+    ) {
+        f.getOrCreateBuilder(name, NonNull).also(init)
     }
 
     override fun build(): Validation<T> {

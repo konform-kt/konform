@@ -9,15 +9,15 @@ import kotlin.test.assertTrue
 
 class ValidationBuilderTest {
     // Some example constraints for Testing
-    fun ValidationBuilder<String>.minLength(minValue: Int) =
+    private fun ValidationBuilder<String>.minLength(minValue: Int) =
         addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
 
-    fun ValidationBuilder<String>.maxLength(minValue: Int) =
+    private  fun ValidationBuilder<String>.maxLength(minValue: Int) =
         addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
 
-    fun ValidationBuilder<String>.matches(regex: Regex) = addConstraint("must have correct format") { it.contains(regex) }
+    private fun ValidationBuilder<String>.matches(regex: Regex) = addConstraint("must have correct format") { it.contains(regex) }
 
-    fun ValidationBuilder<String>.containsANumber() = matches("[0-9]".toRegex()) hint "must have at least one number"
+    private fun ValidationBuilder<String>.containsANumber() = matches("[0-9]".toRegex()) hint "must have at least one number"
 
     @Test
     fun singleValidation() {

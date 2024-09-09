@@ -12,13 +12,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ReadmeExampleTest {
+    data class UserProfile(
+        val fullName: String,
+        val age: Int?,
+    )
+
     @Test
     fun simpleValidation() {
-        data class UserProfile(
-            val fullName: String,
-            val age: Int?,
-        )
-
         val validateUser =
             Validation<UserProfile> {
                 UserProfile::fullName {
@@ -129,5 +129,48 @@ class ReadmeExampleTest {
 
         assertEquals(3, countFieldsWithErrors(validateEvent(invalidEvent)))
         assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age]!![0])
+    }
+
+    @Test
+    fun customValidations() {
+        val validateUser1 = Validation<UserProfile> {
+            UserProfile::fullName {
+                addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+            }
+        }
+
+        val validateUser2 = Validation<UserProfile> {
+            validate("trimmed name", { it.fullName.trim() }) {
+                minLength(5)
+            }
+        }
+
+
+    }
+
+    @Test
+    fun splitValidations(){
+        val ageCheck = Validation<Int?> {
+            required {
+                minimum(18)
+            }
+        }
+
+        val validateUser = Validation<UserProfile> {
+            UserProfile::fullName {
+                minLength(2)
+                maxLength(100)
+            }
+
+            UserProfile::age {
+                run(ageCheck)
+            }
+        }
+
+        val transform = Validation<UserProfile> {
+            validate("ageMinus10", { it.age?.let { age -> age - 10 } }) {
+                run(ageCheck)
+            }
+        }
     }
 }
