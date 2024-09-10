@@ -95,6 +95,13 @@ kotlin {
     //endregion
 
     sourceSets {
+        val kotestSupported = listOf(
+            appleTest,
+            jsTest,
+            jvmTest,
+            nativeTest,
+            wasmJsTest,
+        )
         // Shared dependencies
         commonMain.dependencies {
             api(kotlin("stdlib"))
@@ -104,9 +111,13 @@ kotlin {
             implementation(kotlin("test"))
             //            implementation(kotlin("test-annotations-common"))
             //            implementation(kotlin("test-common"))
-            implementation(libs.kotest.assertions.core)
-            //            implementation(libs.kotest.framework.datatest)
-            //            implementation(libs.kotest.framework.engine)
+        }
+        kotestSupported.forEach {
+            it.dependencies {
+                implementation(libs.kotest.assertions.core)
+                //            implementation(libs.kotest.framework.datatest)
+                //            implementation(libs.kotest.framework.engine)
+            }
         }
         jvmTest.dependencies {
             //            implementation(libs.kotest.runner.junit5)
