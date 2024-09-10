@@ -7,6 +7,9 @@ import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.minimum
 import io.konform.validation.jsonschema.pattern
+import io.kotest.assertions.konform.shouldBeInvalid
+import io.kotest.assertions.konform.shouldBeValid
+import io.kotest.assertions.konform.shouldContainError
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,6 +19,8 @@ class ReadmeExampleTest {
         val fullName: String,
         val age: Int?,
     )
+
+    private val johnDoe = UserProfile("John Doe", 30)
 
     @Test
     fun simpleValidation() {
@@ -133,44 +138,62 @@ class ReadmeExampleTest {
 
     @Test
     fun customValidations() {
-        val validateUser1 = Validation<UserProfile> {
-            UserProfile::fullName {
-                addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+        val validateUser1 =
+            Validation<UserProfile> {
+                UserProfile::fullName {
+                    addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+                }
             }
+
+        validateUser1 shouldBeValid johnDoe
+        validateUser1.shouldBeInvalid(UserProfile("John\tDoe", 30)) {
+            it.shouldContainError(".fullName", "Name cannot contain a tab")
         }
 
-        val validateUser2 = Validation<UserProfile> {
-            validate("trimmed name", { it.fullName.trim() }) {
-                minLength(5)
+        val validateUser2 =
+            Validation<UserProfile> {
+                validate("trimmedName", { it.fullName.trim() }) {
+                    minLength(5)
+                }
             }
+
+        validateUser2 shouldBeValid johnDoe
+        validateUser2.shouldBeInvalid(UserProfile("J", 30)) {
+            it.shouldContainError(".trimmedName", "must have at least 5 characters")
         }
-
-
     }
 
     @Test
-    fun splitValidations(){
-        val ageCheck = Validation<Int?> {
-            required {
-                minimum(18)
+    fun splitValidations() {
+        val ageCheck =
+            Validation<Int?> {
+                required {
+                    minimum(21)
+                }
             }
+
+        val validateUser =
+            Validation<UserProfile> {
+                UserProfile::age {
+                    run(ageCheck)
+                }
+            }
+
+        validateUser shouldBeValid johnDoe
+        validateUser.shouldBeInvalid(UserProfile("John doe", 10)) {
+            it.shouldContainError(".age", "must be at least '21'")
         }
 
-        val validateUser = Validation<UserProfile> {
-            UserProfile::fullName {
-                minLength(2)
-                maxLength(100)
+        val transform =
+            Validation<UserProfile> {
+                validate("ageMinus10", { it.age?.let { age -> age - 10 } }) {
+                    run(ageCheck)
+                }
             }
 
-            UserProfile::age {
-                run(ageCheck)
-            }
-        }
-
-        val transform = Validation<UserProfile> {
-            validate("ageMinus10", { it.age?.let { age -> age - 10 } }) {
-                run(ageCheck)
-            }
+        transform shouldBeValid UserProfile("X", 31)
+        transform.shouldBeInvalid(johnDoe) {
+            it.shouldContainError(".ageMinus10", "must be at least '21'")
         }
     }
 }

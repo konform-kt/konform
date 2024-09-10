@@ -1,7 +1,6 @@
 package io.konform.validation
 
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KProperty1
+import io.konform.validation.kotlin.Path
 
 public interface ValidationError {
     public val dataPath: String
@@ -44,15 +43,7 @@ public sealed class ValidationResult<out T> {
 public data class Invalid(
     internal val internalErrors: Map<String, List<String>>,
 ) : ValidationResult<Nothing>() {
-    override fun get(vararg propertyPath: Any): List<String>? = internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
-
-    private fun toPathSegment(it: Any): String =
-        when (it) {
-            is KProperty1<*, *> -> ".${it.name}"
-            is KFunction1<*, *> -> ".${it.name}()"
-            is Int -> "[$it]"
-            else -> ".$it"
-        }
+    override fun get(vararg propertyPath: Any): List<String>? = internalErrors[Path.toPath(*propertyPath)]
 
     override val errors: List<ValidationError> by lazy {
         internalErrors.flatMap { (path, errors) ->

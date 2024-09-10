@@ -146,16 +146,11 @@ You can define validations separately and run them from other validations
 ```kotlin
 val ageCheck = Validation<Int?> {
     required {
-        minimum(18)
+        minimum(21)
     }
 }
 
 val validateUser = Validation<UserProfile> {
-    UserProfile::fullName {
-        minLength(2)
-        maxLength(100)
-    }
-
     UserProfile::age {
         run(ageCheck)
     }

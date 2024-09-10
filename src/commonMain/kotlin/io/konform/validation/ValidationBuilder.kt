@@ -53,7 +53,7 @@ public abstract class ValidationBuilder<T> {
         init: ValidationBuilder<R>.() -> Unit,
     )
 
-    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(name,this, init)
+    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(name, this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate("$name()", this, init)
 
@@ -86,19 +86,20 @@ public abstract class ValidationBuilder<T> {
 
     public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required("$name()", init)
 
-
     /**
      * Calculate a value from the input and run a validation on it.
-     * @param name The name that should be reported in validation errors
+     * @param name The name that should be reported in validation errors. Must be a valid kotlin name, optionally followed by ().
      * @param f The function for which you want to validate the result of
      * @see run
      */
-    public abstract fun <R> validate(name: String, f: (T) -> R, init: ValidationBuilder<R>.() -> Unit)
+    public abstract fun <R> validate(
+        name: String,
+        f: (T) -> R,
+        init: ValidationBuilder<R>.() -> Unit,
+    )
 
     /** Run an arbitrary other validation. */
     public abstract fun run(validation: Validation<T>)
-
-    public abstract fun <R> runOn(validation: Validation<T>, f: (T) -> R)
 
     public abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
     public abstract val <R> KFunction1<T, R>.has: ValidationBuilder<R>

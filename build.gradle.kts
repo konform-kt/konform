@@ -104,7 +104,7 @@ kotlin {
             implementation(kotlin("test"))
             //            implementation(kotlin("test-annotations-common"))
             //            implementation(kotlin("test-common"))
-            //            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotest.assertions.core)
             //            implementation(libs.kotest.framework.datatest)
             //            implementation(libs.kotest.framework.engine)
         }

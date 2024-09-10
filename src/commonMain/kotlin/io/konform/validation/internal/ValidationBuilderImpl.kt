@@ -6,6 +6,7 @@ import io.konform.validation.ValidationBuilder
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.NonNull
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.Optional
 import io.konform.validation.internal.ValidationBuilderImpl.Companion.PropModifier.OptionalRequired
+import io.konform.validation.kotlin.Grammar
 import kotlin.collections.Map.Entry
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -178,8 +179,14 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
     ) {
+        requireValidName(name)
         f.getOrCreateBuilder(name, NonNull).also(init)
     }
+
+    private fun requireValidName(name: String) =
+        require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {
+            "'$name' is not a valid kotlin identifier or getter name."
+        }
 
     override fun build(): Validation<T> {
         val nestedValidations =
