@@ -5,7 +5,6 @@ import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
-import kotlin.reflect.KProperty1
 
 internal class OptionalValidation<T : Any>(
     private val validation: Validation<T>,
@@ -28,34 +27,37 @@ internal class RequiredValidation<T : Any>(
 }
 
 internal class NonNullPropertyValidation<T, R>(
-    private val property: KProperty1<T, R>,
+    val property: (T) -> R,
+    val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue = property(value)
-        return validation(propertyValue).mapError { ".${property.name}$it" }.map { value }
+        return validation(propertyValue).mapError { ".${name}$it" }.map { value }
     }
 }
 
 internal class OptionalPropertyValidation<T, R>(
-    private val property: KProperty1<T, R?>,
+    val property: (T) -> R?,
+    val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue = property(value) ?: return Valid(value)
-        return validation(propertyValue).mapError { ".${property.name}$it" }.map { value }
+        return validation(propertyValue).mapError { ".${name}$it" }.map { value }
     }
 }
 
 internal class RequiredPropertyValidation<T, R>(
-    private val property: KProperty1<T, R?>,
+    val property: (T) -> R?,
+    val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
         val propertyValue =
             property(value)
-                ?: return Invalid(mapOf(".${property.name}" to listOf("is required")))
-        return validation(propertyValue).mapError { ".${property.name}$it" }.map { value }
+                ?: return Invalid(mapOf(".$name" to listOf("is required")))
+        return validation(propertyValue).mapError { ".${name}$it" }.map { value }
     }
 }
 

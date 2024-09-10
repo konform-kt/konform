@@ -35,7 +35,7 @@ dependencies {
 
 Suppose you have a data class like this:
 
-```Kotlin
+```kotlin
 data class UserProfile(
     val fullName: String,
     val age: Int?
@@ -44,7 +44,7 @@ data class UserProfile(
 
 Using the Konform type-safe DSL you can quickly write up a validation
 
-```Kotlin
+```kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::fullName {
         minLength(2)
@@ -60,14 +60,14 @@ val validateUser = Validation<UserProfile> {
 
 and apply it to your data
 
-```Kotlin
+```kotlin
 val invalidUser = UserProfile("A", -1)
 val validationResult = validateUser(invalidUser)
 ```
 
 since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors by indexed access:
 
-```Kotlin
+```kotlin
 validationResult[UserProfile::fullName]
 // yields listOf("must have at least 2 characters")
 
@@ -77,7 +77,7 @@ validationResult[UserProfile::age]
 
 or you can get all validation errors with details as a list:
 
-```Kotlin
+```kotlin
 validationResult.errors
 // yields listOf(
 //     ValidationError(dataPath=.fullName, message=must have at least 2 characters),
@@ -87,19 +87,19 @@ validationResult.errors
 
 In case the validation went through successfully you get a result of type `Valid` with the validated value in the `value` field.
 
-```Kotlin
+```kotlin
 val validUser = UserProfile("Alice", 25)
 val validationResult = validateUser(validUser)
 // yields Valid(UserProfile("Alice", 25))
 ```
 
-### Advanced use
+### Detailed usage
 
 #### Hints
 
 You can add custom hints to validations
 
-```Kotlin
+```kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::age ifPresent {
         minimum(0) hint "Registering before birth is not supported"
@@ -109,7 +109,7 @@ val validateUser = Validation<UserProfile> {
 
 You can use `{value}` to include the `.toString()`-ed data in the hint
 
-```Kotlin
+```kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::fullName {
         minLength(2) hint "'{value}' is too short a name, must be at least 2 characters long."
@@ -119,9 +119,9 @@ val validateUser = Validation<UserProfile> {
 
 #### Custom validations
 
-You can add custom validations by using `addConstraint`
+You can add custom validations on properties by using `addConstraint`
 
-```Kotlin
+```kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::fullName {
         addConstraint("Name cannot contain a tab") { !it.contains("\t") }
@@ -129,30 +129,51 @@ val validateUser = Validation<UserProfile> {
 }
 ```
 
-#### Nested validations
+You can transform data and then add a validation on the result
 
-You can define validations for nested classes and use them for new validations
+```kotlin
+val validateUser = Validation<UserProfile> {
+    validate("trimmedName", { it.fullName.trim() }) {
+        minLength(5)
+    }
+    // This also required and ifPresent for nullable values
+    required("yourName", /* ...*/) {
+        // your validations, giving an error out if the result is null
+    }
+    ifPresent("yourName", /* ... */) {
+        // your validations, only running if the result is not null
+    }
+}
+```
 
-```Kotlin
-val ageCheck = Validation<UserProfile> {
-    UserProfile::age required {
-        minimum(18)
+#### Split validations
+
+You can define validations separately and run them from other validations
+
+```kotlin
+val ageCheck = Validation<Int?> {
+    required {
+        minimum(21)
     }
 }
 
 val validateUser = Validation<UserProfile> {
-    UserProfile::fullName {
-        minLength(2)
-        maxLength(100)
+    UserProfile::age {
+        run(ageCheck)
     }
 
-    run(ageCheck)
+    // You can also transform the data and then run a validation against the result
+    validate("ageMinus10", { it.age?.let { age -> age - 10 } }) {
+        run(ageCheck)
+    }
 }
 ```
 
+#### Collections
+
 It is also possible to validate nested data classes and properties that are collections (List, Map, etc...)
 
-```Kotlin
+```kotlin
 data class Person(val name: String, val email: String?, val age: Int)
 
 data class Event(
@@ -206,7 +227,7 @@ val validateEvent = Validation<Event> {
 Errors in the `ValidationResult` can also be accessed using the index access method. In case of `Iterables` and `Arrays` you use the
 numerical index and in case of `Maps` you use the key as string.
 
-```Kotlin
+```kotlin
 // get the error messages for the first attendees age if any
 result[Event::attendees, 0, Person::age]
 
