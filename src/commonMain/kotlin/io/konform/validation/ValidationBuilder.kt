@@ -43,20 +43,6 @@ public abstract class ValidationBuilder<T> {
         init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit,
     )
 
-    public abstract fun <R> ((T) -> R?).ifPresent(
-        name: String,
-        init: ValidationBuilder<R>.() -> Unit,
-    )
-
-    public abstract fun <R> ((T) -> R?).required(
-        name: String,
-        init: ValidationBuilder<R>.() -> Unit,
-    )
-
-    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(name, this, init)
-
-    public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate("$name()", this, init)
-
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit = onEachIterable(name, this, init)
 
@@ -78,13 +64,17 @@ public abstract class ValidationBuilder<T> {
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
         onEachMap("$name()", this, init)
 
-    public infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(name, init)
+    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(name, this, init)
 
-    public infix fun <R> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent("$name()", init)
+    public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate("$name()", this, init)
 
-    public infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(name, init)
+    public infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(name, this, init)
 
-    public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required("$name()", init)
+    public infix fun <R> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent("$name()", this, init)
+
+    public infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(name,this, init)
+
+    public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required("$name()", this, init)
 
     /**
      * Calculate a value from the input and run a validation on it.
@@ -98,6 +88,24 @@ public abstract class ValidationBuilder<T> {
         init: ValidationBuilder<R>.() -> Unit,
     )
 
+    /**
+     * Calculate a value from the input and run a validation on it, but only if the value is not null.
+     */
+    public abstract fun <R> ifPresent(
+        name: String,
+        f: (T) -> R?,
+        init: ValidationBuilder<R>.() -> Unit,
+    )
+
+    /**
+     * Calculate a value from the input and run a validation on it, and give an error if the result is null.
+     */
+    public abstract fun <R> required(
+        name: String,
+        f: (T) -> R?,
+        init: ValidationBuilder<R>.() -> Unit,
+    )
+
     /** Run an arbitrary other validation. */
     public abstract fun run(validation: Validation<T>)
 
@@ -105,12 +113,18 @@ public abstract class ValidationBuilder<T> {
     public abstract val <R> KFunction1<T, R>.has: ValidationBuilder<R>
 }
 
+/**
+ * Run a validation if the property is not-null, and allow nulls.
+ */
 public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
     val builder = ValidationBuilderImpl<T>()
     init(builder)
     run(OptionalValidation(builder.build()))
 }
 
+/**
+ * Run a validation on a nullable property, giving an error on nulls.
+ */
 public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) {
     val builder = ValidationBuilderImpl<T>()
     init(builder)

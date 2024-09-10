@@ -251,8 +251,7 @@ class ValidationBuilderTest {
             key: String,
             validations: ValidationBuilder<String>.() -> Unit,
         ) {
-            val getClaimValue = { data: Token -> data.claims[key] }
-            getClaimValue.required(".claims[$key]") {
+            required("claim_$key",  { data: Token -> data.claims[key] }) {
                 validations()
             }
         }

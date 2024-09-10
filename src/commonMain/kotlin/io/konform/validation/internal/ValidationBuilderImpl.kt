@@ -108,6 +108,7 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         name: String,
         modifier: PropModifier,
     ): ValidationBuilder<R> {
+        requireValidName(name)
         val key = SingleValuePropKey(this, name, modifier)
         @Suppress("UNCHECKED_CAST")
         return (subValidations.getOrPut(key) { ValidationBuilderImpl<R>() } as ValidationBuilder<R>)
@@ -119,12 +120,12 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
     ): ValidationBuilder<R> {
         val key = IterablePropKey(this, name, modifier)
         @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(key, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
+        return (subValidations.getOrPut(key) { ValidationBuilderImpl<R>() } as ValidationBuilder<R>)
     }
 
     private fun <R> PropKey<T>.getOrCreateBuilder(): ValidationBuilder<R> {
         @Suppress("UNCHECKED_CAST")
-        return (subValidations.getOrPut(this, { ValidationBuilderImpl<R>() }) as ValidationBuilder<R>)
+        return (subValidations.getOrPut(this) { ValidationBuilderImpl<R>() } as ValidationBuilder<R>)
     }
 
     override fun <R> onEachIterable(
@@ -151,20 +152,6 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         MapPropKey(prop, name, NonNull).getOrCreateBuilder<Map.Entry<K, V>>().also(init)
     }
 
-    override fun <R> ((T) -> R?).ifPresent(
-        name: String,
-        init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        getOrCreateBuilder(name, Optional).also(init)
-    }
-
-    override fun <R> ((T) -> R?).required(
-        name: String,
-        init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        getOrCreateBuilder(name, OptionalRequired).also(init)
-    }
-
     override val <R> KProperty1<T, R>.has: ValidationBuilder<R>
         get() = getOrCreateBuilder(name, NonNull)
     override val <R> KFunction1<T, R>.has: ValidationBuilder<R>
@@ -178,10 +165,13 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         name: String,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        requireValidName(name)
-        f.getOrCreateBuilder(name, NonNull).also(init)
-    }
+    ) = init(f.getOrCreateBuilder(name, NonNull))
+
+    override fun <R> ifPresent(name: String, f: (T) -> R?, init: ValidationBuilder<R>.() -> Unit) =
+        init(f.getOrCreateBuilder(name, Optional))
+
+    override fun <R> required(name: String, f: (T) -> R?, init: ValidationBuilder<R>.() -> Unit) =
+        init(f.getOrCreateBuilder(name, OptionalRequired))
 
     private fun requireValidName(name: String) =
         require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {

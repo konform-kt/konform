@@ -195,5 +195,25 @@ class ReadmeExampleTest {
         transform.shouldBeInvalid(johnDoe) {
             it.shouldContainError(".ageMinus10", "must be at least '21'")
         }
+
+        val required = Validation<UserProfile> {
+            required("age", { it.age }) {
+                minimum(21)
+            }
+        }
+        val optional = Validation<UserProfile> {
+            ifPresent("age", { it.age }) {
+                minimum(21)
+            }
+        }
+        val noAge = UserProfile("John Doe", null)
+        required.shouldBeInvalid(noAge) {
+            it.shouldContainError(".age", "is required")
+        }
+        optional.shouldBeValid(noAge)
+        optional.shouldBeValid(johnDoe)
+        optional.shouldBeInvalid(UserProfile("John Doe", 10)) {
+            it.shouldContainError(".age", "must be at least '21'")
+        }
     }
 }

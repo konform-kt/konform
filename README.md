@@ -136,6 +136,13 @@ val validateUser = Validation<UserProfile> {
     validate("trimmedName", { it.fullName.trim() }) {
         minLength(5)
     }
+    // This also required and ifPresent for nullable values
+    required("yourName", /* ...*/) {
+        // your validations, giving an error out if the result is null
+    }
+    ifPresent("yourName", /* ... */) {
+        // your validations, only running if the result is not null
+    }
 }
 ```
 
