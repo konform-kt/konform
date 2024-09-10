@@ -1,7 +1,9 @@
+import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
 
 val projectName = "konform"
 val projectGroup = "io.konform"
@@ -144,6 +146,24 @@ tasks.named<Test>("jvmTest") {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
+// Disable test tasks for the unsupported source sets
+val kotestUnsupported =
+    listOf(
+        "wasmWasi",
+    )
+kotestUnsupported.forEach {
+    // Disable tests for targets kotest doesn't support yet
+
+    val capitalized = it.capitalized()
+    tasks.named("compileTestKotlin$capitalized") {
+        enabled = false
+    }
+
+    tasks.named<KotlinTestReport>("${it}Test") {
+        enabled = false
+    }
+}
+
 //endregion
 
 //region Publishing configuration
