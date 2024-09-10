@@ -1,21 +1,29 @@
 package io.konform.validation
 
+import io.konform.validation.jsonschema.const
+import io.konform.validation.jsonschema.enum
 import io.konform.validation.jsonschema.minItems
+import io.kotest.assertions.konform.shouldBeInvalid
+import io.kotest.assertions.konform.shouldBeValid
+import io.kotest.assertions.konform.shouldContainError
+import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldHaveErrorCount
+import io.kotest.assertions.konform.shouldNotContainErrorAt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ValidationBuilderTest {
     // Some example constraints for Testing
-    fun ValidationBuilder<String>.minLength(minValue: Int) =
+    private fun ValidationBuilder<String>.minLength(minValue: Int) =
         addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
 
-    fun ValidationBuilder<String>.maxLength(minValue: Int) =
+    private fun ValidationBuilder<String>.maxLength(minValue: Int) =
         addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
 
-    fun ValidationBuilder<String>.matches(regex: Regex) = addConstraint("must have correct format") { it.contains(regex) }
+    private fun ValidationBuilder<String>.matches(regex: Regex) = addConstraint("must have correct format") { it.contains(regex) }
 
-    fun ValidationBuilder<String>.containsANumber() = matches("[0-9]".toRegex()) hint "must have at least one number"
+    private fun ValidationBuilder<String>.containsANumber() = matches("[0-9]".toRegex()) hint "must have at least one number"
 
     @Test
     fun singleValidation() {
@@ -180,6 +188,108 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun functionAccessorSyntax() {
+        val splitDoubleValidation =
+            Validation<Register> {
+                Register::getPasswordFun {
+                    minLength(1)
+                }
+                Register::getPasswordFun {
+                    maxLength(10)
+                }
+                Register::getEmailFun {
+                    matches(".+@.+".toRegex())
+                }
+            }
+
+        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
+        Register(
+            email = "tester@test.com",
+            password = "",
+        ).let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun)) }
+        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let {
+            assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun))
+        }
+        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+    }
+
+    @Test
+    fun validateLambda() {
+        val splitDoubleValidation =
+            Validation<Register> {
+                validate("getPasswordLambda", { r: Register -> r.password }) {
+                    minLength(1)
+                    maxLength(10)
+                }
+                validate("getEmailLambda", { r: Register -> r.email }) {
+                    matches(".+@.+".toRegex())
+                }
+            }
+
+        splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
+        splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "")) {
+            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at least 1 characters")
+        }
+        splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "aaaaaaaaaaa")) {
+            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at most 10 characters")
+        }
+        splitDoubleValidation.shouldBeInvalid(Register(email = "tester@", password = "")) {
+            it.shouldContainExactlyErrors(
+                ".getPasswordLambda" to "must have at least 1 characters",
+                ".getEmailLambda" to "must have correct format",
+            )
+        }
+    }
+
+    @Test
+    fun complexLambdaAccessors() {
+        data class Token(
+            val claims: Map<String, String>,
+        )
+
+        fun ValidationBuilder<Token>.validateClaim(
+            key: String,
+            validations: ValidationBuilder<String>.() -> Unit,
+        ) {
+            required("claim_$key", { data: Token -> data.claims[key] }) {
+                validations()
+            }
+        }
+
+        val accessTokenValidation =
+            Validation<Token> {
+                validateClaim("scope") {
+                    const("access")
+                }
+                validateClaim("issuer") {
+                    enum("bob", "eve")
+                }
+            }
+        val refreshTokenVerification =
+            Validation<Token> {
+                validateClaim("scope") {
+                    const("refresh")
+                }
+                validateClaim("issuer") {
+                    enum("bob", "eve")
+                }
+            }
+
+        Token(mapOf("scope" to "access", "issuer" to "bob")).let {
+            assertEquals(Valid(it), accessTokenValidation(it))
+            assertEquals(1, countFieldsWithErrors(refreshTokenVerification(it)))
+        }
+        Token(mapOf("scope" to "refresh", "issuer" to "eve")).let {
+            assertEquals(Valid(it), refreshTokenVerification(it))
+            assertEquals(1, countFieldsWithErrors(accessTokenValidation(it)))
+        }
+        Token(mapOf("issuer" to "alice")).let {
+            assertEquals(2, countFieldsWithErrors(accessTokenValidation(it)))
+            assertEquals(2, countFieldsWithErrors(refreshTokenVerification(it)))
+        }
+    }
+
+    @Test
     fun validateLists() {
         data class Data(
             val registrations: List<Register> = emptyList(),
@@ -312,16 +422,23 @@ class ValidationBuilderTest {
                 }
             }
 
-        Data().let { assertEquals(Valid(it), mapValidation(it)) }
-        Data(
-            registrations =
-                mapOf(
-                    "user1" to Register(email = "valid"),
-                    "user2" to Register(email = "a"),
-                ),
-        ).let {
-            assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
-            assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
+        mapValidation shouldBeValid Data()
+
+        mapValidation.shouldBeInvalid(
+            Data(
+                registrations =
+                    mapOf(
+                        "user1" to Register(email = "valid"),
+                        "user2" to Register(email = "a"),
+                    ),
+            ),
+        ) {
+            it.shouldContainExactlyErrors(
+                ".registrations.user2.email" to "must have at least 2 characters",
+            )
+            it.shouldContainError(listOf(Data::registrations, "user2", Register::email), "must have at least 2 characters")
+            it.shouldNotContainErrorAt(Data::registrations, "user1", Register::email)
+            it.shouldHaveErrorCount(1)
         }
     }
 
@@ -389,7 +506,11 @@ class ValidationBuilderTest {
         val email: String = "",
         val referredBy: String? = null,
         val home: Address? = null,
-    )
+    ) {
+        fun getPasswordFun() = password
+
+        fun getEmailFun() = email
+    }
 
     private data class Address(
         val address: String = "",
