@@ -251,7 +251,7 @@ class ValidationBuilderTest {
             key: String,
             validations: ValidationBuilder<String>.() -> Unit,
         ) {
-            required("claim_$key",  { data: Token -> data.claims[key] }) {
+            required("claim_$key", { data: Token -> data.claims[key] }) {
                 validations()
             }
         }
@@ -424,13 +424,15 @@ class ValidationBuilderTest {
 
         mapValidation shouldBeValid Data()
 
-        mapValidation.shouldBeInvalid(Data(
-            registrations =
-            mapOf(
-                "user1" to Register(email = "valid"),
-                "user2" to Register(email = "a"),
+        mapValidation.shouldBeInvalid(
+            Data(
+                registrations =
+                    mapOf(
+                        "user1" to Register(email = "valid"),
+                        "user2" to Register(email = "a"),
+                    ),
             ),
-        )) {
+        ) {
             it.shouldContainExactlyErrors(
                 ".registrations.user2.email" to "must have at least 2 characters",
             )
@@ -438,7 +440,6 @@ class ValidationBuilderTest {
             it.shouldNotContainErrorAt(Data::registrations, "user1", Register::email)
             it.shouldHaveErrorCount(1)
         }
-
     }
 
     @Test

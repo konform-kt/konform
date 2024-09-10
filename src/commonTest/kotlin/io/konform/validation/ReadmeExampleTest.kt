@@ -196,16 +196,18 @@ class ReadmeExampleTest {
             it.shouldContainError(".ageMinus10", "must be at least '21'")
         }
 
-        val required = Validation<UserProfile> {
-            required("age", { it.age }) {
-                minimum(21)
+        val required =
+            Validation<UserProfile> {
+                required("age", { it.age }) {
+                    minimum(21)
+                }
             }
-        }
-        val optional = Validation<UserProfile> {
-            ifPresent("age", { it.age }) {
-                minimum(21)
+        val optional =
+            Validation<UserProfile> {
+                ifPresent("age", { it.age }) {
+                    minimum(21)
+                }
             }
-        }
         val noAge = UserProfile("John Doe", null)
         required.shouldBeInvalid(noAge) {
             it.shouldContainError(".age", "is required")

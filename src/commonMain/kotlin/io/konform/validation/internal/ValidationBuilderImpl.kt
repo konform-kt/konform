@@ -133,7 +133,8 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         prop: (T) -> Iterable<R>,
         init: ValidationBuilder<R>.() -> Unit,
     ) {
-        prop.getOrCreateIterablePropertyBuilder(name, NonNull).also(init)
+        requireValidName(name)
+        init(prop.getOrCreateIterablePropertyBuilder(name, NonNull))
     }
 
     override fun <R> onEachArray(
@@ -141,7 +142,8 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
     ) {
-        ArrayPropKey(prop, name, NonNull).getOrCreateBuilder<R>().also(init)
+        requireValidName(name)
+        init(ArrayPropKey(prop, name, NonNull).getOrCreateBuilder())
     }
 
     override fun <K, V> onEachMap(
@@ -149,7 +151,8 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         prop: (T) -> Map<K, V>,
         init: ValidationBuilder<Entry<K, V>>.() -> Unit,
     ) {
-        MapPropKey(prop, name, NonNull).getOrCreateBuilder<Map.Entry<K, V>>().also(init)
+        requireValidName(name)
+        init(MapPropKey(prop, name, NonNull).getOrCreateBuilder())
     }
 
     override val <R> KProperty1<T, R>.has: ValidationBuilder<R>
@@ -167,11 +170,17 @@ internal class ValidationBuilderImpl<T> : ValidationBuilder<T>() {
         init: ValidationBuilder<R>.() -> Unit,
     ) = init(f.getOrCreateBuilder(name, NonNull))
 
-    override fun <R> ifPresent(name: String, f: (T) -> R?, init: ValidationBuilder<R>.() -> Unit) =
-        init(f.getOrCreateBuilder(name, Optional))
+    override fun <R> ifPresent(
+        name: String,
+        f: (T) -> R?,
+        init: ValidationBuilder<R>.() -> Unit,
+    ) = init(f.getOrCreateBuilder(name, Optional))
 
-    override fun <R> required(name: String, f: (T) -> R?, init: ValidationBuilder<R>.() -> Unit) =
-        init(f.getOrCreateBuilder(name, OptionalRequired))
+    override fun <R> required(
+        name: String,
+        f: (T) -> R?,
+        init: ValidationBuilder<R>.() -> Unit,
+    ) = init(f.getOrCreateBuilder(name, OptionalRequired))
 
     private fun requireValidName(name: String) =
         require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {

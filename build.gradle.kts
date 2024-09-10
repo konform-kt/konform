@@ -95,13 +95,14 @@ kotlin {
     //endregion
 
     sourceSets {
-        val kotestSupported = listOf(
-            appleTest,
-            jsTest,
-            jvmTest,
-            nativeTest,
-            wasmJsTest,
-        )
+        val kotestSupported =
+            listOf(
+                appleTest,
+                jsTest,
+                jvmTest,
+                nativeTest,
+                wasmJsTest,
+            )
         // Shared dependencies
         commonMain.dependencies {
             api(kotlin("stdlib"))

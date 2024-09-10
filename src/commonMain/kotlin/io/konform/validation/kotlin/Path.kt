@@ -7,8 +7,11 @@ import kotlin.reflect.KProperty1
 internal object Path {
     /** Get a path, but treat a single string as the full path */
     fun asPathOrToPath(vararg segments: Any): String =
-        if (segments.size == 1 && segments[0] is String) segments[0] as String
-        else toPath(*segments)
+        if (segments.size == 1 && segments[0] is String) {
+            segments[0] as String
+        } else {
+            toPath(*segments)
+        }
 
     fun toPath(vararg segments: Any): String = segments.joinToString("") { toPathSegment(it) }
 
