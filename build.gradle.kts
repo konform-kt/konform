@@ -36,7 +36,7 @@ repositories {
 }
 
 group = projectGroup
-val projectVersion = System.getenv("CI_VERSION") ?: "0.6.2-SNAPSHOT"
+val projectVersion = System.getenv("CI_VERSION") ?: "0.7.1-SNAPSHOT"
 version = projectVersion
 
 //region Kotlin and test configuration
