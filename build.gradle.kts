@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.nexuspublish)
+    alias(libs.plugins.kotlinx.binarycompatibilityvalidator)
     id("maven-publish")
     id("signing")
     idea
@@ -162,6 +163,13 @@ kotestUnsupported.forEach {
     tasks.named<KotlinTestReport>("${it}Test") {
         enabled = false
     }
+}
+
+apiValidation {
+    apiDumpDirectory = "api"
+
+    // ignoredPackages.add("kotlinx.coroutines.internal")
+    // ignoredClasses.add("com.company.BuildConfig")
 }
 
 //endregion

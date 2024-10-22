@@ -1,0 +1,107 @@
+public final class io/konform/validation/Constraint {
+	public final fun getHint ()Ljava/lang/String;
+	public final fun getTemplateValues ()Ljava/util/List;
+	public final fun getTest ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class io/konform/validation/Invalid : io/konform/validation/ValidationResult {
+	public fun <init> (Ljava/util/Map;)V
+	public final fun copy (Ljava/util/Map;)Lio/konform/validation/Invalid;
+	public static synthetic fun copy$default (Lio/konform/validation/Invalid;Ljava/util/Map;ILjava/lang/Object;)Lio/konform/validation/Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get ([Ljava/lang/Object;)Ljava/util/List;
+	public fun getErrors ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/konform/validation/Valid : io/konform/validation/ValidationResult {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lio/konform/validation/Valid;
+	public static synthetic fun copy$default (Lio/konform/validation/Valid;Ljava/lang/Object;ILjava/lang/Object;)Lio/konform/validation/Valid;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get ([Ljava/lang/Object;)Ljava/util/List;
+	public fun getErrors ()Ljava/util/List;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/konform/validation/Validation {
+	public static final field Companion Lio/konform/validation/Validation$Companion;
+	public abstract fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public abstract fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/Validation$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Validation;
+}
+
+public final class io/konform/validation/Validation$DefaultImpls {
+	public static fun invoke (Lio/konform/validation/Validation;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public abstract class io/konform/validation/ValidationBuilder {
+	public fun <init> ()V
+	public abstract fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
+	public abstract fun build ()Lio/konform/validation/Validation;
+	public abstract fun getHas (Lkotlin/reflect/KFunction;)Lio/konform/validation/ValidationBuilder;
+	public abstract fun getHas (Lkotlin/reflect/KProperty1;)Lio/konform/validation/ValidationBuilder;
+	public abstract fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public abstract fun ifPresent (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun ifPresent (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun ifPresent (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun invoke (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun invoke (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachArray (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachArray (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachIterable (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachIterable (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachMap (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachMap (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun required (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun required (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
+	public final fun required (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun run (Lio/konform/validation/Validation;)V
+	public abstract fun validate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class io/konform/validation/ValidationBuilderKt {
+	public static final fun ifPresent (Lio/konform/validation/ValidationBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onEachArray (Lio/konform/validation/ValidationBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onEachIterable (Lio/konform/validation/ValidationBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onEachMap (Lio/konform/validation/ValidationBuilder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun required (Lio/konform/validation/ValidationBuilder;Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract interface class io/konform/validation/ValidationError {
+	public abstract fun getDataPath ()Ljava/lang/String;
+	public abstract fun getMessage ()Ljava/lang/String;
+}
+
+public abstract interface class io/konform/validation/ValidationErrors : java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
+}
+
+public abstract class io/konform/validation/ValidationResult {
+	public abstract fun get ([Ljava/lang/Object;)Ljava/util/List;
+	public abstract fun getErrors ()Ljava/util/List;
+	public final fun isValid ()Z
+	public final fun map (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/jsonschema/JsonSchemaKt {
+	public static final fun const (Lio/konform/validation/ValidationBuilder;Ljava/lang/Object;)Lio/konform/validation/Constraint;
+	public static final fun enum (Lio/konform/validation/ValidationBuilder;[Ljava/lang/Object;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun maxLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun minLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
+	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+}
+
