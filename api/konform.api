@@ -42,29 +42,32 @@ public final class io/konform/validation/Validation$DefaultImpls {
 	public static fun invoke (Lio/konform/validation/Validation;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 
-public abstract class io/konform/validation/ValidationBuilder {
+public final class io/konform/validation/ValidationBuilder {
 	public fun <init> ()V
-	public abstract fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
-	public abstract fun build ()Lio/konform/validation/Validation;
-	public abstract fun getHas (Lkotlin/reflect/KFunction;)Lio/konform/validation/ValidationBuilder;
-	public abstract fun getHas (Lkotlin/reflect/KProperty1;)Lio/konform/validation/ValidationBuilder;
-	public abstract fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
-	public abstract fun ifPresent (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
+	public final fun build ()Lio/konform/validation/Validation;
+	public final fun getHas (Lkotlin/reflect/KFunction;)Lio/konform/validation/ValidationBuilder;
+	public final fun getHas (Lkotlin/reflect/KProperty1;)Lio/konform/validation/ValidationBuilder;
+	public final fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public final fun ifPresent (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun invoke (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun invoke (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachArray (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachArray (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachArray (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachIterable (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachIterable (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachIterable (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun onEachMap (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachMap (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachMap (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
-	public abstract fun required (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun required (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun required (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun required (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
-	public abstract fun run (Lio/konform/validation/Validation;)V
-	public abstract fun validate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public final fun run (Lio/konform/validation/Validation;)V
+	public final fun validate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class io/konform/validation/ValidationBuilderKt {

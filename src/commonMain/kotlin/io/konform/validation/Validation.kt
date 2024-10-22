@@ -1,11 +1,9 @@
 package io.konform.validation
 
-import io.konform.validation.internal.ValidationBuilderImpl
-
 public interface Validation<T> {
     public companion object {
         public operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
-            val builder = ValidationBuilderImpl<T>()
+            val builder = ValidationBuilder<T>()
             return builder.apply(init).build()
         }
     }

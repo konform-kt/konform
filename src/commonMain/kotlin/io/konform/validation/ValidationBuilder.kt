@@ -36,7 +36,7 @@ public class ValidationBuilder<T> {
         test: (T) -> Boolean,
     ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
-    public fun Constraint<T>.hint(hint: String): Constraint<T> =
+    public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
         Constraint(hint, this.templateValues, this.test).also {
             constraints.remove(this)
             constraints.add(it)
