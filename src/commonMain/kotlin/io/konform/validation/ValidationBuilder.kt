@@ -111,18 +111,30 @@ public class ValidationBuilder<T> {
 
     public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required("$name()", this, init)
 
+    /**
+     * Calculate a value from the input and run a validation on it.
+     * @param name The name that should be reported in validation errors. Must be a valid kotlin name, optionally followed by ().
+     * @param f The function for which you want to validate the result of
+     * @see run
+     */
     public fun <R> validate(
         name: String,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = init(f.toPropKey(name, NonNull).getOrCreateBuilder())
 
+    /**
+     * Calculate a value from the input and run a validation on it, but only if the value is not null.
+     */
     public fun <R> ifPresent(
         name: String,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = init(f.toPropKey(name, Optional).getOrCreateBuilder())
 
+    /**
+     * Calculate a value from the input and run a validation on it, and give an error if the result is null.
+     */
     public fun <R> required(
         name: String,
         f: (T) -> R?,
