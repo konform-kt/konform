@@ -1,4 +1,4 @@
-[![Test](https://github.com/konform-kt/konform/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/gradle.yml)
+[![Test](https://github.com/konform-kt/konform/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/konform-kt/konform/actions/workflows/release.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.konform/konform/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.konform/konform)
 
 # Portable validations for Kotlin
