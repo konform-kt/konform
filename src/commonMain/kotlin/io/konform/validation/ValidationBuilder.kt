@@ -24,7 +24,7 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-public class ValidationBuilder<T> {
+public class ValidationBuilder<out T> {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
     private val prebuiltValidations = mutableListOf<Validation<T>>()
@@ -43,7 +43,7 @@ public class ValidationBuilder<T> {
         test: (T) -> Boolean,
     ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
-    public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
+    public infix fun Constraint<@UnsafeVariance T>.hint(hint: String): Constraint<T> =
         Constraint(hint, this.templateValues, this.test).also {
             constraints.remove(this)
             constraints.add(it)
@@ -79,35 +79,40 @@ public class ValidationBuilder<T> {
     }
 
     @JvmName("onEachIterable")
-    public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit = onEachIterable(name, this, init)
+    public infix fun <R> KProperty1<@UnsafeVariance T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
+        onEachIterable(name, this, init)
 
     @JvmName("onEachIterable")
     public infix fun <R> KFunction1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
         onEachIterable("$name()", this, init)
 
     @JvmName("onEachArray")
-    public infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit = onEachArray(name, this, init)
+    public infix fun <R> KProperty1<@UnsafeVariance T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
+        onEachArray(name, this, init)
 
     @JvmName("onEachArray")
     public infix fun <R> KFunction1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit = onEachArray("$name()", this, init)
 
     @JvmName("onEachMap")
-    public infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
+    public infix fun <K, V> KProperty1<@UnsafeVariance T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
         onEachMap(name, this, init)
 
     @JvmName("onEachMap")
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
         onEachMap("$name()", this, init)
 
-    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(name, this, init)
+    public operator fun <R> KProperty1<@UnsafeVariance T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit =
+        validate(name, this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate("$name()", this, init)
 
-    public infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(name, this, init)
+    public infix fun <R> KProperty1<@UnsafeVariance T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit =
+        ifPresent(name, this, init)
 
     public infix fun <R> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent("$name()", this, init)
 
-    public infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(name, this, init)
+    public infix fun <R> KProperty1<@UnsafeVariance T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit =
+        required(name, this, init)
 
     public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required("$name()", this, init)
 
@@ -141,7 +146,7 @@ public class ValidationBuilder<T> {
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = init(f.toPropKey(name, OptionalRequired).getOrCreateBuilder())
 
-    public fun run(validation: Validation<T>) {
+    public fun run(validation: Validation<@UnsafeVariance T>) {
         prebuiltValidations.add(validation)
     }
 
@@ -163,7 +168,7 @@ public class ValidationBuilder<T> {
             "'$name' is not a valid kotlin identifier or getter name."
         }
 
-    public val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+    public val <R> KProperty1<@UnsafeVariance T, R>.has: ValidationBuilder<R>
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
     public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
