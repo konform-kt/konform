@@ -26,9 +26,10 @@ internal class RequiredValidation<T : Any>(
     }
 }
 
+/** A property that is required and not null. */
 internal class NonNullPropertyValidation<T, R>(
     val property: (T) -> R,
-    val name: String,
+    private val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
@@ -37,9 +38,10 @@ internal class NonNullPropertyValidation<T, R>(
     }
 }
 
+/** A property that is optional and nullable. */
 internal class OptionalPropertyValidation<T, R>(
     val property: (T) -> R?,
-    val name: String,
+    private val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
@@ -48,9 +50,10 @@ internal class OptionalPropertyValidation<T, R>(
     }
 }
 
+/** A property that is nullable, but still required. */
 internal class RequiredPropertyValidation<T, R>(
     val property: (T) -> R?,
-    val name: String,
+    private val name: String,
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {

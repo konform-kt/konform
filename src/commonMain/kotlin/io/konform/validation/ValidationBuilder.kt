@@ -1,11 +1,21 @@
 package io.konform.validation
 
+import io.konform.validation.builder.ArrayPropKey
+import io.konform.validation.builder.IterablePropKey
+import io.konform.validation.builder.MapPropKey
+import io.konform.validation.builder.PropKey
+import io.konform.validation.builder.PropModifier
+import io.konform.validation.builder.PropModifier.NonNull
+import io.konform.validation.builder.PropModifier.Optional
+import io.konform.validation.builder.PropModifier.OptionalRequired
+import io.konform.validation.builder.SingleValuePropKey
 import io.konform.validation.internal.ArrayValidation
 import io.konform.validation.internal.IterableValidation
 import io.konform.validation.internal.MapValidation
 import io.konform.validation.internal.OptionalValidation
 import io.konform.validation.internal.RequiredValidation
-import io.konform.validation.internal.ValidationBuilderImpl
+import io.konform.validation.internal.ValidationNode
+import io.konform.validation.kotlin.Grammar
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -14,34 +24,59 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-public abstract class ValidationBuilder<T> {
-    public abstract fun build(): Validation<T>
+public class ValidationBuilder<T> {
+    private val constraints = mutableListOf<Constraint<T>>()
+    private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
+    private val prebuiltValidations = mutableListOf<Validation<T>>()
 
-    public abstract fun addConstraint(
+    public fun build(): Validation<T> {
+        val nestedValidations =
+            subValidations.map { (key, builder) ->
+                key.build(builder.build())
+            }
+        return ValidationNode(constraints, nestedValidations + prebuiltValidations)
+    }
+
+    public fun addConstraint(
         errorMessage: String,
         vararg templateValues: String,
         test: (T) -> Boolean,
-    ): Constraint<T>
+    ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
-    public abstract infix fun Constraint<T>.hint(hint: String): Constraint<T>
+    public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
+        Constraint(hint, this.templateValues, this.test).also {
+            constraints.remove(this)
+            constraints.add(it)
+        }
 
-    internal abstract fun <R> onEachIterable(
+    private fun <R> onEachIterable(
         name: String,
         prop: (T) -> Iterable<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    )
+    ) {
+        requireValidName(name)
+        val key = IterablePropKey(prop, name, NonNull)
+        init(key.getOrCreateBuilder())
+    }
 
-    internal abstract fun <R> onEachArray(
+    private fun <R> onEachArray(
         name: String,
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    )
+    ) {
+        requireValidName(name)
+        val key = ArrayPropKey(prop, name, NonNull)
+        init(key.getOrCreateBuilder())
+    }
 
-    internal abstract fun <K, V> onEachMap(
+    private fun <K, V> onEachMap(
         name: String,
         prop: (T) -> Map<K, V>,
         init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit,
-    )
+    ) {
+        requireValidName(name)
+        init(MapPropKey(prop, name, NonNull).getOrCreateBuilder())
+    }
 
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit = onEachIterable(name, this, init)
@@ -82,42 +117,63 @@ public abstract class ValidationBuilder<T> {
      * @param f The function for which you want to validate the result of
      * @see run
      */
-    public abstract fun <R> validate(
+    public fun <R> validate(
         name: String,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    )
+    ): Unit = init(f.toPropKey(name, NonNull).getOrCreateBuilder())
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
      */
-    public abstract fun <R> ifPresent(
+    public fun <R> ifPresent(
         name: String,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    )
+    ): Unit = init(f.toPropKey(name, Optional).getOrCreateBuilder())
 
     /**
      * Calculate a value from the input and run a validation on it, and give an error if the result is null.
      */
-    public abstract fun <R> required(
+    public fun <R> required(
         name: String,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    )
+    ): Unit = init(f.toPropKey(name, OptionalRequired).getOrCreateBuilder())
 
-    /** Run an arbitrary other validation. */
-    public abstract fun run(validation: Validation<T>)
+    public fun run(validation: Validation<T>) {
+        prebuiltValidations.add(validation)
+    }
 
-    public abstract val <R> KProperty1<T, R>.has: ValidationBuilder<R>
-    public abstract val <R> KFunction1<T, R>.has: ValidationBuilder<R>
+    private fun <R> ((T) -> R?).toPropKey(
+        name: String,
+        modifier: PropModifier,
+    ): PropKey<T> {
+        requireValidName(name)
+        return SingleValuePropKey(this, name, modifier)
+    }
+
+    private fun <R> PropKey<T>.getOrCreateBuilder(): ValidationBuilder<R> {
+        @Suppress("UNCHECKED_CAST")
+        return subValidations.getOrPut(this) { ValidationBuilder<R>() } as ValidationBuilder<R>
+    }
+
+    private fun requireValidName(name: String) =
+        require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {
+            "'$name' is not a valid kotlin identifier or getter name."
+        }
+
+    public val <R> KProperty1<T, R>.has: ValidationBuilder<R>
+        get() = toPropKey(name, NonNull).getOrCreateBuilder()
+    public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
+        get() = toPropKey(name, NonNull).getOrCreateBuilder()
 }
 
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
 public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+    val builder = ValidationBuilder<T>()
     init(builder)
     run(OptionalValidation(builder.build()))
 }
@@ -126,14 +182,14 @@ public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.
  * Run a validation on a nullable property, giving an error on nulls.
  */
 public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+    val builder = ValidationBuilder<T>()
     init(builder)
     run(RequiredValidation(builder.build()))
 }
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
-    val builder = ValidationBuilderImpl<S>()
+    val builder = ValidationBuilder<S>()
     init(builder)
     @Suppress("UNCHECKED_CAST")
     run(IterableValidation(builder.build()) as Validation<T>)
@@ -141,14 +197,14 @@ public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuil
 
 @JvmName("onEachArray")
 public fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilderImpl<T>()
+    val builder = ValidationBuilder<T>()
     init(builder)
     run(ArrayValidation(builder.build()))
 }
 
 @JvmName("onEachMap")
 public fun <K, V, T : Map<K, V>> ValidationBuilder<T>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) {
-    val builder = ValidationBuilderImpl<Map.Entry<K, V>>()
+    val builder = ValidationBuilder<Map.Entry<K, V>>()
     init(builder)
     @Suppress("UNCHECKED_CAST")
     run(MapValidation(builder.build()) as Validation<T>)
