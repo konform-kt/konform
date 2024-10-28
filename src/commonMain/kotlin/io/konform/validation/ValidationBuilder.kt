@@ -24,7 +24,7 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-public class ValidationBuilder<out T> {
+public class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
     private val prebuiltValidations = mutableListOf<Validation<T>>()

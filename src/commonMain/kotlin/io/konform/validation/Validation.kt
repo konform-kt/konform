@@ -1,6 +1,6 @@
 package io.konform.validation
 
-public interface Validation<out T> {
+public interface Validation<in T> {
     public companion object {
         public operator fun <T> invoke(init: ValidationBuilder<T>.() -> Unit): Validation<T> {
             val builder = ValidationBuilder<T>()
@@ -8,13 +8,13 @@ public interface Validation<out T> {
         }
     }
 
-    public fun validate(value: @UnsafeVariance T): ValidationResult<T>
+    public fun validate(value: T): ValidationResult<@UnsafeVariance T>
 
-    public operator fun invoke(value: @UnsafeVariance T): ValidationResult<T> = validate(value)
+    public operator fun invoke(value: T): ValidationResult<@UnsafeVariance T> = validate(value)
 }
 
-public class Constraint<out R> internal constructor(
+public class Constraint<in R> internal constructor(
     public val hint: String,
     public val templateValues: List<String>,
-    public val test: (@UnsafeVariance R) -> Boolean,
+    public val test: (R) -> Boolean,
 )
