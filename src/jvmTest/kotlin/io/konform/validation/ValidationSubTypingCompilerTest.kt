@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
-class JvmValidationTest {
+class ValidationSubTypingCompilerTest {
     @Test
     fun compilesValidSubtyping() {
         val kotlinSource =
