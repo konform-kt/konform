@@ -98,14 +98,6 @@ kotlin {
     //endregion
 
     sourceSets {
-        val kotestSupported =
-            listOf(
-                appleTest,
-                jsTest,
-                jvmTest,
-                nativeTest,
-                wasmJsTest,
-            )
         // Shared dependencies
         commonMain.dependencies {
             api(kotlin("stdlib"))
@@ -113,17 +105,12 @@ kotlin {
         // Shared test dependencies
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotest.assertions.core)
             //            implementation(kotlin("test-annotations-common"))
             //            implementation(kotlin("test-common"))
         }
-        kotestSupported.forEach {
-            it.dependencies {
-                implementation(libs.kotest.assertions.core)
-                //            implementation(libs.kotest.framework.datatest)
-                //            implementation(libs.kotest.framework.engine)
-            }
-        }
         jvmTest.dependencies {
+            implementation(libs.kotlincompiletesting)
             //            implementation(libs.kotest.runner.junit5)
         }
     }
@@ -147,9 +134,11 @@ tasks.named<Test>("jvmTest") {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
+
 // Disable test tasks for the unsupported source sets
 val kotestUnsupported =
     listOf(
+        // https://github.com/kotest/kotest/issues/4015
         "wasmWasi",
     )
 kotestUnsupported.forEach {
