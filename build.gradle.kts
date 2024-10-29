@@ -138,6 +138,7 @@ tasks.named<Test>("jvmTest") {
 // Disable test tasks for the unsupported source sets
 val kotestUnsupported =
     listOf(
+        // https://github.com/kotest/kotest/issues/4015
         "wasmWasi",
     )
 kotestUnsupported.forEach {
