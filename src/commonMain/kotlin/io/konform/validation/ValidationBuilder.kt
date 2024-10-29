@@ -1,5 +1,6 @@
 package io.konform.validation
 
+import io.konform.validation.ValidationBuilder.Companion.buildWithNew
 import io.konform.validation.builder.ArrayPropKey
 import io.konform.validation.builder.IterablePropKey
 import io.konform.validation.builder.MapPropKey
@@ -29,14 +30,6 @@ public class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
     private val prebuiltValidations = mutableListOf<Validation<T>>()
-
-    public companion object {
-        public inline fun <T> buildWithNew(block: ValidationBuilder<T>.() -> Unit): Validation<T> {
-            val builder = ValidationBuilder<T>()
-            block(builder)
-            return builder.build()
-        }
-    }
 
     public fun build(): Validation<T> {
         val nestedValidations =
@@ -180,21 +173,34 @@ public class ValidationBuilder<T> {
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
 
-    public inline fun <reified SubT : T & Any> requireIsInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
+    public inline fun <reified SubT : T & Any> requireInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = true, buildWithNew(init)))
+
+    public companion object {
+        public inline fun <T> buildWithNew(block: ValidationBuilder<T>.() -> Unit): Validation<T> {
+            val builder = ValidationBuilder<T>()
+            block(builder)
+            return builder.build()
+        }
+    }
 }
+
+// TODO: ifPresent and required extension functions are hidden since the introduction of then on main validation builder
+//       but they do something different
+// possible solutions:
+// - Move main validation to extension function
+// - Rename main validation extension function
 
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) =
-    run(OptionalValidation(ValidationBuilder.buildWithNew(init)))
+public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) = run(OptionalValidation(buildWithNew(init)))
 
 /**
  * Run a validation on a nullable property, giving an error on nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) =
-    run(RequiredValidation(ValidationBuilder.buildWithNew(init)))
+public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit): Unit =
+    run(RequiredValidation<T>(buildWithNew(init)))
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
