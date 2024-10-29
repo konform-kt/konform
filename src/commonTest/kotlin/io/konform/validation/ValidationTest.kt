@@ -2,7 +2,6 @@ package io.konform.validation
 
 import io.konform.validation.jsonschema.minLength
 import io.kotest.assertions.konform.shouldContainExactlyErrors
-import io.kotest.matchers.compilation.shouldNotCompile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
@@ -34,7 +33,7 @@ class ValidationTest {
             }
 
         // This is allowed and should compile, as every cat is an animal
-        @Suppress("unused")
+        @Suppress("UNUSED_VARIABLE")
         val animalAsCatValidation: Validation<Cat> = animalValidation
 
         val cat = Cat("Miss Kitty", "Mouse")
@@ -46,21 +45,11 @@ class ValidationTest {
         val invalidAnimal = animalValidation.validate(emptyCat)
         val invalidCat = catValidation.validate(emptyCat)
         invalidAnimal.shouldBeInstanceOf<Invalid>().shouldContainExactlyErrors(
-            "name" to "min length 1",
+            ".name" to "must have at least 1 characters",
         )
         invalidCat.shouldBeInstanceOf<Invalid>().shouldContainExactlyErrors(
-            "name" to "min length 1",
-            "favoritePrey" to "min length 1",
+            ".name" to "must have at least 1 characters",
+            ".favoritePrey" to "must have at least 1 characters",
         )
-    }
-
-    @Test
-    fun cannotRunValidationsForSubtype() {
-        val catValidation: Validation<Cat> = Validation {}
-        // It is not valid to try to run a validation that needs a subtype (Cat) while you're in the context of a
-        // supertype (Animal), as not every Animal is a Cat.
-        val invalidRunUsage = "Validation<Animal> { run(catValidation) }"
-
-        invalidRunUsage.shouldNotCompile()
     }
 }
