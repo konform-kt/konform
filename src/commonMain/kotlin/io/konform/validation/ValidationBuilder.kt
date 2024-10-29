@@ -16,6 +16,7 @@ import io.konform.validation.internal.OptionalValidation
 import io.konform.validation.internal.RequiredValidation
 import io.konform.validation.internal.ValidationNode
 import io.konform.validation.kotlin.Grammar
+import io.konform.validation.validations.IsClassValidation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -28,6 +29,14 @@ public class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
     private val prebuiltValidations = mutableListOf<Validation<T>>()
+
+    public companion object {
+        public inline fun <T> buildWithNew(block: ValidationBuilder<T>.() -> Unit): Validation<T> {
+            val builder = ValidationBuilder<T>()
+            block(builder)
+            return builder.build()
+        }
+    }
 
     public fun build(): Validation<T> {
         val nestedValidations =
@@ -167,25 +176,25 @@ public class ValidationBuilder<T> {
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
     public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
+
+    public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
+        run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
+
+    public inline fun <reified SubT : T & Any> requireIsInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
+        run(IsClassValidation<SubT, T>(SubT::class, required = true, buildWithNew(init)))
 }
 
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilder<T>()
-    init(builder)
-    run(OptionalValidation(builder.build()))
-}
+public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) =
+    run(OptionalValidation(ValidationBuilder.buildWithNew(init)))
 
 /**
  * Run a validation on a nullable property, giving an error on nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilder<T>()
-    init(builder)
-    run(RequiredValidation(builder.build()))
-}
+public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) =
+    run(RequiredValidation(ValidationBuilder.buildWithNew(init)))
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
