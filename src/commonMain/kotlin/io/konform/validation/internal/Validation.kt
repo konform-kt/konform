@@ -6,26 +6,6 @@ import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
 
-internal class OptionalValidation<T : Any>(
-    private val validation: Validation<T>,
-) : Validation<T?> {
-    override fun validate(value: T?): ValidationResult<T?> {
-        val nonNullValue = value ?: return Valid(value)
-        return validation(nonNullValue)
-    }
-}
-
-internal class RequiredValidation<T : Any>(
-    private val validation: Validation<T>,
-) : Validation<T?> {
-    override fun validate(value: T?): ValidationResult<T?> {
-        val nonNullValue =
-            value
-                ?: return Invalid(mapOf("" to listOf("is required")))
-        return validation(nonNullValue)
-    }
-}
-
 /** A property that is required and not null. */
 internal class NonNullPropertyValidation<T, R>(
     val property: (T) -> R,

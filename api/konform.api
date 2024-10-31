@@ -114,9 +114,8 @@ public final class io/konform/validation/string/ValidationBuilderStringKt {
 	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
 }
 
-public final class io/konform/validation/validations/IsClassValidation : io/konform/validation/Validation {
+public final class io/konform/validation/types/IsClassValidation : io/konform/validation/Validation {
 	public fun <init> (Lkotlin/reflect/KClass;ZLio/konform/validation/Validation;)V
-	public synthetic fun <init> (Lkotlin/reflect/KClass;ZLio/konform/validation/Validation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
