@@ -23,14 +23,15 @@ public class IsClassValidation<T : ParentT & Any, ParentT>(
 ) : Validation<ParentT> {
     override fun validate(value: ParentT): ValidationResult<ParentT> {
         val castedValue = clazz.safeCast(value)
-        if (castedValue == null) {
-            return if (required) {
-                val actualType = if (value == null) "null" else value::class.simpleName
+        return if (castedValue == null) {
+            if (required) {
+                val actualType = value?.let { it::class.simpleName }
                 Invalid(mapOf("" to listOf("must be a '${clazz.simpleName}', was a '$actualType'")))
             } else {
                 Valid(value)
             }
+        } else {
+            validation.validate(castedValue)
         }
-        return validation.validate(castedValue)
     }
 }

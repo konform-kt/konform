@@ -194,7 +194,8 @@ public class ValidationBuilder<T> {
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) = run(OptionalValidation(buildWithNew(init)))
+public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit): Unit =
+    run(OptionalValidation(buildWithNew(init)))
 
 /**
  * Run a validation on a nullable property, giving an error on nulls.
@@ -206,8 +207,7 @@ public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.(
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
     val builder = ValidationBuilder<S>()
     init(builder)
-    @Suppress("UNCHECKED_CAST")
-    run(IterableValidation(builder.build()) as Validation<T>)
+    run(IterableValidation(builder.build()))
 }
 
 @JvmName("onEachArray")
@@ -221,6 +221,5 @@ public fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() 
 public fun <K, V, T : Map<K, V>> ValidationBuilder<T>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) {
     val builder = ValidationBuilder<Map.Entry<K, V>>()
     init(builder)
-    @Suppress("UNCHECKED_CAST")
-    run(MapValidation(builder.build()) as Validation<T>)
+    run(MapValidation(builder.build()))
 }

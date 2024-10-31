@@ -1,15 +1,14 @@
 package io.konform.validation.validationbuilder
 
+import io.konform.validation.PropertyValidationError
 import io.konform.validation.Validation
 import io.konform.validation.string.notBlank
+import io.kotest.assertions.konform.shouldBeInvalid
+import io.kotest.assertions.konform.shouldBeValid
+import io.kotest.assertions.konform.shouldContainExactlyErrors
 import kotlin.test.Test
 
 class InstanceOfTest {
-    private val alwaysFailValidation =
-        Validation<Any?> {
-            addConstraint("validation always fails") { false }
-        }
-
     private val catValidation =
         Validation<Cat> {
             Cat::favoritePrey {
@@ -37,7 +36,43 @@ class InstanceOfTest {
     val invalidDog = Dog("")
 
     @Test
-    fun runsValidationIfCorrectType() {
+    fun ifInstanceOfTest() {
+        ifCatValidation shouldBeValid validCat
+        ifCatValidation shouldBeValid validDog
+        ifCatValidation shouldBeValid invalidDog
+        ifCatValidation shouldBeValid null
+
+        val invalid = ifCatValidation shouldBeInvalid invalidCat
+        invalid shouldContainExactlyErrors
+            listOf(
+                PropertyValidationError(".favoritePrey", "must not be blank"),
+            )
+    }
+
+    @Test
+    fun requireInstanceOfTest() {
+        requireCatValidation shouldBeValid validCat
+
+        val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
+        invalidCatResult shouldContainExactlyErrors
+            listOf(
+                PropertyValidationError(".favoritePrey", "must not be blank"),
+            )
+
+        val validDogResult = requireCatValidation shouldBeInvalid validDog
+        val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog
+        val expectedError =
+            listOf(
+                PropertyValidationError("", "must be a 'Cat', was a 'Dog'"),
+            )
+        validDogResult shouldContainExactlyErrors expectedError
+        invalidDogResult shouldContainExactlyErrors expectedError
+
+        val nullResult = requireCatValidation shouldBeInvalid null
+        nullResult shouldContainExactlyErrors
+            listOf(
+                PropertyValidationError("", "must be a 'Cat', was a 'null'"),
+            )
     }
 }
 
