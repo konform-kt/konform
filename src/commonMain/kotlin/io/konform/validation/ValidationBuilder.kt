@@ -13,11 +13,10 @@ import io.konform.validation.builder.SingleValuePropKey
 import io.konform.validation.internal.ArrayValidation
 import io.konform.validation.internal.IterableValidation
 import io.konform.validation.internal.MapValidation
-import io.konform.validation.internal.OptionalValidation
-import io.konform.validation.internal.RequiredValidation
 import io.konform.validation.internal.ValidationNode
 import io.konform.validation.kotlin.Grammar
-import io.konform.validation.validations.IsClassValidation
+import io.konform.validation.types.IsClassValidation
+import io.konform.validation.types.NullableValidation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -185,23 +184,17 @@ public class ValidationBuilder<T> {
     }
 }
 
-// TODO: ifPresent and required extension functions are hidden since the introduction of then on main validation builder
-//       but they do something different
-// possible solutions:
-// - Move main validation to extension function
-// - Rename main validation extension function
-
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
 public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit): Unit =
-    run(OptionalValidation(buildWithNew(init)))
+    run(NullableValidation(required = false, validation = buildWithNew(init)))
 
 /**
  * Run a validation on a nullable property, giving an error on nulls.
  */
 public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit): Unit =
-    run(RequiredValidation<T>(buildWithNew(init)))
+    run(NullableValidation(required = true, validation = buildWithNew(init)))
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {

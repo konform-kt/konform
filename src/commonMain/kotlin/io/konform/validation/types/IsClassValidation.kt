@@ -1,4 +1,4 @@
-package io.konform.validation.validations
+package io.konform.validation.types
 
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
@@ -18,7 +18,7 @@ import kotlin.reflect.safeCast
  */
 public class IsClassValidation<T : ParentT & Any, ParentT>(
     private val clazz: KClass<T>,
-    private val required: Boolean = false,
+    private val required: Boolean,
     private val validation: Validation<T>,
 ) : Validation<ParentT> {
     override fun validate(value: ParentT): ValidationResult<ParentT> {
