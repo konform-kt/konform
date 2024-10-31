@@ -1,5 +1,6 @@
 package io.konform.validation
 
+import io.konform.validation.ValidationBuilder.Companion.buildWithNew
 import io.konform.validation.builder.ArrayPropKey
 import io.konform.validation.builder.IterablePropKey
 import io.konform.validation.builder.MapPropKey
@@ -16,6 +17,7 @@ import io.konform.validation.internal.OptionalValidation
 import io.konform.validation.internal.RequiredValidation
 import io.konform.validation.internal.ValidationNode
 import io.konform.validation.kotlin.Grammar
+import io.konform.validation.validations.IsClassValidation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -167,32 +169,45 @@ public class ValidationBuilder<T> {
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
     public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
         get() = toPropKey(name, NonNull).getOrCreateBuilder()
+
+    public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
+        run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
+
+    public inline fun <reified SubT : T & Any> requireInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
+        run(IsClassValidation<SubT, T>(SubT::class, required = true, buildWithNew(init)))
+
+    public companion object {
+        public inline fun <T> buildWithNew(block: ValidationBuilder<T>.() -> Unit): Validation<T> {
+            val builder = ValidationBuilder<T>()
+            block(builder)
+            return builder.build()
+        }
+    }
 }
+
+// TODO: ifPresent and required extension functions are hidden since the introduction of then on main validation builder
+//       but they do something different
+// possible solutions:
+// - Move main validation to extension function
+// - Rename main validation extension function
 
 /**
  * Run a validation if the property is not-null, and allow nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilder<T>()
-    init(builder)
-    run(OptionalValidation(builder.build()))
-}
+public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.() -> Unit): Unit =
+    run(OptionalValidation(buildWithNew(init)))
 
 /**
  * Run a validation on a nullable property, giving an error on nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit) {
-    val builder = ValidationBuilder<T>()
-    init(builder)
-    run(RequiredValidation(builder.build()))
-}
+public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit): Unit =
+    run(RequiredValidation<T>(buildWithNew(init)))
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
     val builder = ValidationBuilder<S>()
     init(builder)
-    @Suppress("UNCHECKED_CAST")
-    run(IterableValidation(builder.build()) as Validation<T>)
+    run(IterableValidation(builder.build()))
 }
 
 @JvmName("onEachArray")
@@ -206,6 +221,5 @@ public fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() 
 public fun <K, V, T : Map<K, V>> ValidationBuilder<T>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit) {
     val builder = ValidationBuilder<Map.Entry<K, V>>()
     init(builder)
-    @Suppress("UNCHECKED_CAST")
-    run(MapValidation(builder.build()) as Validation<T>)
+    run(MapValidation(builder.build()))
 }

@@ -43,6 +43,7 @@ public final class io/konform/validation/Validation$DefaultImpls {
 }
 
 public final class io/konform/validation/ValidationBuilder {
+	public static final field Companion Lio/konform/validation/ValidationBuilder$Companion;
 	public fun <init> ()V
 	public final fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
 	public final fun build ()Lio/konform/validation/Validation;
@@ -65,6 +66,10 @@ public final class io/konform/validation/ValidationBuilder {
 	public final fun required (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun run (Lio/konform/validation/Validation;)V
 	public final fun validate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class io/konform/validation/ValidationBuilder$Companion {
+	public final fun buildWithNew (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Validation;
 }
 
 public final class io/konform/validation/ValidationBuilderKt {
@@ -103,5 +108,16 @@ public final class io/konform/validation/jsonschema/JsonSchemaKt {
 	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
 	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
 	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/string/ValidationBuilderStringKt {
+	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/validations/IsClassValidation : io/konform/validation/Validation {
+	public fun <init> (Lkotlin/reflect/KClass;ZLio/konform/validation/Validation;)V
+	public synthetic fun <init> (Lkotlin/reflect/KClass;ZLio/konform/validation/Validation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 

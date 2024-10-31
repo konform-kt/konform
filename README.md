@@ -235,6 +235,38 @@ result[Event::attendees, 0, Person::age]
 result[Event::ticketPrices, "free"]
 ```
 
+#### Subtypes
+
+You can run validations only if the valuen is of a specific subtype, or require it to be specific subtype.
+
+```kotlin
+sealed interface Animal {
+    val name: String
+}
+data class Cat(override val name: String, val favoritePrey: String) : Animal
+data class Dog(override val name: String) : Animal
+
+val validateAnimal = Validation<Animal> {
+    Animal::name {
+        notBlank()
+    }
+    // Only run this validation if the current Animal is a Cat and not null
+    ifInstanceOf<Cat> {
+        Cat::favoritePrey {
+            notBlank()
+        }
+    }
+}
+val requireCat = Validation<Animal> {
+    // This will return an invalid result is the current Animal is not a Cat or null
+    requireInstanceOf<Cat> {
+        Cat::favoritePrey {
+            // ...
+        }
+    }
+}
+```
+
 ### Other validation libraries written in Kotlin
 
 - Valikator: https://github.com/valiktor/valiktor
