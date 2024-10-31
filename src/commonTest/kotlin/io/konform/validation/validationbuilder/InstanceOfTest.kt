@@ -17,7 +17,7 @@ class InstanceOfTest {
         }
 
     private val ifCatValidation =
-        Validation<Animal> {
+        Validation<Animal?> {
             ifInstanceOf<Cat> {
                 run(catValidation)
             }
