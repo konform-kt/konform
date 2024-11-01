@@ -267,10 +267,11 @@ val requireCat = Validation<Animal> {
 }
 ```
 
-### Other validation libraries written in Kotlin
+### Other validation libraries for Kotlin
 
-- Valikator: https://github.com/valiktor/valiktor
+- Akkurate: https://akkurate.dev/docs/overview.html
 - Kalidation: https://github.com/rcapraro/kalidation
+- Valikator: https://github.com/valiktor/valiktor
 
 ### Integration with testing libraries
 

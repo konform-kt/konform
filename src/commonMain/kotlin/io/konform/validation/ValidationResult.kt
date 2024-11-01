@@ -1,21 +1,20 @@
 package io.konform.validation
 
 import io.konform.validation.kotlin.Path
+import io.konform.validation.path.ValidationPathElement
 
 public interface ValidationError {
-    public val dataPath: String
     public val message: String
+    public val path: List<ValidationPathElement>
+    public val dataPath: String get() = ValidationPathElement.toStringPath(path)
 }
 
 internal data class PropertyValidationError(
-    override val dataPath: String,
+    override val path: List<ValidationPathElement>,
     override val message: String,
 ) : ValidationError {
-    override fun toString(): String = "ValidationError(dataPath=$dataPath, message=$message)"
+    override fun toString(): String = "ValidationError(path=$path, message=$message)"
 }
-
-@Deprecated("Replace with directly using List<ValidationError>", ReplaceWith("List<ValidationError>"))
-public interface ValidationErrors : List<ValidationError>
 
 public sealed class ValidationResult<out T> {
     /** Get the validation errors at a specific path. Will return null for a valid result. */
@@ -41,7 +40,7 @@ public sealed class ValidationResult<out T> {
 }
 
 public data class Invalid(
-    internal val internalErrors: Map<String, List<String>>,
+    internal val internalErrors: Map<ValidationPathElement, List<String>>,
 ) : ValidationResult<Nothing>() {
     override fun get(vararg propertyPath: Any): List<String>? = internalErrors[Path.toPath(*propertyPath)]
 
