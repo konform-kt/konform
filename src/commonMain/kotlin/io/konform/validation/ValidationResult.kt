@@ -1,19 +1,14 @@
 package io.konform.validation
 
 import io.konform.validation.kotlin.Path
-import io.konform.validation.path.ValidationPathElement
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 
-public interface ValidationError {
-    public val message: String
-    public val path: List<ValidationPathElement>
-    public val dataPath: String get() = ValidationPathElement.toStringPath(path)
-}
-
-internal data class PropertyValidationError(
-    override val path: List<ValidationPathElement>,
-    override val message: String,
-) : ValidationError {
-    override fun toString(): String = "ValidationError(path=$path, message=$message)"
+public data class ValidationError(
+    public val path: ValidationPath,
+    public val message: String,
+) {
+    public val dataPath: String get() = PathSegment.toStringPath(path)
 }
 
 public sealed class ValidationResult<out T> {
@@ -29,27 +24,22 @@ public sealed class ValidationResult<out T> {
 
     public abstract val errors: List<ValidationError>
 
-    /**
-     * Returns true if the [ValidationResult] is [Valid].
-     */
-    public val isValid: Boolean =
-        when (this) {
-            is Invalid -> false
-            is Valid -> true
-        }
+    /** Returns true if the [ValidationResult] is [Valid]. */
+    public abstract val isValid: Boolean
 }
 
 public data class Invalid(
-    internal val internalErrors: Map<ValidationPathElement, List<String>>,
+    private val internalErrors: List<Pair<ValidationPath>>,
 ) : ValidationResult<Nothing>() {
     override fun get(vararg propertyPath: Any): List<String>? = internalErrors[Path.toPath(*propertyPath)]
 
     override val errors: List<ValidationError> by lazy {
         internalErrors.flatMap { (path, errors) ->
-            errors.map { PropertyValidationError(path, it) }
+            errors.map { ValidationError(path, it) }
         }
     }
 
+    override val isValid: Boolean get() = false
     override fun toString(): String = "Invalid(errors=$errors)"
 }
 
@@ -66,4 +56,6 @@ public data class Valid<T>(
     @Deprecated("It is not useful to call errors on a valid result, it will always return an empty list.", ReplaceWith("emptyList()"))
     override val errors: List<ValidationError>
         get() = emptyList()
+
+    override val isValid: Boolean get() = true
 }
