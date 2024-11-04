@@ -1,16 +1,24 @@
 package io.konform.validation.path
 
-import kotlin.reflect.KCallable
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
 /** Represents a path to a validation. */
 public data class ValidationPath(
-    val segments: List<PathSegment>
+    val segments: List<PathSegment>,
 ) {
+    public infix operator fun plus(segment: PathSegment): ValidationPath = ValidationPath(segments + segment)
+
+    internal fun prepend(path: ValidationPath): ValidationPath = ValidationPath(path.segments + segments)
+
     /** A JSONPath-ish representation of the path. */
     public val pathString: String
         get() = segments.joinToString("") { it.pathString }
+
+    public companion object {
+        public fun fromAny(vararg validationPath: Any): ValidationPath =
+            ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })
+    }
 }
 
 /**
@@ -25,12 +33,24 @@ public data class ValidationPath(
  *   }
  * }
  * val result = validation.validate(Person("")) as Invalid
- * result.errors[0].path == FunctionOrPropertyPath()
+ * result.errors[0].path == PathSegment.Property(Person::name)
  * ```
  * */
 public sealed interface PathSegment {
     /** A JSONPath-ish representation of the path segment. */
     public val pathString: String
+
+    public companion object {
+        public fun toPathSegment(pathElement: Any): PathSegment =
+            when (pathElement) {
+                is KProperty1<*, *> -> pathElement.toPathSegment()
+                is KFunction1<*, *> -> pathElement.toPathSegment()
+                is Int -> Index(pathElement)
+                is Map.Entry<*, *> -> pathElement.toPathSegment()
+                is String -> ProvidedString(pathElement)
+                else -> ProvidedValue(pathElement)
+            }
+    }
 
     /**
      * Represents a path through a function or property.
@@ -52,27 +72,49 @@ public sealed interface PathSegment {
      * result.errors[0] =
      * ```
      */
-    public data class Property(val callable: KCallable<*>) : PathSegment {
-        override val pathString: String
-            get() = when (callable) {
-                is KProperty1<*, *> -> ".${callable.name}"
-                is KFunction1<*, *> -> ".${callable.name}()"
-                else -> throw IllegalArgumentException("Unsupported KCallable in path $callable")
-            }
+    public data class Property(
+        val property: KProperty1<*, *>,
+    ) : PathSegment {
+        override val pathString: String get() = ".${property.name}"
     }
 
-    public data class ArrayIndex(val index: Int) : PathSegment {
+    public data class Function(
+        val function: KFunction1<*, *>,
+    ) : PathSegment {
+        override val pathString: String get() = ".${function.name}"
+    }
+
+    /** An index to an array, list, or other iterable. */
+    public data class Index(
+        val index: Int,
+    ) : PathSegment {
         override val pathString: String get() = "[$index]"
     }
 
-    /**
-     * A way to extend the validation path by adding any custom path data.
-     * TODO: Use case, API, example
-     * */
-    public interface CustomSegment : PathSegment
+    /** The key of a map. */
+    public data class MapKey(
+        val key: Any?,
+    ) : PathSegment {
+        override val pathString: String get() = ".$key"
+    }
 
+    /** A string provided by the user, usually a field name. */
+    public data class ProvidedString(
+        val string: String,
+    ) : PathSegment {
+        override val pathString: String get() = ".$string"
+    }
+
+    /** Any non-string value provided by the user. */
+    public data class ProvidedValue(
+        val value: Any,
+    ) : PathSegment {
+        override val pathString: String get() = ".$value"
+    }
 }
 
+public fun KProperty1<*, *>.toPathSegment(): PathSegment.Property = PathSegment.Property(this)
 
+public fun KFunction1<*, *>.toPathSegment(): PathSegment.Function = PathSegment.Function(this)
 
-
+public fun Map.Entry<*, *>.toPathSegment(): PathSegment.MapKey = PathSegment.MapKey(this.key)

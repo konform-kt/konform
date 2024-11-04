@@ -13,6 +13,7 @@ internal class NonNullPropertyValidation<T, R>(
     private val validation: Validation<R>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
+        return
         val propertyValue = property(value)
         return validation(propertyValue).mapError { ".${name}$it" }.map { value }
     }
@@ -113,32 +114,4 @@ internal class ValidationNode<T>(
             val newValidation = validation.validate(propertyValue).mapError(keyTransform)
             existingValidation.combineWith(newValidation)
         }
-}
-
-internal fun <R> ValidationResult<R>.mapError(keyTransform: (String) -> String): ValidationResult<R> =
-    when (this) {
-        is Valid -> this
-        is Invalid ->
-            Invalid(
-                this.internalErrors.mapKeys { (key, _) ->
-                    keyTransform(key)
-                },
-            )
-    }
-
-internal fun <R> ValidationResult<R>.combineWith(other: ValidationResult<R>): ValidationResult<R> {
-    return when (this) {
-        is Valid -> return other
-        is Invalid ->
-            when (other) {
-                is Valid -> this
-                is Invalid -> {
-                    Invalid(
-                        (this.internalErrors.toList() + other.internalErrors.toList())
-                            .groupBy({ it.first }, { it.second })
-                            .mapValues { (_, values) -> values.flatten() },
-                    )
-                }
-            }
-    }
 }
