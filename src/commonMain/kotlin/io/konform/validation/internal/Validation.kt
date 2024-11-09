@@ -4,7 +4,9 @@ import io.konform.validation.Constraint
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
+import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
+import io.konform.validation.path.ValidationPath
 
 /** A property that is required and not null. */
 internal class NonNullPropertyValidation<T, R>(
@@ -75,43 +77,19 @@ internal class MapValidation<K, V>(
         }
 }
 
-internal class ValidationNode<T>(
+internal class ConstraintsValidation<T>(
+    private val path: ValidationPath,
     private val constraints: List<Constraint<T>>,
-    private val subValidations: List<Validation<T>>,
 ) : Validation<T> {
-    override fun validate(value: T): ValidationResult<T> {
-        val subValidationResult = applySubValidations(value, keyTransform = { it })
-        val localValidationResult = localValidation(value)
-        return localValidationResult.combineWith(subValidationResult)
-    }
-
-    private fun localValidation(value: T): ValidationResult<T> =
+    override fun validate(value: T): ValidationResult<T> =
         constraints
-            .filter { !it.test(value) }
-            .map { constructHint(value, it) }
+            .filterNot { it.test(value) }
+            .map { ValidationError(path, it.createHint(value)) }
             .let { errors ->
                 if (errors.isEmpty()) {
                     Valid(value)
                 } else {
-                    Invalid(mapOf("" to errors))
+                    Invalid(errors)
                 }
             }
-
-    private fun constructHint(
-        value: T,
-        it: Constraint<T>,
-    ): String {
-        val replaceValue = it.hint.replace("{value}", value.toString())
-        return it.templateValues
-            .foldIndexed(replaceValue) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
-    }
-
-    private fun applySubValidations(
-        propertyValue: T,
-        keyTransform: (String) -> String,
-    ): ValidationResult<T> =
-        subValidations.fold(Valid(propertyValue)) { existingValidation: ValidationResult<T>, validation ->
-            val newValidation = validation.validate(propertyValue).mapError(keyTransform)
-            existingValidation.combineWith(newValidation)
-        }
 }

@@ -11,10 +11,12 @@ import io.konform.validation.builder.PropModifier.Optional
 import io.konform.validation.builder.PropModifier.OptionalRequired
 import io.konform.validation.builder.SingleValuePropKey
 import io.konform.validation.internal.ArrayValidation
+import io.konform.validation.internal.ConstraintsValidation
 import io.konform.validation.internal.IterableValidation
 import io.konform.validation.internal.MapValidation
-import io.konform.validation.internal.ValidationNode
 import io.konform.validation.kotlin.Grammar
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.NullableValidation
 import kotlin.jvm.JvmName
@@ -31,11 +33,22 @@ public class ValidationBuilder<T> {
     private val prebuiltValidations = mutableListOf<Validation<T>>()
 
     public fun build(): Validation<T> {
-        val nestedValidations =
-            subValidations.map { (key, builder) ->
-                key.build(builder.build())
+        val validations =
+            ArrayList<Validation<T>>(
+                (if (constraints.isNotEmpty()) 1 else 0) +
+                    prebuiltValidations.size +
+                    subValidations.size,
+            )
+        if (constraints.isNotEmpty()) {
+            validations += ConstraintsValidation(ValidationPath.EMPTY, constraints)
+        }
+        validations +=
+            subValidations.map {
+                @Suppress("UNCHECKED_CAST")
+                (it.value as ValidationBuilder<T>).build()
             }
-        return ValidationNode(constraints, nestedValidations + prebuiltValidations)
+        validations += prebuiltValidations
+        return validations.flatten()
     }
 
     public fun addConstraint(
@@ -61,11 +74,10 @@ public class ValidationBuilder<T> {
     }
 
     private fun <R> onEachArray(
-        name: String,
+        segment: PathSegment,
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
     ) {
-        requireValidName(name)
         val key = ArrayPropKey(prop, name, NonNull)
         init(key.getOrCreateBuilder())
     }

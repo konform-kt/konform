@@ -16,6 +16,8 @@ public data class ValidationPath(
         get() = segments.joinToString("") { it.pathString }
 
     public companion object {
+        internal val EMPTY = ValidationPath(emptyList())
+
         public fun fromAny(vararg validationPath: Any): ValidationPath =
             ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })
     }

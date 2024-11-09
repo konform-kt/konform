@@ -27,17 +27,28 @@ public sealed class ValidationResult<out T> {
     /** Returns true if the [ValidationResult] is [Valid]. */
     public abstract val isValid: Boolean
 
-    internal fun <R> subValidate(
-        path: ValidationPath,
-        validation: Validation<R>,
-        value: R,
+    internal infix operator fun plus(other: ValidationResult<@UnsafeVariance T>): ValidationResult<T> =
+        when (this) {
+            is Valid -> other
+            is Invalid ->
+                when (other) {
+                    is Valid -> this
+                    is Invalid -> Invalid(errors + other.errors)
+                }
+        }
+
+    /** Add the result of a sub-validation to the current result. */
+    internal fun mergeSub(
+        currentPath: ValidationPath,
+        subResult: ValidationResult<*>,
     ): ValidationResult<T> =
-        when (val result = validation.validate(value)) {
+        when (subResult) {
             is Valid -> this
             is Invalid -> {
-                val myErrors = (this as? Invalid)?.errors ?: emptyList()
-                val newErrors = myErrors + result.errors.map { it.prepend(path) }
-                Invalid(newErrors)
+                val subErrors = subResult.errors.map { it.prepend(currentPath) }
+                Invalid(
+                    if (this is Valid) subErrors else errors + subErrors,
+                )
             }
         }
 }
@@ -71,4 +82,23 @@ public data class Valid<T>(
         ReplaceWith("emptyList()"),
     )
     override val errors: List<ValidationError> get() = emptyList()
+}
+
+internal fun <T> List<ValidationResult<T>>.flatten(value: T): ValidationResult<T> {
+    val invalids = filterIsInstance<Invalid>()
+    return if (invalids.isEmpty()) {
+        Valid(value)
+    } else {
+        Invalid(invalids.map { it.errors }.flatten())
+    }
+}
+
+internal fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T> {
+    require(isNotEmpty()) { "List<ValidationResult> is not allowed to be empty in flattenNonEmpty" }
+    val invalids = filterIsInstance<Invalid>()
+    return if (invalids.isEmpty()) {
+        first() as Valid
+    } else {
+        Invalid(invalids.map { it.errors }.flatten())
+    }
 }
