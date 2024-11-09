@@ -1,5 +1,6 @@
 package io.konform.validation.path
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
@@ -84,6 +85,13 @@ public sealed interface PathSegment {
         val function: KFunction1<*, *>,
     ) : PathSegment {
         override val pathString: String get() = ".${function.name}"
+    }
+
+    /** A path for a */
+    public data class KCls(
+        val kcls: KClass<*>
+    ) : PathSegment {
+        override val pathString: String get() = kcls.simpleName ?: "Anonymous"
     }
 
     /** An index to an array, list, or other iterable. */
