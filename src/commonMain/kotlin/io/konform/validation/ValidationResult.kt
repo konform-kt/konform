@@ -1,15 +1,7 @@
 package io.konform.validation
 
+import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
-
-public data class ValidationError(
-    public val path: ValidationPath,
-    public val message: String,
-) {
-    public val dataPath: String get() = path.pathString
-
-    internal fun prepend(path: ValidationPath) = this.copy(path = this.path.prepend(path))
-}
 
 public sealed class ValidationResult<out T> {
     /** Get the validation errors at a specific path. Will return empty list for [Valid]. */
@@ -26,6 +18,9 @@ public sealed class ValidationResult<out T> {
 
     /** Returns true if the [ValidationResult] is [Valid]. */
     public abstract val isValid: Boolean
+
+    internal abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>
+    internal abstract fun prependPath(path: ValidationPath): ValidationResult<T>
 
     internal infix operator fun plus(other: ValidationResult<@UnsafeVariance T>): ValidationResult<T> =
         when (this) {
@@ -45,7 +40,7 @@ public sealed class ValidationResult<out T> {
         when (subResult) {
             is Valid -> this
             is Invalid -> {
-                val subErrors = subResult.errors.map { it.prepend(currentPath) }
+                val subErrors = subResult.errors.map { it.prependPath(currentPath) }
                 Invalid(
                     if (this is Valid) subErrors else errors + subErrors,
                 )
@@ -62,6 +57,17 @@ public data class Invalid(
     }
 
     override val isValid: Boolean get() = false
+
+    override fun prependPath(pathSegment: PathSegment): Invalid =
+        Invalid(errors.map { it.prependPath(pathSegment) })
+
+    override fun prependPath(path: ValidationPath): Invalid =
+        if (path.segments.isEmpty()) this else Invalid(errors.map { it.prependPath(path) })
+
+    public companion object {
+        public fun of(path: ValidationPath, message: String): Invalid =
+            Invalid(listOf(ValidationError(path, message)))
+    }
 }
 
 public data class Valid<T>(
@@ -82,14 +88,12 @@ public data class Valid<T>(
         ReplaceWith("emptyList()"),
     )
     override val errors: List<ValidationError> get() = emptyList()
-}
 
-internal fun <T> List<ValidationResult<T>>.flatten(value: T): ValidationResult<T> {
-    val invalids = filterIsInstance<Invalid>()
-    return if (invalids.isEmpty()) {
-        Valid(value)
-    } else {
-        Invalid(invalids.map { it.errors }.flatten())
+    override fun prependPath(pathSegment: PathSegment): ValidationResult<T> = this
+    override fun prependPath(path: ValidationPath): ValidationResult<T> = this
+
+    internal companion object {
+        internal val NULL: Valid<Nothing?> = Valid(null)
     }
 }
 
@@ -99,6 +103,14 @@ internal fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T
     return if (invalids.isEmpty()) {
         first() as Valid
     } else {
-        Invalid(invalids.map { it.errors }.flatten())
+        invalids.flattenNotEmpty()
     }
 }
+
+internal fun List<Invalid>.flattenNotEmpty(): Invalid {
+    require(isNotEmpty()) { "List<Invalid> is not allowed to be empty in flattenNonEmpty" }
+    return Invalid(map { it.errors }.flatten())
+}
+
+internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> =
+    if (isNotEmpty()) flattenNonEmpty() else Valid(value)

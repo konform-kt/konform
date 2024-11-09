@@ -1,7 +1,6 @@
 package io.konform.validation
 
 import io.konform.validation.ValidationBuilder.Companion.buildWithNew
-import io.konform.validation.builder.ArrayPropKey
 import io.konform.validation.builder.IterablePropKey
 import io.konform.validation.builder.MapPropKey
 import io.konform.validation.builder.PropKey
@@ -11,14 +10,15 @@ import io.konform.validation.builder.PropModifier.Optional
 import io.konform.validation.builder.PropModifier.OptionalRequired
 import io.konform.validation.builder.SingleValuePropKey
 import io.konform.validation.internal.ArrayValidation
-import io.konform.validation.internal.ConstraintsValidation
-import io.konform.validation.internal.IterableValidation
 import io.konform.validation.internal.MapValidation
 import io.konform.validation.kotlin.Grammar
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
+import io.konform.validation.types.ConstraintsValidation
 import io.konform.validation.types.IsClassValidation
+import io.konform.validation.types.IterableValidation
 import io.konform.validation.types.NullableValidation
+import io.konform.validation.types.CallableValidation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -29,7 +29,7 @@ private annotation class ValidationScope
 @ValidationScope
 public class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
-    private val subValidations = mutableMapOf<PropKey<T>, ValidationBuilder<*>>()
+    private val subValidations = mutableMapOf<PathSegment, ValidationBuilder<*>>()
     private val prebuiltValidations = mutableListOf<Validation<T>>()
 
     public fun build(): Validation<T> {
@@ -78,7 +78,6 @@ public class ValidationBuilder<T> {
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
     ) {
-        val key = ArrayPropKey(prop, name, NonNull)
         init(key.getOrCreateBuilder())
     }
 
@@ -126,15 +125,21 @@ public class ValidationBuilder<T> {
 
     /**
      * Calculate a value from the input and run a validation on it.
-     * @param name The name that should be reported in validation errors. Must be a valid kotlin name, optionally followed by ().
+     * @param pathSegment The [PathSegment] of the validation
      * @param f The function for which you want to validate the result of
      * @see run
      */
     public fun <R> validate(
-        name: String,
+        pathSegment: Any,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = init(f.toPropKey(name, NonNull).getOrCreateBuilder())
+    ): Unit = run(
+        CallableValidation(
+            callable = f,
+            path = PathSegment.toPathSegment(pathSegment),
+            buildWithNew(init)
+        )
+    )
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
@@ -154,7 +159,7 @@ public class ValidationBuilder<T> {
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = init(f.toPropKey(name, OptionalRequired).getOrCreateBuilder())
 
-    public fun run(validation: Validation<T>) {
+    public fun run(validation: Validation<T>): Unit {
         prebuiltValidations.add(validation)
     }
 
@@ -166,10 +171,9 @@ public class ValidationBuilder<T> {
         return SingleValuePropKey(this, name, modifier)
     }
 
-    private fun <R> PropKey<T>.getOrCreateBuilder(): ValidationBuilder<R> {
-        @Suppress("UNCHECKED_CAST")
-        return subValidations.getOrPut(this) { ValidationBuilder<R>() } as ValidationBuilder<R>
-    }
+    @Suppress("UNCHECKED_CAST")
+    private fun <R> PathSegment.getOrCreateBuilder(): ValidationBuilder<R> =
+        subValidations.getOrPut(this) { ValidationBuilder<R>() } as ValidationBuilder<R>
 
     private fun requireValidName(name: String) =
         require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {
@@ -177,9 +181,9 @@ public class ValidationBuilder<T> {
         }
 
     public val <R> KProperty1<T, R>.has: ValidationBuilder<R>
-        get() = toPropKey(name, NonNull).getOrCreateBuilder()
+        get() = PathSegment.Property(this).getOrCreateBuilder()
     public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
-        get() = toPropKey(name, NonNull).getOrCreateBuilder()
+        get() = PathSegment.Function(this).getOrCreateBuilder()
 
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
@@ -209,11 +213,8 @@ public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.(
     run(NullableValidation(required = true, validation = buildWithNew(init)))
 
 @JvmName("onEachIterable")
-public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit) {
-    val builder = ValidationBuilder<S>()
-    init(builder)
-    run(IterableValidation(builder.build()))
-}
+public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit): Unit =
+    run(IterableValidation(buildWithNew(init)))
 
 @JvmName("onEachArray")
 public fun <T> ValidationBuilder<Array<T>>.onEach(init: ValidationBuilder<T>.() -> Unit) {

@@ -1,5 +1,6 @@
 package io.konform.validation.path
 
+import io.konform.validation.helpers.prepend
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -10,7 +11,8 @@ public data class ValidationPath(
 ) {
     public infix operator fun plus(segment: PathSegment): ValidationPath = ValidationPath(segments + segment)
 
-    internal fun prepend(path: ValidationPath): ValidationPath = ValidationPath(path.segments + segments)
+    internal fun prepend(other: ValidationPath): ValidationPath = ValidationPath(other.segments + segments)
+    internal fun prepend(pathSegment: PathSegment): ValidationPath = ValidationPath(segments.prepend(pathSegment))
 
     /** A JSONPath-ish representation of the path. */
     public val pathString: String
@@ -18,6 +20,8 @@ public data class ValidationPath(
 
     public companion object {
         internal val EMPTY = ValidationPath(emptyList())
+
+        public fun of(pathSegment: PathSegment): ValidationPath = ValidationPath(listOf(pathSegment))
 
         public fun fromAny(vararg validationPath: Any): ValidationPath =
             ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })

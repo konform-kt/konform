@@ -1,7 +1,7 @@
 package io.konform.validation
 
-import io.konform.validation.internal.CombinedValidations
-import io.konform.validation.internal.EmptyValidation
+import io.konform.validation.types.CombinedValidations
+import io.konform.validation.types.EmptyValidation
 
 public interface Validation<in T> {
     public companion object {
@@ -20,32 +20,3 @@ public fun <T> List<Validation<T>>.flatten(): Validation<T> =
         1 -> first()
         else -> CombinedValidations(this)
     }
-
-/**
- * @param hint for a failed validation. "{value}" will be replaced by the toString-ed value that is being validated
- * @param test the predicate that must be satisfied
- */
-public class Constraint<in R> internal constructor(
-    public val hint: String,
-    public val templateValues: List<String> = emptyList(),
-    public val test: (R) -> Boolean,
-    // TODO: Add customizable Path paramater settable with a path() method
-) {
-    internal fun createHint(value: R): String {
-        // Avoid toString()ing the value unless its needed
-        val withValue =
-            if (hint.contains(VALUE_IN_HINT)) {
-                hint.replace(VALUE_IN_HINT, value.toString())
-            } else {
-                hint
-            }
-
-        return templateValues.foldIndexed(withValue) { index, hint, templateValue ->
-            hint.replace("{$index}", templateValue)
-        }
-    }
-
-    public companion object {
-        public const val VALUE_IN_HINT: String = "{value}"
-    }
-}

@@ -1,9 +1,9 @@
 package io.konform.validation.builder
 
 import io.konform.validation.Validation
-import io.konform.validation.internal.NonNullPropertyValidation
-import io.konform.validation.internal.OptionalPropertyValidation
-import io.konform.validation.internal.RequiredPropertyValidation
+import io.konform.validation.path.PathSegment
+import io.konform.validation.types.NullableValidation
+import io.konform.validation.types.CallableValidation
 
 /** A modifier on the validation of a property */
 internal enum class PropModifier {
@@ -20,12 +20,16 @@ internal enum class PropModifier {
 
     fun <T, R> buildValidation(
         property: (T) -> R,
-        propertyName: String,
-        validations: Validation<R>,
-    ): Validation<T> =
-        when (this) {
-            NonNull -> NonNullPropertyValidation(property, propertyName, validations)
-            Optional -> OptionalPropertyValidation(property, propertyName, validations)
-            OptionalRequired -> RequiredPropertyValidation(property, propertyName, validations)
-        }
+        pathSegment: PathSegment,
+        validation: Validation<R>,
+    ): Validation<T> {
+        val propValidation = CallableValidation(property, pathSegment, validation)
+        if (this == NonNull) return propValidation
+        val nullable = NullableValidation(
+            required = this == OptionalRequired,
+            validation = propValidation,
+            pathSegment = pathSegment
+        )
+        return nullable
+    }
 }
