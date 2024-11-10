@@ -168,26 +168,6 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun alternativeSyntax() {
-        val splitDoubleValidation =
-            Validation<Register> {
-                Register::password.has.minLength(1)
-                Register::password.has.maxLength(10)
-                Register::email.has.matches(".+@.+".toRegex())
-            }
-
-        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
-        Register(
-            email = "tester@test.com",
-            password = "",
-        ).let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::password)) }
-        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let {
-            assertEquals(1, countErrors(splitDoubleValidation(it), Register::password))
-        }
-        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
-    }
-
-    @Test
     fun functionAccessorSyntax() {
         val splitDoubleValidation =
             Validation<Register> {
@@ -479,7 +459,9 @@ class ValidationBuilderTest {
     fun composeValidations() {
         val addressValidation =
             Validation<Address> {
-                Address::address.has.minLength(1)
+                Address::address {
+                    minLength(1)
+                }
             }
 
         val validation =
@@ -496,7 +478,9 @@ class ValidationBuilderTest {
     fun replacePlaceholderInString() {
         val validation =
             Validation<Register> {
-                Register::password.has.minLength(8)
+                Register::password {
+                    minLength(8)
+                }
             }
         assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
     }

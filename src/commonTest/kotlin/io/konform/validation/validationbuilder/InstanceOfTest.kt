@@ -1,7 +1,9 @@
 package io.konform.validation.validationbuilder
 
-import io.konform.validation.PropertyValidationError
 import io.konform.validation.Validation
+import io.konform.validation.ValidationError
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.string.notBlank
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
@@ -45,7 +47,7 @@ class InstanceOfTest {
         val invalid = ifCatValidation shouldBeInvalid invalidCat
         invalid shouldContainExactlyErrors
             listOf(
-                PropertyValidationError(".favoritePrey", "must not be blank"),
+                ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank"),
             )
     }
 
@@ -56,14 +58,14 @@ class InstanceOfTest {
         val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
         invalidCatResult shouldContainExactlyErrors
             listOf(
-                PropertyValidationError(".favoritePrey", "must not be blank"),
+                ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank"),
             )
 
         val validDogResult = requireCatValidation shouldBeInvalid validDog
         val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog
         val expectedError =
             listOf(
-                PropertyValidationError("", "must be a 'Cat', was a 'Dog'"),
+                ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'Dog'"),
             )
         validDogResult shouldContainExactlyErrors expectedError
         invalidDogResult shouldContainExactlyErrors expectedError
@@ -71,7 +73,7 @@ class InstanceOfTest {
         val nullResult = requireCatValidation shouldBeInvalid null
         nullResult shouldContainExactlyErrors
             listOf(
-                PropertyValidationError("", "must be a 'Cat', was a 'null'"),
+                ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'null'"),
             )
     }
 }

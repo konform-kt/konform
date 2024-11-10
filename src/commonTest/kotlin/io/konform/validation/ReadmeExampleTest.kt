@@ -7,6 +7,8 @@ import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.minimum
 import io.konform.validation.jsonschema.pattern
+import io.konform.validation.path.PathSegment.Property
+import io.konform.validation.path.PathSegment.ProvidedString
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
@@ -147,7 +149,7 @@ class ReadmeExampleTest {
 
         validateUser1 shouldBeValid johnDoe
         validateUser1.shouldBeInvalid(UserProfile("John\tDoe", 30)) {
-            it.shouldContainError(".fullName", "Name cannot contain a tab")
+            it.shouldContainError(ValidationError.of(Property(UserProfile::fullName), "Name cannot contain a tab"))
         }
 
         val validateUser2 =
@@ -159,7 +161,7 @@ class ReadmeExampleTest {
 
         validateUser2 shouldBeValid johnDoe
         validateUser2.shouldBeInvalid(UserProfile("J", 30)) {
-            it.shouldContainError(".trimmedName", "must have at least 5 characters")
+            it.shouldContainError(ValidationError.of(ProvidedString("trimmedName"), "must have at least 5 characters"))
         }
     }
 
@@ -181,7 +183,7 @@ class ReadmeExampleTest {
 
         validateUser shouldBeValid johnDoe
         validateUser.shouldBeInvalid(UserProfile("John doe", 10)) {
-            it.shouldContainError(".age", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(Property(UserProfile::age), "must be at least '21'"))
         }
 
         val transform =
@@ -193,7 +195,7 @@ class ReadmeExampleTest {
 
         transform shouldBeValid UserProfile("X", 31)
         transform.shouldBeInvalid(johnDoe) {
-            it.shouldContainError(".ageMinus10", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(ProvidedString("ageMinus10"), "must be at least '21'"))
         }
 
         val required =
@@ -210,12 +212,12 @@ class ReadmeExampleTest {
             }
         val noAge = UserProfile("John Doe", null)
         required.shouldBeInvalid(noAge) {
-            it.shouldContainError(".age", "is required")
+            it.shouldContainError(ValidationError.of(ProvidedString("age"), "is required"))
         }
         optional.shouldBeValid(noAge)
         optional.shouldBeValid(johnDoe)
         optional.shouldBeInvalid(UserProfile("John Doe", 10)) {
-            it.shouldContainError(".age", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(ProvidedString("age"), "must be at least '21'"))
         }
     }
 }

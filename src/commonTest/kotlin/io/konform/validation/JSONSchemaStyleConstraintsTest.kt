@@ -42,8 +42,8 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(anyNumberValidation("String")))
         assertEquals(1, countFieldsWithErrors(anyNumberValidation(true)))
 
-        assertEquals("must be of the correct type", anyValidation(1).get()!![0])
-        assertEquals("must be of the correct type", anyNumberValidation("String").get()!![0])
+        assertEquals("must be of the correct type", anyValidation(1).get()[0])
+        assertEquals("must be of the correct type", anyNumberValidation("String").get()[0])
     }
 
     @Test
@@ -67,7 +67,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation("???")))
         assertEquals(1, countFieldsWithErrors(validation("")))
 
-        assertEquals("must be one of: 'OK', 'CANCEL'", validation("").get()!![0])
+        assertEquals("must be one of: 'OK', 'CANCEL'", validation("").get()[0])
     }
 
     enum class TCPPacket {
@@ -89,8 +89,8 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid("SYNACK"), stringifiedEnumValidation("SYNACK"))
         assertEquals(1, countFieldsWithErrors(stringifiedEnumValidation("ASDF")))
 
-        assertEquals("must be one of: 'SYN', 'ACK'", partialEnumValidation(SYNACK).get()!![0])
-        assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidation("").get()!![0])
+        assertEquals("must be one of: 'SYN', 'ACK'", partialEnumValidation(SYNACK).get()[0])
+        assertEquals("must be one of: 'SYN', 'ACK', 'SYNACK'", stringifiedEnumValidation("").get()[0])
     }
 
     @Test
@@ -109,9 +109,9 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(nullableConstValidation(null)))
         assertEquals(1, countFieldsWithErrors(nullableConstValidation("Konverse")))
 
-        assertEquals("must be 'Konform'", validation("Konverse").get()!![0])
-        assertEquals("must be null", nullableConstNullValidation("Konform").get()!![0])
-        assertEquals("must be 'Konform'", nullableConstValidation(null).get()!![0])
+        assertEquals("must be 'Konform'", validation("Konverse").get()[0])
+        assertEquals("must be null", nullableConstNullValidation("Konform").get()[0])
+        assertEquals("must be 'Konform'", nullableConstValidation(null).get()[0])
     }
 
     @Test
@@ -131,7 +131,7 @@ class JSONSchemaStyleConstraintsTest {
         assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(0) } }
         assertFailsWith(IllegalArgumentException::class) { Validation<Number> { multipleOf(-1) } }
 
-        assertEquals("must be a multiple of '2.5'", validation(1).get()!![0])
+        assertEquals("must be a multiple of '2.5'", validation(1).get()[0])
     }
 
     @Test
@@ -155,7 +155,7 @@ class JSONSchemaStyleConstraintsTest {
             }(Double.POSITIVE_INFINITY),
         )
 
-        assertEquals("must be at most '10'", validation(11).get()!![0])
+        assertEquals("must be at most '10'", validation(11).get()[0])
     }
 
     @Test
@@ -174,7 +174,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
         assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)))
 
-        assertEquals("must be less than '10'", validation(11).get()!![0])
+        assertEquals("must be less than '10'", validation(11).get()[0])
     }
 
     @Test
@@ -198,7 +198,7 @@ class JSONSchemaStyleConstraintsTest {
             }(Double.NEGATIVE_INFINITY),
         )
 
-        assertEquals("must be at least '10'", validation(9).get()!![0])
+        assertEquals("must be at least '10'", validation(9).get()[0])
     }
 
     @Test
@@ -217,7 +217,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
         assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)))
 
-        assertEquals("must be greater than '10'", validation(9).get()!![0])
+        assertEquals("must be greater than '10'", validation(9).get()[0])
     }
 
     @Test
@@ -230,7 +230,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation("Hello")))
         assertEquals(1, countFieldsWithErrors(validation("")))
 
-        assertEquals("must have at least 10 characters", validation("").get()!![0])
+        assertEquals("must have at least 10 characters", validation("").get()[0])
     }
 
     @Test
@@ -243,7 +243,7 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation("Hello World")))
 
-        assertEquals("must have at most 10 characters", validation("Hello World").get()!![0])
+        assertEquals("must have at most 10 characters", validation("Hello World").get()[0])
     }
 
     @Test
@@ -255,7 +255,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid(" a@a "), validation(" a@a "))
 
         assertEquals(1, countFieldsWithErrors(validation("a")))
-        assertEquals("must match the expected pattern", validation("").get()!![0])
+        assertEquals("must match the expected pattern", validation("").get()[0])
 
         val compiledRegexValidation =
             Validation<String> {
@@ -267,7 +267,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(compiledRegexValidation(" tester@example.com")))
         assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example.com ")))
 
-        assertEquals("must match the expected pattern", compiledRegexValidation("").get()!![0])
+        assertEquals("must match the expected pattern", compiledRegexValidation("").get()[0])
     }
 
     @Test
@@ -277,7 +277,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(Valid("ae40fe0d-05cb-4796-be1f-a1798fec52cf"), validation("ae40fe0d-05cb-4796-be1f-a1798fec52cf"))
 
         assertEquals(1, countFieldsWithErrors(validation("a")))
-        assertEquals("must be a valid UUID string", validation("").get()!![0])
+        assertEquals("must be a valid UUID string", validation("").get()[0])
     }
 
     @Test
@@ -303,7 +303,7 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(mapValidation(emptyMap())))
 
-        assertEquals("must have at least 1 items", validation(emptyList()).get()!![0])
+        assertEquals("must have at least 1 items", validation(emptyList()).get()[0])
     }
 
     @Test
@@ -329,7 +329,7 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(mapValidation(mapOf("a" to 0, "b" to 1))))
 
-        assertEquals("must have at most 1 items", mapValidation(mapOf("a" to 0, "b" to 1)).get()!![0])
+        assertEquals("must have at most 1 items", mapValidation(mapOf("a" to 0, "b" to 1)).get()[0])
     }
 
     @Test
@@ -341,7 +341,7 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation(emptyMap())))
 
-        assertEquals("must have at least 1 properties", validation(emptyMap()).get()!![0])
+        assertEquals("must have at least 1 properties", validation(emptyMap()).get()[0])
     }
 
     @Test
@@ -353,7 +353,7 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(validation(mapOf("a" to 0, "b" to 1))))
 
-        assertEquals("must have at most 1 properties", validation(mapOf("a" to 0, "b" to 1)).get()!![0])
+        assertEquals("must have at most 1 properties", validation(mapOf("a" to 0, "b" to 1)).get()[0])
     }
 
     @Test
@@ -374,6 +374,6 @@ class JSONSchemaStyleConstraintsTest {
 
         assertEquals(1, countFieldsWithErrors(arrayValidation(arrayOf("a", "a"))))
 
-        assertEquals("all items must be unique", validation(listOf("a", "a")).get()!![0])
+        assertEquals("all items must be unique", validation(listOf("a", "a")).get()[0])
     }
 }
