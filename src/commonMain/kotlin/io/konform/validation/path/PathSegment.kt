@@ -11,12 +11,18 @@ public data class ValidationPath(
 ) {
     public infix operator fun plus(segment: PathSegment): ValidationPath = ValidationPath(segments + segment)
 
-    internal fun prepend(other: ValidationPath): ValidationPath = ValidationPath(other.segments + segments)
-    internal fun prepend(pathSegment: PathSegment): ValidationPath = ValidationPath(segments.prepend(pathSegment))
-
     /** A JSONPath-ish representation of the path. */
     public val pathString: String
         get() = segments.joinToString("") { it.pathString }
+
+    internal fun prepend(other: ValidationPath): ValidationPath =
+        when {
+            segments.isEmpty() -> other
+            other.segments.isEmpty() -> this
+            else -> ValidationPath(other.segments + segments)
+        }
+
+    internal fun prepend(pathSegment: PathSegment): ValidationPath = ValidationPath(segments.prepend(pathSegment))
 
     public companion object {
         internal val EMPTY = ValidationPath(emptyList())
@@ -48,14 +54,22 @@ public sealed interface PathSegment {
     public val pathString: String
 
     public companion object {
-        public fun toPathSegment(pathElement: Any): PathSegment =
-            when (pathElement) {
-                is KProperty1<*, *> -> pathElement.toPathSegment()
-                is KFunction1<*, *> -> pathElement.toPathSegment()
-                is Int -> Index(pathElement)
-                is Map.Entry<*, *> -> pathElement.toPathSegment()
-                is String -> ProvidedString(pathElement)
-                else -> ProvidedValue(pathElement)
+        /**
+         * Converts [Any] value to its corresponding [PathSegment]
+         * If it is already a PathSegment it will be returned
+         * otherwise the most appropriate subtype of PathSegment will be returned,
+         * e.g. an [KFunction1] will become a [PathSegment.Function].
+         * If no more appropriate subtype exists, [ProvidedValue] will be returned.
+         */
+        public fun toPathSegment(pathSegment: Any): PathSegment =
+            when (pathSegment) {
+                is PathSegment -> pathSegment
+                is KProperty1<*, *> -> pathSegment.toPathSegment()
+                is KFunction1<*, *> -> pathSegment.toPathSegment()
+                is Int -> Index(pathSegment)
+                is Map.Entry<*, *> -> pathSegment.toPathSegment()
+                is String -> ProvidedString(pathSegment)
+                else -> ProvidedValue(pathSegment)
             }
     }
 
@@ -93,7 +107,7 @@ public sealed interface PathSegment {
 
     /** A path for a */
     public data class KCls(
-        val kcls: KClass<*>
+        val kcls: KClass<*>,
     ) : PathSegment {
         override val pathString: String get() = kcls.simpleName ?: "Anonymous"
     }

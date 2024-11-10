@@ -3,7 +3,9 @@ package io.konform.validation.types
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
+import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
+import io.konform.validation.path.ValidationPath
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -26,7 +28,7 @@ public class IsClassValidation<T : ParentT & Any, ParentT>(
         return if (castedValue == null) {
             if (required) {
                 val actualType = value?.let { it::class.simpleName }
-                Invalid(mapOf("" to listOf("must be a '${clazz.simpleName}', was a '$actualType'")))
+                Invalid(listOf(ValidationError(ValidationPath.EMPTY, "must be a '${clazz.simpleName}', was a '$actualType'")))
             } else {
                 Valid(value)
             }

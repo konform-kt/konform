@@ -7,7 +7,7 @@ import io.konform.validation.ValidationResult
 import io.konform.validation.path.PathSegment
 
 /** Validate the result of a property/function. */
-internal class CallableValidation<T, R>(
+public class CallableValidation<T, R>(
     private val callable: (T) -> R,
     private val path: PathSegment,
     private val validation: Validation<R>,

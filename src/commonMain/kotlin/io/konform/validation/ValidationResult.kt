@@ -20,6 +20,7 @@ public sealed class ValidationResult<out T> {
     public abstract val isValid: Boolean
 
     internal abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>
+
     internal abstract fun prependPath(path: ValidationPath): ValidationResult<T>
 
     internal infix operator fun plus(other: ValidationResult<@UnsafeVariance T>): ValidationResult<T> =
@@ -58,15 +59,16 @@ public data class Invalid(
 
     override val isValid: Boolean get() = false
 
-    override fun prependPath(pathSegment: PathSegment): Invalid =
-        Invalid(errors.map { it.prependPath(pathSegment) })
+    override fun prependPath(pathSegment: PathSegment): Invalid = Invalid(errors.map { it.prependPath(pathSegment) })
 
     override fun prependPath(path: ValidationPath): Invalid =
         if (path.segments.isEmpty()) this else Invalid(errors.map { it.prependPath(path) })
 
     public companion object {
-        public fun of(path: ValidationPath, message: String): Invalid =
-            Invalid(listOf(ValidationError(path, message)))
+        public fun of(
+            path: ValidationPath,
+            message: String,
+        ): Invalid = Invalid(listOf(ValidationError(path, message)))
     }
 }
 
@@ -90,6 +92,7 @@ public data class Valid<T>(
     override val errors: List<ValidationError> get() = emptyList()
 
     override fun prependPath(pathSegment: PathSegment): ValidationResult<T> = this
+
     override fun prependPath(path: ValidationPath): ValidationResult<T> = this
 
     internal companion object {
@@ -112,5 +115,10 @@ internal fun List<Invalid>.flattenNotEmpty(): Invalid {
     return Invalid(map { it.errors }.flatten())
 }
 
-internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> =
-    if (isNotEmpty()) flattenNonEmpty() else Valid(value)
+internal fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationResult<T> =
+    takeIf { isNotEmpty() }
+        ?.flattenNonEmpty()
+        ?.takeIf { it is Invalid }
+        ?: Valid(value)
+
+internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> = if (isNotEmpty()) flattenNonEmpty() else Valid(value)
