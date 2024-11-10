@@ -8,9 +8,9 @@ import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
 
 internal class NullableValidation<T : Any>(
+    private val pathSegment: PathSegment? = null,
     private val required: Boolean,
     private val validation: Validation<T>,
-    private val pathSegment: PathSegment? = null
 ) : Validation<T?> {
     override fun validate(value: T?): ValidationResult<T?> =
         if (value == null) {

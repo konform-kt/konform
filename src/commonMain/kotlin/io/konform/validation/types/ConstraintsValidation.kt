@@ -9,7 +9,7 @@ import io.konform.validation.ValidationResult
 import io.konform.validation.path.ValidationPath
 
 internal class ConstraintsValidation<T>(
-    private val path: ValidationPath,
+    private val path: ValidationPath = ValidationPath.EMPTY,
     private val constraints: List<Constraint<T>>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> =
@@ -23,4 +23,6 @@ internal class ConstraintsValidation<T>(
                     Invalid(errors)
                 }
             }
+
+    override fun toString(): String = "ConstraintsValidation(path=$path,constraints=$constraints)"
 }

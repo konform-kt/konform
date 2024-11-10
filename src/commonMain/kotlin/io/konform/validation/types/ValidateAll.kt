@@ -6,7 +6,7 @@ import io.konform.validation.ValidationResult
 import io.konform.validation.flattenOrValid
 
 /** Validation that runs multiple validations in sequence. */
-public class ValidateAll<T> internal constructor(
+public class ValidateAll<T>(
     private val validations: List<Validation<T>>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> {
@@ -17,4 +17,6 @@ public class ValidateAll<T> internal constructor(
         }
         return errors.flattenOrValid(value)
     }
+
+    override fun toString(): String = "ValidateAll(validation=$validations)"
 }

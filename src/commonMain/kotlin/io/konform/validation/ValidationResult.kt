@@ -2,6 +2,7 @@ package io.konform.validation
 
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
+import kotlin.jvm.JvmName
 
 public sealed class ValidationResult<out T> {
     /** Get the validation errors at a specific path. Will return empty list for [Valid]. */
@@ -121,4 +122,5 @@ internal fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationR
         ?.takeIf { it is Invalid }
         ?: Valid(value)
 
+@JvmName("flattenOrValidInvalidList")
 internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> = if (isNotEmpty()) flattenNonEmpty() else Valid(value)

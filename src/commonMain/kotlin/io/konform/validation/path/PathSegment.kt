@@ -15,6 +15,10 @@ public data class ValidationPath(
     public val pathString: String
         get() = segments.joinToString("") { it.pathString }
 
+    internal fun append(other: ValidationPath): ValidationPath = other.prepend(this)
+
+    internal fun append(pathSegment: PathSegment): ValidationPath = ValidationPath(segments + pathSegment)
+
     internal fun prepend(other: ValidationPath): ValidationPath =
         when {
             segments.isEmpty() -> other

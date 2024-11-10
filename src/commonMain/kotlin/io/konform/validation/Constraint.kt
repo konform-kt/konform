@@ -20,9 +20,13 @@ public class Constraint<in R> internal constructor(
                 hint
             }
 
-        return templateValues.foldIndexed(withValue) { index, hint, templateValue ->
-            hint.replace("{$index}", templateValue)
-        }
+        @Suppress("DEPRECATION")
+        val hintWithTemplateValues =
+            templateValues.foldIndexed(withValue) { index, hint, templateValue ->
+                hint.replace("{$index}", templateValue)
+            }
+
+        return hintWithTemplateValues
     }
 
     public companion object {

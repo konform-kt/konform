@@ -11,6 +11,7 @@ import io.konform.validation.types.CallableValidation
 import io.konform.validation.types.ConstraintsValidation
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.IterableValidation
+import io.konform.validation.types.MapValidation
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -21,8 +22,6 @@ private annotation class ValidationScope
 @ValidationScope
 public class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
-
-    // private val buildersBySegment = mutableMapOf<PathSegment, ValidationBuilder<*>>()
     private val subValidations = mutableListOf<Validation<T>>()
 
     public fun build(): Validation<T> =
@@ -34,13 +33,6 @@ public class ValidationBuilder<T> {
                     it
                 }
             }.flatten()
-    //        validations +=
-    //            buildersBySegment.map {
-    //                @Suppress("UNCHECKED_CAST")
-    //                (it.value as ValidationBuilder<T>).build()
-    //            }
-    // validations += subValidations
-    // }
 
     public fun addConstraint(
         errorMessage: String,
@@ -48,6 +40,7 @@ public class ValidationBuilder<T> {
         test: (T) -> Boolean,
     ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
+    @Suppress("DEPRECATION")
     public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
         Constraint(hint, this.templateValues, this.test).also {
             constraints.remove(this)
@@ -58,30 +51,19 @@ public class ValidationBuilder<T> {
         pathSegment: PathSegment,
         prop: (T) -> Iterable<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        pathSegment.getOrCreateBuilder<Iterable<R>>()
-        IterableValidation(buildWithNew(init))
-        requireValidName(name)
-        val key = IterablePropKey(prop, name, NonNull)
-        init(key.getOrCreateBuilder())
-    }
+    ) = run(CallableValidation(pathSegment, prop, IterableValidation(buildWithNew(init))))
 
     private fun <R> onEachArray(
         pathSegment: PathSegment,
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    ) {
-        init(key.getOrCreateBuilder())
-    }
+    ) = run(CallableValidation(pathSegment, prop, ArrayValidation(buildWithNew(init))))
 
     private fun <K, V> onEachMap(
         pathSegment: PathSegment,
         prop: (T) -> Map<K, V>,
         init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit,
-    ) {
-        requireValidName(name)
-        init(MapPropKey(prop, name, NonNull).getOrCreateBuilder())
-    }
+    ) = run(CallableValidation(pathSegment, prop, MapValidation(buildWithNew(init))))
 
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
@@ -125,20 +107,12 @@ public class ValidationBuilder<T> {
      * @param pathSegment The [PathSegment] of the validation.
      *   is [Any] for backwards compatibility and easy of use, see [toPathSegment]
      * @param f The function for which you want to validate the result of
-     * @see run
      */
     public fun <R> validate(
         pathSegment: Any,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit =
-        run(
-            CallableValidation(
-                callable = f,
-                path = toPathSegment(pathSegment),
-                buildWithNew(init),
-            ),
-        )
+    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init)))
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
@@ -147,14 +121,7 @@ public class ValidationBuilder<T> {
         pathSegment: Any,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit =
-        run(
-            CallableValidation(
-                callable = f,
-                path = toPathSegment(pathSegment),
-                buildWithNew(init).ifPresent(),
-            ),
-        )
+    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init).ifPresent()))
 
     /**
      * Calculate a value from the input and run a validation on it, and give an error if the result is null.
@@ -163,14 +130,7 @@ public class ValidationBuilder<T> {
         pathSegment: Any,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit =
-        run(
-            CallableValidation(
-                callable = f,
-                path = toPathSegment(pathSegment),
-                buildWithNew(init).required(),
-            ),
-        )
+    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init).required()))
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)

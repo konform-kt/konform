@@ -16,7 +16,7 @@ public interface Validation<in T> {
 
     public operator fun invoke(value: T): ValidationResult<@UnsafeVariance T> = validate(value)
 
-    public fun prependPath(path: ValidationPath): Validation<T> = PrependPathValidation(this, path)
+    public fun prependPath(path: ValidationPath): Validation<T> = PrependPathValidation(path, this)
 
     public fun prependPath(pathSegment: PathSegment): Validation<T> = prependPath(ValidationPath.of(pathSegment))
 }
@@ -30,7 +30,7 @@ public fun <T> List<Validation<T>>.flatten(): Validation<T> =
     }
 
 /** Run a validation only if the actual value is not-null. */
-public fun <T : Any> Validation<T>.ifPresent(): Validation<T?> = NullableValidation(required = false, this)
+public fun <T : Any> Validation<T>.ifPresent(): Validation<T?> = NullableValidation(required = false, validation = this)
 
 /** Require a nullable value to actually be present. */
-public fun <T : Any> Validation<T>.required(): Validation<T?> = NullableValidation(required = true, this)
+public fun <T : Any> Validation<T>.required(): Validation<T?> = NullableValidation(required = true, validation = this)
