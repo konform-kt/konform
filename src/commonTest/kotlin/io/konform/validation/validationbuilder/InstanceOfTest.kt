@@ -7,7 +7,7 @@ import io.konform.validation.path.ValidationPath
 import io.konform.validation.string.notBlank
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
-import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldContainOnlyError
 import kotlin.test.Test
 
 class InstanceOfTest {
@@ -45,10 +45,7 @@ class InstanceOfTest {
         ifCatValidation shouldBeValid null
 
         val invalid = ifCatValidation shouldBeInvalid invalidCat
-        invalid shouldContainExactlyErrors
-            listOf(
-                ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank"),
-            )
+        invalid shouldContainOnlyError ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank")
     }
 
     @Test
@@ -56,25 +53,16 @@ class InstanceOfTest {
         requireCatValidation shouldBeValid validCat
 
         val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
-        invalidCatResult shouldContainExactlyErrors
-            listOf(
-                ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank"),
-            )
+        invalidCatResult shouldContainOnlyError ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank")
 
         val validDogResult = requireCatValidation shouldBeInvalid validDog
         val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog
-        val expectedError =
-            listOf(
-                ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'Dog'"),
-            )
-        validDogResult shouldContainExactlyErrors expectedError
-        invalidDogResult shouldContainExactlyErrors expectedError
+        val expectedError = ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'Dog'")
+        validDogResult shouldContainOnlyError expectedError
+        invalidDogResult shouldContainOnlyError expectedError
 
         val nullResult = requireCatValidation shouldBeInvalid null
-        nullResult shouldContainExactlyErrors
-            listOf(
-                ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'null'"),
-            )
+        nullResult shouldContainOnlyError ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'null'")
     }
 }
 

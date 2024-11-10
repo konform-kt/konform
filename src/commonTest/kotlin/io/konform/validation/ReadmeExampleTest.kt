@@ -135,7 +135,7 @@ class ReadmeExampleTest {
             )
 
         assertEquals(3, countFieldsWithErrors(validateEvent(invalidEvent)))
-        assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age]!![0])
+        assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age][0])
     }
 
     @Test

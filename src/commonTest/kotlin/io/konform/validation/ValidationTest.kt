@@ -2,6 +2,7 @@ package io.konform.validation
 
 import io.konform.validation.jsonschema.minLength
 import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldContainOnlyError
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
@@ -44,12 +45,12 @@ class ValidationTest {
 
         val invalidAnimal = animalValidation.validate(emptyCat)
         val invalidCat = catValidation.validate(emptyCat)
-        invalidAnimal.shouldBeInstanceOf<Invalid>().shouldContainExactlyErrors(
-            ".name" to "must have at least 1 characters",
+        invalidAnimal.shouldBeInstanceOf<Invalid>().shouldContainOnlyError(
+            ValidationError.ofAny(Animal::name, "must have at least 1 characters"),
         )
         invalidCat.shouldBeInstanceOf<Invalid>().shouldContainExactlyErrors(
-            ".name" to "must have at least 1 characters",
-            ".favoritePrey" to "must have at least 1 characters",
+            ValidationError.ofAny(Animal::name, "must have at least 1 characters"),
+            ValidationError.ofAny(Cat::favoritePrey, "must have at least 1 characters"),
         )
     }
 }

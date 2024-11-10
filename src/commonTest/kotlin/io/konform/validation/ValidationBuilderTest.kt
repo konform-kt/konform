@@ -3,10 +3,13 @@ package io.konform.validation
 import io.konform.validation.jsonschema.const
 import io.konform.validation.jsonschema.enum
 import io.konform.validation.jsonschema.minItems
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
 import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldContainOnlyError
 import io.kotest.assertions.konform.shouldHaveErrorCount
 import io.kotest.assertions.konform.shouldNotContainErrorAt
 import kotlin.test.Test
@@ -208,15 +211,15 @@ class ValidationBuilderTest {
 
         splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "")) {
-            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at least 1 characters")
+            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "aaaaaaaaaaa")) {
-            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at most 10 characters")
+            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at most 10 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@", password = "")) {
             it.shouldContainExactlyErrors(
-                ".getPasswordLambda" to "must have at least 1 characters",
-                ".getEmailLambda" to "must have correct format",
+                ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"),
+                ValidationError.ofAny("getEmailLambda", "must have correct format"),
             )
         }
     }
@@ -413,11 +416,17 @@ class ValidationBuilderTest {
                     ),
             ),
         ) {
-            it.shouldContainExactlyErrors(
-                ".registrations.user2.email" to "must have at least 2 characters",
+            it shouldContainOnlyError
+                ValidationError(
+                    ValidationPath.fromAny(Data::registrations, PathSegment.MapKey("user2"), Register::email),
+                    "must have at least 2 characters",
+                )
+
+            it.shouldContainError(
+                listOf(Data::registrations, PathSegment.MapKey("user2"), Register::email),
+                "must have at least 2 characters",
             )
-            it.shouldContainError(listOf(Data::registrations, "user2", Register::email), "must have at least 2 characters")
-            it.shouldNotContainErrorAt(Data::registrations, "user1", Register::email)
+            it.shouldNotContainErrorAt(Data::registrations, PathSegment.MapKey("user1"), Register::email)
             it.shouldHaveErrorCount(1)
         }
     }
@@ -482,7 +491,7 @@ class ValidationBuilderTest {
                     minLength(8)
                 }
             }
-        assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
+        assertTrue(validation(Register(password = ""))[Register::password][0].contains("8"))
     }
 
     private data class Register(

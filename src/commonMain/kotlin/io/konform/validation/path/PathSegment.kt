@@ -101,12 +101,16 @@ public sealed interface PathSegment {
         val property: KProperty1<*, *>,
     ) : PathSegment {
         override val pathString: String get() = ".${property.name}"
+
+        override fun toString(): String = "Property(${property.name})"
     }
 
     public data class Function(
         val function: KFunction1<*, *>,
     ) : PathSegment {
         override val pathString: String get() = ".${function.name}"
+
+        override fun toString(): String = "Function(${function.name})"
     }
 
     /** A path for a */
