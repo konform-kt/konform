@@ -53,8 +53,6 @@ public final class io/konform/validation/ValidationBuilder {
 	public fun <init> ()V
 	public final fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
 	public final fun build ()Lio/konform/validation/Validation;
-	public final fun getHas (Lkotlin/reflect/KFunction;)Lio/konform/validation/ValidationBuilder;
-	public final fun getHas (Lkotlin/reflect/KProperty1;)Lio/konform/validation/ValidationBuilder;
 	public final fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
 	public final fun ifPresent (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
