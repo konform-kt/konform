@@ -165,11 +165,6 @@ public class ValidationBuilder<T> {
             "'$name' is not a valid kotlin identifier or getter name."
         }
 
-    public val <R> KProperty1<T, R>.has: ValidationBuilder<R>
-        get() = toPropKey(name, NonNull).getOrCreateBuilder()
-    public val <R> KFunction1<T, R>.has: ValidationBuilder<R>
-        get() = toPropKey(name, NonNull).getOrCreateBuilder()
-
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
 
