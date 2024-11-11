@@ -87,7 +87,7 @@ internal class ValidationNode<T>(
     private fun localValidation(value: T): ValidationResult<T> =
         constraints
             .filter { !it.test(value) }
-            .map { constructHint(value, it) }
+            .map { it.createHint(value) }
             .let { errors ->
                 if (errors.isEmpty()) {
                     Valid(value)
@@ -95,15 +95,6 @@ internal class ValidationNode<T>(
                     Invalid(mapOf("" to errors))
                 }
             }
-
-    private fun constructHint(
-        value: T,
-        it: Constraint<T>,
-    ): String {
-        val replaceValue = it.hint.replace("{value}", value.toString())
-        return it.templateValues
-            .foldIndexed(replaceValue) { index, hint, templateValue -> hint.replace("{$index}", templateValue) }
-    }
 
     private fun applySubValidations(
         propertyValue: T,
