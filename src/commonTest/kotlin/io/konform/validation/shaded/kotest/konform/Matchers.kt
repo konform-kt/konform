@@ -10,11 +10,11 @@ import io.konform.validation.ValidationError
 import io.konform.validation.path.ValidationPath
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -96,7 +96,7 @@ fun Invalid.shouldContainError(
 fun Invalid.shouldNotContainErrorAt(vararg propertyPaths: Any) {
     val path = ValidationPath.fromAny(*propertyPaths)
     this.errors.map { it.dataPath } shouldNotContain path
-    this[propertyPaths].shouldBeNull()
+    this[propertyPaths].shouldBeEmpty()
 }
 
 infix fun Invalid.shouldHaveErrorCount(count: Int) = this.errors shouldHaveSize count

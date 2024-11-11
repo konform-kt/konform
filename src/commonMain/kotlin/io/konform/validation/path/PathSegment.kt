@@ -15,6 +15,8 @@ public data class ValidationPath(
     public val pathString: String
         get() = segments.joinToString("") { it.pathString }
 
+    override fun toString(): String = "ValidationPath(${segments.joinToString(", ")})"
+
     internal fun append(other: ValidationPath): ValidationPath = other.prepend(this)
 
     internal fun append(pathSegment: PathSegment): ValidationPath = ValidationPath(segments + pathSegment)
@@ -117,7 +119,11 @@ public sealed interface PathSegment {
     public data class KCls(
         val kcls: KClass<*>,
     ) : PathSegment {
-        override val pathString: String get() = kcls.simpleName ?: "Anonymous"
+        private val name get() = kcls.simpleName ?: "Anonymous"
+
+        override val pathString: String get() = name
+
+        override fun toString(): String = "KCls($name)"
     }
 
     /** An index to an array, list, or other iterable. */
@@ -125,6 +131,8 @@ public sealed interface PathSegment {
         val index: Int,
     ) : PathSegment {
         override val pathString: String get() = "[$index]"
+
+        override fun toString(): String = "Index($index)"
     }
 
     /** The key of a map. */
@@ -132,6 +140,8 @@ public sealed interface PathSegment {
         val key: Any?,
     ) : PathSegment {
         override val pathString: String get() = ".$key"
+
+        override fun toString(): String = "MapKey($key)"
     }
 
     /** A string provided by the user, usually a field name. */
@@ -139,6 +149,8 @@ public sealed interface PathSegment {
         val string: String,
     ) : PathSegment {
         override val pathString: String get() = ".$string"
+
+        override fun toString(): String = "ProvidedString($string)"
     }
 
     /** Any non-string value provided by the user. */
@@ -146,6 +158,8 @@ public sealed interface PathSegment {
         val value: Any,
     ) : PathSegment {
         override val pathString: String get() = ".$value"
+
+        override fun toString(): String = "ProvidedValue($value)"
     }
 }
 
@@ -153,4 +167,4 @@ public fun KProperty1<*, *>.toPathSegment(): PathSegment.Property = PathSegment.
 
 public fun KFunction1<*, *>.toPathSegment(): PathSegment.Function = PathSegment.Function(this)
 
-public fun Map.Entry<*, *>.toPathSegment(): PathSegment.MapKey = PathSegment.MapKey(this.key)
+public fun Map.Entry<*, *>.toPathSegment(): PathSegment.MapKey = PathSegment.MapKey(key)

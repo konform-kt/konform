@@ -11,6 +11,8 @@ public class Constraint<in R> internal constructor(
     public val test: (R) -> Boolean,
     // TODO: Add customizable Path parameter settable with a path() method
 ) {
+    override fun toString(): String = "Constraint(\"$hint\")"
+
     internal fun createHint(value: R): String {
         // Avoid toString()ing the value unless its needed
         val withValue =

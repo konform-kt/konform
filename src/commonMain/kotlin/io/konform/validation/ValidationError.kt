@@ -1,5 +1,6 @@
 package io.konform.validation
 
+import io.konform.validation.helpers.prepend
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
 
@@ -10,9 +11,11 @@ public data class ValidationError(
 ) {
     public val dataPath: String get() = path.pathString
 
-    internal fun prependPath(path: ValidationPath) = this.copy(path = this.path.prepend(path))
+    public inline fun mapPath(f: (List<PathSegment>) -> List<PathSegment>): ValidationError = copy(path = ValidationPath(f(path.segments)))
 
-    internal fun prependPath(pathSegment: PathSegment) = this.copy(path = this.path.prepend(pathSegment))
+    internal fun prependPath(path: ValidationPath) = copy(path = this.path.prepend(path))
+
+    internal fun prependPath(pathSegment: PathSegment) = mapPath { it.prepend(pathSegment) }
 
     internal companion object {
         internal fun of(
