@@ -3,6 +3,10 @@ package io.konform.validation.jsonschema
 import io.konform.validation.Constraint
 import io.konform.validation.ValidationBuilder
 import kotlin.math.roundToInt
+import io.konform.validation.string.maxLength as movedMaxLength
+import io.konform.validation.string.minLength as movedMinLength
+import io.konform.validation.string.pattern as movedPattern
+import io.konform.validation.string.uuid as movedUuid
 
 public inline fun <reified T> ValidationBuilder<*>.type(): Constraint<*> =
     addConstraint(
@@ -62,33 +66,35 @@ public fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: 
         minimumExclusive.toString(),
     ) { it.toDouble() > minimumExclusive.toDouble() }
 
-public fun ValidationBuilder<String>.minLength(length: Int): Constraint<String> {
-    require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
-    return addConstraint(
-        "must have at least {0} characters",
-        length.toString(),
-    ) { it.length >= length }
-}
+@Deprecated(
+    "Moved to io.konform.validation.string",
+    ReplaceWith("minLength(length)", imports = ["io.konform.validation.string.minLength"]),
+)
+public fun ValidationBuilder<String>.minLength(length: Int): Constraint<String> = movedMinLength(length)
 
-public fun ValidationBuilder<String>.maxLength(length: Int): Constraint<String> {
-    require(length >= 0) { IllegalArgumentException("maxLength requires the length to be >= 0") }
-    return addConstraint(
-        "must have at most {0} characters",
-        length.toString(),
-    ) { it.length <= length }
-}
+@Deprecated(
+    "Moved to io.konform.validation.string",
+    ReplaceWith("maxLength(length)", imports = ["io.konform.validation.string.maxLength"]),
+)
+public fun ValidationBuilder<String>.maxLength(length: Int): Constraint<String> = movedMaxLength(length)
 
-public fun ValidationBuilder<String>.pattern(pattern: String): Constraint<String> = pattern(pattern.toRegex())
+@Deprecated(
+    "Moved to io.konform.validation.string",
+    ReplaceWith("pattern(length)", imports = ["io.konform.validation.string.pattern"]),
+)
+public fun ValidationBuilder<String>.pattern(pattern: String): Constraint<String> = movedPattern(pattern)
 
-/** Enforces the string must be UUID hex format. */
-public fun ValidationBuilder<String>.uuid(): Constraint<String> =
-    pattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$") hint "must be a valid UUID string"
+@Deprecated(
+    "Moved to io.konform.validation.string",
+    ReplaceWith("uuid()", imports = ["io.konform.validation.string.uuid"]),
+)
+public fun ValidationBuilder<String>.uuid(): Constraint<String> = movedUuid()
 
-public fun ValidationBuilder<String>.pattern(pattern: Regex): Constraint<String> =
-    addConstraint(
-        "must match the expected pattern",
-        pattern.toString(),
-    ) { it.matches(pattern) }
+@Deprecated(
+    "Moved to io.konform.validation.string",
+    ReplaceWith("pattern(pattern)", imports = ["io.konform.validation.string.pattern"]),
+)
+public fun ValidationBuilder<String>.pattern(pattern: Regex): Constraint<String> = movedPattern(pattern)
 
 public inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Constraint<T> =
     addConstraint(
