@@ -2,7 +2,6 @@ package io.konform.validation
 
 import io.konform.validation.ValidationBuilder.Companion.buildWithNew
 import io.konform.validation.helpers.prepend
-import io.konform.validation.kotlin.Grammar
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.PathSegment.Companion.toPathSegment
 import io.konform.validation.path.ValidationPath
@@ -135,11 +134,6 @@ public class ValidationBuilder<T> {
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
     }
-
-    private fun requireValidName(name: String) =
-        require(Grammar.Identifier.isValid(name) || Grammar.FunctionDeclaration.isUnary(name)) {
-            "'$name' is not a valid kotlin identifier or getter name."
-        }
 
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
