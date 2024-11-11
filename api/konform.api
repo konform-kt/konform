@@ -1,7 +1,13 @@
 public final class io/konform/validation/Constraint {
+	public static final field Companion Lio/konform/validation/Constraint$Companion;
+	public static final field VALUE_IN_HINT Ljava/lang/String;
 	public final fun getHint ()Ljava/lang/String;
 	public final fun getTemplateValues ()Ljava/util/List;
 	public final fun getTest ()Lkotlin/jvm/functions/Function1;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/konform/validation/Constraint$Companion {
 }
 
 public final class io/konform/validation/Invalid : io/konform/validation/ValidationResult {

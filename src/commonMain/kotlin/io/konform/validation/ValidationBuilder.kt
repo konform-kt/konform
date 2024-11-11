@@ -44,6 +44,7 @@ public class ValidationBuilder<T> {
         test: (T) -> Boolean,
     ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
 
+    @Suppress("DEPRECATION")
     public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
         Constraint(hint, this.templateValues, this.test).also {
             constraints.remove(this)
