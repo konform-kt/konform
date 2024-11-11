@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.jsonschema.minimum
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.EmptyValidation
 import io.konform.validation.types.ValidateAll
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -46,10 +47,10 @@ class ListValidationTest {
         result.shouldBeInstanceOf<ValidateAll<Int>>()
 
         result shouldBeValid 10
-        (result shouldBeInvalid 5) shouldContainOnlyError ValidationError("", "must be at least '10'")
+        (result shouldBeInvalid 5) shouldContainOnlyError ValidationError(ValidationPath.EMPTY, "must be at least '10'")
         (result shouldBeInvalid -1).shouldContainExactlyErrors(
-            ValidationError("", "must be at least '0'"),
-            ValidationError("", "must be at least '10'"),
+            ValidationError(ValidationPath.EMPTY, "must be at least '0'"),
+            ValidationError(ValidationPath.EMPTY, "must be at least '10'"),
         )
     }
 }

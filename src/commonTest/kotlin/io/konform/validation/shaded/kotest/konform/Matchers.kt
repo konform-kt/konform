@@ -106,7 +106,3 @@ infix fun Invalid.shouldContainOnlyError(error: ValidationError) {
 }
 
 fun Invalid.shouldContainExactlyErrors(vararg errors: ValidationError) = this.errors shouldContainExactlyInAnyOrder errors.toList()
-
-infix fun Invalid.shouldContainOnlyError(error: ValidationError) {
-    this.errors shouldBe listOf(error)
-}
