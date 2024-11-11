@@ -87,11 +87,19 @@ public final class io/konform/validation/ValidationBuilderKt {
 }
 
 public abstract interface class io/konform/validation/ValidationError {
+	public static final field Companion Lio/konform/validation/ValidationError$Companion;
 	public abstract fun getDataPath ()Ljava/lang/String;
 	public abstract fun getMessage ()Ljava/lang/String;
 }
 
+public final class io/konform/validation/ValidationError$Companion {
+}
+
 public abstract interface class io/konform/validation/ValidationErrors : java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
+}
+
+public final class io/konform/validation/ValidationKt {
+	public static final fun flatten (Ljava/util/List;)Lio/konform/validation/Validation;
 }
 
 public abstract class io/konform/validation/ValidationResult {
@@ -116,13 +124,45 @@ public final class io/konform/validation/jsonschema/JsonSchemaKt {
 	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
 }
 
+public final class io/konform/validation/path/ValidationPath {
+	public static final field Companion Lio/konform/validation/path/ValidationPath$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lio/konform/validation/path/ValidationPath;
+	public static synthetic fun copy$default (Lio/konform/validation/path/ValidationPath;Ljava/util/List;ILjava/lang/Object;)Lio/konform/validation/path/ValidationPath;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDataPaths ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/konform/validation/path/ValidationPath$Companion {
+	public final fun fromAny ([Ljava/lang/Object;)Lio/konform/validation/path/ValidationPath;
+}
+
 public final class io/konform/validation/string/ValidationBuilderStringKt {
 	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/types/EmptyValidation : io/konform/validation/Validation {
+	public static final field INSTANCE Lio/konform/validation/types/EmptyValidation;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun toString ()Ljava/lang/String;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 
 public final class io/konform/validation/types/IsClassValidation : io/konform/validation/Validation {
 	public fun <init> (Lkotlin/reflect/KClass;ZLio/konform/validation/Validation;)V
 	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/types/ValidateAll : io/konform/validation/Validation {
+	public fun <init> (Ljava/util/List;)V
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun toString ()Ljava/lang/String;
 	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 
