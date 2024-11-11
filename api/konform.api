@@ -138,8 +138,15 @@ public final class io/konform/validation/path/ValidationPath$Companion {
 	public final fun fromAny ([Ljava/lang/Object;)Lio/konform/validation/path/ValidationPath;
 }
 
-public final class io/konform/validation/string/ValidationBuilderStringKt {
+public final class io/konform/validation/string/ConstraintsKt {
+	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
+	public static final fun maxLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
+	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
 }
 
 public final class io/konform/validation/types/EmptyValidation : io/konform/validation/Validation {
