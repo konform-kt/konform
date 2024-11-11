@@ -98,6 +98,8 @@ public abstract interface class io/konform/validation/ValidationErrors : java/ut
 
 public final class io/konform/validation/ValidationKt {
 	public static final fun flatten (Ljava/util/List;)Lio/konform/validation/Validation;
+	public static final fun ifPresent (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
+	public static final fun required (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
 }
 
 public abstract class io/konform/validation/ValidationResult {

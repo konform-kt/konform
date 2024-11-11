@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.types.EmptyValidation
+import io.konform.validation.types.NullableValidation
 import io.konform.validation.types.ValidateAll
 
 public interface Validation<in T> {
@@ -20,3 +21,9 @@ public fun <T> List<Validation<T>>.flatten(): Validation<T> =
         1 -> first()
         else -> ValidateAll(this)
     }
+
+/** Run a validation only if the actual value is not-null. */
+public fun <T : Any> Validation<T>.ifPresent(): Validation<T?> = NullableValidation(required = false, validation = this)
+
+/** Require a nullable value to actually be present. */
+public fun <T : Any> Validation<T>.required(): Validation<T?> = NullableValidation(required = true, validation = this)
