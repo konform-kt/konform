@@ -18,6 +18,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 
 infix fun <T> Validation<T>.shouldBeValid(value: T) = this should beValid(value)
 
@@ -102,3 +103,7 @@ fun Invalid.shouldContainExactlyErrors(vararg errors: Pair<String, String>) =
     this.errors shouldContainExactlyInAnyOrder errors.map { PropertyValidationError(it.first, it.second) }
 
 infix fun Invalid.shouldContainExactlyErrors(errors: List<ValidationError>) = this.errors shouldContainExactlyInAnyOrder errors
+
+infix fun Invalid.shouldContainOnlyError(error: ValidationError) {
+    this.errors shouldBe listOf(error)
+}

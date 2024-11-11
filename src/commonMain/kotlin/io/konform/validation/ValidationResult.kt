@@ -1,11 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.kotlin.Path
-
-public interface ValidationError {
-    public val dataPath: String
-    public val message: String
-}
+import kotlin.jvm.JvmName
 
 internal data class PropertyValidationError(
     override val dataPath: String,
@@ -68,3 +64,35 @@ public data class Valid<T>(
     override val errors: List<ValidationError>
         get() = emptyList()
 }
+
+internal fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T> {
+    require(isNotEmpty()) { "List<ValidationResult> is not allowed to be empty in flattenNonEmpty" }
+    val invalids = filterIsInstance<Invalid>()
+    return if (invalids.isEmpty()) {
+        first() as Valid
+    } else {
+        invalids.flattenNotEmpty()
+    }
+}
+
+internal fun List<Invalid>.flattenNotEmpty(): Invalid {
+    require(isNotEmpty()) { "List<Invalid> is not allowed to be empty in flattenNonEmpty" }
+    val merged = mutableMapOf<String, List<String>>()
+    for (invalid in this) {
+        val added =
+            invalid.internalErrors.mapValues {
+                merged.getOrElse(it.key, ::emptyList) + it.value
+            }
+        merged += added
+    }
+    return Invalid(merged)
+}
+
+internal fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationResult<T> =
+    takeIf { isNotEmpty() }
+        ?.flattenNonEmpty()
+        ?.takeIf { it is Invalid }
+        ?: Valid(value)
+
+@JvmName("flattenOrValidInvalidList")
+internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> = if (isNotEmpty()) flattenNonEmpty() else Valid(value)
