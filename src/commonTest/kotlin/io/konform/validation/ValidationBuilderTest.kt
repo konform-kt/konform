@@ -390,6 +390,10 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateX() {
+    }
+
+    @Test
     fun validateHashMaps() {
         data class Data(
             val registrations: Map<String, Register> = emptyMap(),

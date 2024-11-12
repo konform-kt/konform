@@ -1,7 +1,9 @@
 package io.konform.validation.path
 
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction2
 import kotlin.reflect.KProperty1
 
 /**
@@ -69,14 +71,35 @@ public sealed interface PathSegment {
         override val pathString: String get() = ".${property.name}"
 
         override fun toString(): String = "Property(${property.name})"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            other as Property
+            return looseCompareCallable(property, other.property)
+        }
+
+        override fun hashCode(): Int = property.name.hashCode()
     }
 
     public data class Function(
         val function: KFunction1<*, *>,
     ) : PathSegment {
+        val x: KFunction2<Int, Int, Int> = TODO()
         override val pathString: String get() = ".${function.name}"
 
         override fun toString(): String = "Function(${function.name})"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Function
+
+            return looseCompareCallable(function, other.function)
+        }
+
+        override fun hashCode(): Int = function.name.hashCode()
     }
 
     /** A path for a */
@@ -132,3 +155,16 @@ public fun KProperty1<*, *>.toPathSegment(): PathSegment.Property = PathSegment.
 public fun KFunction1<*, *>.toPathSegment(): PathSegment.Function = PathSegment.Function(this)
 
 public fun Map.Entry<*, *>.toPathSegment(): PathSegment.MapKey = PathSegment.MapKey(key)
+
+/**
+ * On some platforms (JS) a ::property does not seem to be guaranteed the same in different context.
+ * To remedy that do a looser comparison which should succeed, and should be good enough for validation purposes.
+ * */
+private fun looseCompareCallable(
+    first: KCallable<*>,
+    second: KCallable<*>,
+): Boolean {
+    if (first === second) return true
+    if (first::class != second::class) return false
+    return first.name == second.name
+}

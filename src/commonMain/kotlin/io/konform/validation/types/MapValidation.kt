@@ -14,6 +14,7 @@ internal class MapValidation<K, V>(
         val errors = mutableListOf<Invalid>()
         value.forEach {
             val result = validation.validate(it)
+            println(result)
             if (result is Invalid) {
                 errors += Invalid(result.errors.map { e -> setMapPath(it.key, e) })
             }
@@ -26,6 +27,10 @@ internal class MapValidation<K, V>(
         error: ValidationError,
     ): ValidationError {
         val keySegment = PathSegment.MapKey(key)
+        println(error.path.segments.firstOrNull())
+        println(SEGMENT_MAP_KEY)
+        println(SEGMENT_MAP_VALUE)
+        println(error.path.segments.firstOrNull() == SEGMENT_MAP_VALUE)
         return when (error.path.segments.firstOrNull()) {
             // Remove ".key" or ".value" to the path as usually we want
             // ".mapField.toStringKey.xxx" and not ".mapField.toStringKey.key.xxx"
