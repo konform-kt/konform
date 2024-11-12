@@ -8,8 +8,10 @@ public data class ValidationPath(
 ) {
     public infix operator fun plus(segment: PathSegment): ValidationPath = ValidationPath(segments + segment)
 
+    public infix operator fun plus(segments: List<PathSegment>): ValidationPath = ValidationPath(this.segments + segments)
+
     /** A JSONPath-ish representation of the path. */
-    public val pathString: String
+    public val dataPath: String
         get() = segments.joinToString("") { it.pathString }
 
     override fun toString(): String = "ValidationPath(${segments.joinToString(", ")})"

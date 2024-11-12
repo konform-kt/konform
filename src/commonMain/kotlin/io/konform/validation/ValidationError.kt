@@ -9,7 +9,7 @@ public data class ValidationError(
     public val path: ValidationPath,
     public val message: String,
 ) {
-    public val dataPath: String get() = path.pathString
+    public val dataPath: String get() = path.dataPath
 
     public inline fun mapPath(f: (List<PathSegment>) -> List<PathSegment>): ValidationError = copy(path = ValidationPath(f(path.segments)))
 
