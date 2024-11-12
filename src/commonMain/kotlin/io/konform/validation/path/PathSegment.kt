@@ -3,7 +3,6 @@ package io.konform.validation.path
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
-import kotlin.reflect.KFunction2
 import kotlin.reflect.KProperty1
 
 /**
@@ -85,7 +84,6 @@ public sealed interface PathSegment {
     public data class Function(
         val function: KFunction1<*, *>,
     ) : PathSegment {
-        val x: KFunction2<Int, Int, Int> = TODO()
         override val pathString: String get() = ".${function.name}"
 
         override fun toString(): String = "Function(${function.name})"
