@@ -7,7 +7,7 @@ import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.minimum
 import io.konform.validation.jsonschema.pattern
-import io.konform.validation.path.PathSegment.Property
+import io.konform.validation.path.PathSegment.Prop
 import io.konform.validation.path.PathSegment.ProvidedString
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
@@ -149,7 +149,7 @@ class ReadmeExampleTest {
 
         validateUser1 shouldBeValid johnDoe
         validateUser1.shouldBeInvalid(UserProfile("John\tDoe", 30)) {
-            it.shouldContainError(ValidationError.of(Property(UserProfile::fullName), "Name cannot contain a tab"))
+            it.shouldContainError(ValidationError.of(Prop(UserProfile::fullName), "Name cannot contain a tab"))
         }
 
         val validateUser2 =
@@ -183,7 +183,7 @@ class ReadmeExampleTest {
 
         validateUser shouldBeValid johnDoe
         validateUser.shouldBeInvalid(UserProfile("John doe", 10)) {
-            it.shouldContainError(ValidationError.of(Property(UserProfile::age), "must be at least '21'"))
+            it.shouldContainError(ValidationError.of(Prop(UserProfile::age), "must be at least '21'"))
         }
 
         val transform =

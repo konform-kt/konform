@@ -66,30 +66,30 @@ public class ValidationBuilder<T> {
 
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachIterable(PathSegment.Property(this), this, init)
+        onEachIterable(PathSegment.Prop(this), this, init)
 
     @JvmName("onEachIterable")
     public infix fun <R> KFunction1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachIterable(PathSegment.Function(this), this, init)
+        onEachIterable(PathSegment.Func(this), this, init)
 
     @JvmName("onEachArray")
     public infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachArray(PathSegment.Property(this), this, init)
+        onEachArray(PathSegment.Prop(this), this, init)
 
     @JvmName("onEachArray")
     public infix fun <R> KFunction1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachArray(PathSegment.Function(this), this, init)
+        onEachArray(PathSegment.Func(this), this, init)
 
     @JvmName("onEachMap")
     public infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
-        onEachMap(PathSegment.Property(this), this, init)
+        onEachMap(PathSegment.Prop(this), this, init)
 
     @JvmName("onEachMap")
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
-        onEachMap(PathSegment.Function(this), this, init)
+        onEachMap(PathSegment.Func(this), this, init)
 
     public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit =
-        validate(PathSegment.Property(this), this, init)
+        validate(PathSegment.Prop(this), this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 

@@ -6,6 +6,7 @@ import io.konform.validation.jsonschema.maxLength
 import io.konform.validation.jsonschema.minItems
 import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.pattern
+import io.konform.validation.path.PathSegment.Func
 import io.konform.validation.path.PathSegment.MapKey
 import io.konform.validation.path.ValidationPath
 import io.konform.validation.string.containsPattern
@@ -186,15 +187,23 @@ class ValidationBuilderTest {
                 }
             }
 
-        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
-        Register(
-            email = "tester@test.com",
-            password = "",
-        ).let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun)) }
-        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let {
-            assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun))
-        }
-        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+        splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
+
+        (
+            splitDoubleValidation shouldBeInvalid
+                Register(
+                    email = "tester@test.com",
+                    password = "",
+                )
+        ) shouldContainOnlyError ValidationError.of(Func(Register::getPasswordFun), "must have at least 1 characters")
+
+        (splitDoubleValidation shouldBeInvalid Register(email = "tester@test.com", password = "aaaaaaaaaaa")) shouldContainOnlyError
+            ValidationError.of(Func(Register::getPasswordFun), "must have at most 10 characters")
+
+        (splitDoubleValidation shouldBeInvalid Register(email = "tester@")).shouldContainExactlyErrors(
+            ValidationError.of(Func(Register::getPasswordFun), "must have at least 1 characters"),
+            ValidationError.of(Func(Register::getEmailFun), "must have correct format"),
+        )
     }
 
     @Test

@@ -45,7 +45,7 @@ class InstanceOfTest {
         ifCatValidation shouldBeValid null
 
         val invalid = ifCatValidation shouldBeInvalid invalidCat
-        invalid shouldContainOnlyError ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank")
+        invalid shouldContainOnlyError ValidationError.of(PathSegment.Prop(Cat::favoritePrey), "must not be blank")
     }
 
     @Test
@@ -53,7 +53,7 @@ class InstanceOfTest {
         requireCatValidation shouldBeValid validCat
 
         val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
-        invalidCatResult shouldContainOnlyError ValidationError.of(PathSegment.Property(Cat::favoritePrey), "must not be blank")
+        invalidCatResult shouldContainOnlyError ValidationError.of(PathSegment.Prop(Cat::favoritePrey), "must not be blank")
 
         val validDogResult = requireCatValidation shouldBeInvalid validDog
         val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog

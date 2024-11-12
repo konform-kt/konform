@@ -45,7 +45,7 @@ internal class MapValidation<K, V>(
     }
 
     private companion object {
-        private val SEGMENT_MAP_KEY = PathSegment.Property(Map.Entry<*, *>::key)
-        private val SEGMENT_MAP_VALUE = PathSegment.Property(Map.Entry<*, *>::value)
+        private val SEGMENT_MAP_KEY = PathSegment.Prop(Map.Entry<*, *>::key)
+        private val SEGMENT_MAP_VALUE = PathSegment.Prop(Map.Entry<*, *>::value)
     }
 }

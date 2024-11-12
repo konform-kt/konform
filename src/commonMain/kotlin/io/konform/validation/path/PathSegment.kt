@@ -1,6 +1,6 @@
 package io.konform.validation.path
 
-import kotlin.reflect.KCallable
+import io.konform.validation.platform.callableEquals
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -29,7 +29,7 @@ public sealed interface PathSegment {
          * Converts [Any] value to its corresponding [PathSegment]
          * If it is already a PathSegment it will be returned
          * otherwise the most appropriate subtype of PathSegment will be returned,
-         * e.g. an [KFunction1] will become a [PathSegment.Function].
+         * e.g. an [KFunction1] will become a [PathSegment.Func].
          * If no more appropriate subtype exists, [ProvidedValue] will be returned.
          */
         public fun toPathSegment(pathSegment: Any): PathSegment =
@@ -45,56 +45,55 @@ public sealed interface PathSegment {
     }
 
     /**
-     * Represents a path through a function or property.
+     * Represents a path through a property.
      *
      * Example:
      * ```
-     * data class Person(val name: String) {
-     *   fun trimmedName() = name.trim()
-     * }
+     * data class Person(val name: String)
      * val validation = Validation<Person> {
      *   Person::name {
      *     notBlank()
      *   }
-     *   Person::trimmedName {
-     *     notBlank()
-     *   }
      * }
      * val result = validation.validate(Person("")) as Invalid
-     * result.errors[0] =
+     * result.errors[0] = ValidationError(ValidationPath(Prop(Person::name)), "must not be blank")
      * ```
+     *
+     * Note: equality differs between platforms, on JS & WASM, only the function name is considered
      */
-    public data class Property(
+    public data class Prop(
         val property: KProperty1<*, *>,
     ) : PathSegment {
         override val pathString: String get() = ".${property.name}"
 
-        override fun toString(): String = "Property(${property.name})"
+        override fun toString(): String = "Prop(${property.name})"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
-            other as Property
-            return looseCompareCallable(property, other.property)
+            other as Prop
+            return callableEquals(property, other.property)
         }
 
         override fun hashCode(): Int = property.name.hashCode()
     }
 
-    public data class Function(
+    /**
+     * Represents a function in the path.
+     * Note: equality differs between platforms, on JS & WASM, only the function name is considered
+     */
+    public data class Func(
         val function: KFunction1<*, *>,
     ) : PathSegment {
         override val pathString: String get() = ".${function.name}"
 
-        override fun toString(): String = "Function(${function.name})"
+        override fun toString(): String = "Func(${function.name})"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
-
-            other as Function
-
-            return looseCompareCallable(function, other.function)
+            other as Func
+            return callableEquals(function, other.function)
         }
 
         override fun hashCode(): Int = function.name.hashCode()
@@ -148,21 +147,8 @@ public sealed interface PathSegment {
     }
 }
 
-public fun KProperty1<*, *>.toPathSegment(): PathSegment.Property = PathSegment.Property(this)
+public fun KProperty1<*, *>.toPathSegment(): PathSegment.Prop = PathSegment.Prop(this)
 
-public fun KFunction1<*, *>.toPathSegment(): PathSegment.Function = PathSegment.Function(this)
+public fun KFunction1<*, *>.toPathSegment(): PathSegment.Func = PathSegment.Func(this)
 
 public fun Map.Entry<*, *>.toPathSegment(): PathSegment.MapKey = PathSegment.MapKey(key)
-
-/**
- * On some platforms (JS) a ::property does not seem to be guaranteed the same in different context.
- * To remedy that do a looser comparison which should succeed, and should be good enough for validation purposes.
- * */
-private fun looseCompareCallable(
-    first: KCallable<*>,
-    second: KCallable<*>,
-): Boolean {
-    if (first === second) return true
-    if (first::class != second::class) return false
-    return first.name == second.name
-}
