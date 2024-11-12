@@ -510,7 +510,7 @@ class ValidationBuilderTest {
                     minLength(8)
                 }
             }
-        assertTrue(validation(Register(password = ""))[Register::password][0].contains("8"))
+        assertTrue(validation(Register(password = "")).errors.messagesAtDataPath(Register::password)[0].contains("8"))
     }
 
     private data class Register(

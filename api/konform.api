@@ -17,7 +17,6 @@ public final class io/konform/validation/Invalid : io/konform/validation/Validat
 	public final fun copy (Ljava/util/List;)Lio/konform/validation/Invalid;
 	public static synthetic fun copy$default (Lio/konform/validation/Invalid;Ljava/util/List;ILjava/lang/Object;)Lio/konform/validation/Invalid;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun get ([Ljava/lang/Object;)Ljava/util/List;
 	public fun getErrors ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun isValid ()Z
@@ -36,7 +35,6 @@ public final class io/konform/validation/Valid : io/konform/validation/Validatio
 	public final fun copy (Ljava/lang/Object;)Lio/konform/validation/Valid;
 	public static synthetic fun copy$default (Lio/konform/validation/Valid;Ljava/lang/Object;ILjava/lang/Object;)Lio/konform/validation/Valid;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun get ([Ljava/lang/Object;)Ljava/util/List;
 	public fun getErrors ()Ljava/util/List;
 	public final fun getValue ()Ljava/lang/Object;
 	public fun hashCode ()I
@@ -113,6 +111,13 @@ public final class io/konform/validation/ValidationError {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class io/konform/validation/ValidationErrorKt {
+	public static final fun filterDataPath (Ljava/util/List;[Ljava/lang/Object;)Ljava/util/List;
+	public static final fun filterPath (Ljava/util/List;[Ljava/lang/Object;)Ljava/util/List;
+	public static final fun messagesAtDataPath (Ljava/util/List;[Ljava/lang/Object;)Ljava/util/List;
+	public static final fun messagesAtPath (Ljava/util/List;[Ljava/lang/Object;)Ljava/util/List;
+}
+
 public final class io/konform/validation/ValidationKt {
 	public static final fun flatten (Ljava/util/List;)Lio/konform/validation/Validation;
 	public static final fun ifPresent (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
@@ -120,10 +125,18 @@ public final class io/konform/validation/ValidationKt {
 }
 
 public abstract class io/konform/validation/ValidationResult {
-	public abstract fun get ([Ljava/lang/Object;)Ljava/util/List;
+	public final fun get ([Ljava/lang/Object;)Ljava/util/List;
 	public abstract fun getErrors ()Ljava/util/List;
 	public abstract fun isValid ()Z
 	public final fun map (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationResult;
+	public final fun plus (Lio/konform/validation/ValidationResult;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/ValidationResultKt {
+	public static final fun flattenNonEmpty (Ljava/util/List;)Lio/konform/validation/ValidationResult;
+	public static final fun flattenNotEmpty (Ljava/util/List;)Lio/konform/validation/Invalid;
+	public static final fun flattenOrValid (Ljava/util/List;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public static final fun flattenOrValidInvalidList (Ljava/util/List;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 
 public final class io/konform/validation/jsonschema/JsonSchemaKt {
@@ -150,11 +163,11 @@ public final class io/konform/validation/path/PathSegment$Companion {
 	public final fun toPathSegment (Ljava/lang/Object;)Lio/konform/validation/path/PathSegment;
 }
 
-public final class io/konform/validation/path/PathSegment$Function : io/konform/validation/path/PathSegment {
+public final class io/konform/validation/path/PathSegment$Func : io/konform/validation/path/PathSegment {
 	public fun <init> (Lkotlin/reflect/KFunction;)V
 	public final fun component1 ()Lkotlin/reflect/KFunction;
-	public final fun copy (Lkotlin/reflect/KFunction;)Lio/konform/validation/path/PathSegment$Function;
-	public static synthetic fun copy$default (Lio/konform/validation/path/PathSegment$Function;Lkotlin/reflect/KFunction;ILjava/lang/Object;)Lio/konform/validation/path/PathSegment$Function;
+	public final fun copy (Lkotlin/reflect/KFunction;)Lio/konform/validation/path/PathSegment$Func;
+	public static synthetic fun copy$default (Lio/konform/validation/path/PathSegment$Func;Lkotlin/reflect/KFunction;ILjava/lang/Object;)Lio/konform/validation/path/PathSegment$Func;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getFunction ()Lkotlin/reflect/KFunction;
 	public fun getPathString ()Ljava/lang/String;
@@ -198,11 +211,11 @@ public final class io/konform/validation/path/PathSegment$MapKey : io/konform/va
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class io/konform/validation/path/PathSegment$Property : io/konform/validation/path/PathSegment {
+public final class io/konform/validation/path/PathSegment$Prop : io/konform/validation/path/PathSegment {
 	public fun <init> (Lkotlin/reflect/KProperty1;)V
 	public final fun component1 ()Lkotlin/reflect/KProperty1;
-	public final fun copy (Lkotlin/reflect/KProperty1;)Lio/konform/validation/path/PathSegment$Property;
-	public static synthetic fun copy$default (Lio/konform/validation/path/PathSegment$Property;Lkotlin/reflect/KProperty1;ILjava/lang/Object;)Lio/konform/validation/path/PathSegment$Property;
+	public final fun copy (Lkotlin/reflect/KProperty1;)Lio/konform/validation/path/PathSegment$Prop;
+	public static synthetic fun copy$default (Lio/konform/validation/path/PathSegment$Prop;Lkotlin/reflect/KProperty1;ILjava/lang/Object;)Lio/konform/validation/path/PathSegment$Prop;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getPathString ()Ljava/lang/String;
 	public final fun getProperty ()Lkotlin/reflect/KProperty1;
@@ -236,8 +249,8 @@ public final class io/konform/validation/path/PathSegment$ProvidedValue : io/kon
 
 public final class io/konform/validation/path/PathSegmentKt {
 	public static final fun toPathSegment (Ljava/util/Map$Entry;)Lio/konform/validation/path/PathSegment$MapKey;
-	public static final fun toPathSegment (Lkotlin/reflect/KFunction;)Lio/konform/validation/path/PathSegment$Function;
-	public static final fun toPathSegment (Lkotlin/reflect/KProperty1;)Lio/konform/validation/path/PathSegment$Property;
+	public static final fun toPathSegment (Lkotlin/reflect/KFunction;)Lio/konform/validation/path/PathSegment$Func;
+	public static final fun toPathSegment (Lkotlin/reflect/KProperty1;)Lio/konform/validation/path/PathSegment$Prop;
 }
 
 public final class io/konform/validation/path/ValidationPath {
@@ -247,10 +260,11 @@ public final class io/konform/validation/path/ValidationPath {
 	public final fun copy (Ljava/util/List;)Lio/konform/validation/path/ValidationPath;
 	public static synthetic fun copy$default (Lio/konform/validation/path/ValidationPath;Ljava/util/List;ILjava/lang/Object;)Lio/konform/validation/path/ValidationPath;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPathString ()Ljava/lang/String;
+	public final fun getDataPath ()Ljava/lang/String;
 	public final fun getSegments ()Ljava/util/List;
 	public fun hashCode ()I
 	public final fun plus (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/path/ValidationPath;
+	public final fun plus (Ljava/util/List;)Lio/konform/validation/path/ValidationPath;
 	public fun toString ()Ljava/lang/String;
 }
 

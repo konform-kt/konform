@@ -24,6 +24,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 class JSONSchemaStyleConstraintsTest {
     @Test
     fun typeConstraint() {

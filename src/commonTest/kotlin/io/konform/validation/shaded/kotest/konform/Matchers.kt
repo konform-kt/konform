@@ -7,6 +7,8 @@ import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationError
+import io.konform.validation.filterDataPath
+import io.konform.validation.messagesAtDataPath
 import io.konform.validation.path.ValidationPath
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
@@ -88,7 +90,7 @@ fun Invalid.shouldContainError(
     val path = ValidationPath.fromAny(*array)
     // For a clearer error message
     this.shouldContainError(path, error)
-    val errors = this.get(*array)
+    val errors = this.errors.messagesAtDataPath(*array)
     errors.shouldNotBeNull()
     errors shouldContain error
 }
@@ -96,7 +98,7 @@ fun Invalid.shouldContainError(
 fun Invalid.shouldNotContainErrorAt(vararg propertyPaths: Any) {
     val path = ValidationPath.fromAny(*propertyPaths)
     this.errors.map { it.dataPath } shouldNotContain path
-    this[propertyPaths].shouldBeEmpty()
+    this.errors.filterDataPath(propertyPaths).shouldBeEmpty()
 }
 
 infix fun Invalid.shouldHaveErrorCount(count: Int) = this.errors shouldHaveSize count
