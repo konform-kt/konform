@@ -29,3 +29,18 @@ public data class ValidationError(
         ): ValidationError = of(PathSegment.toPathSegment(pathSegment), message)
     }
 }
+
+public fun List<ValidationError>.filterPath(vararg validationPath: Any): List<ValidationError> {
+    val path = ValidationPath.fromAny(*validationPath)
+    return filter { it.path == path }
+}
+
+public fun List<ValidationError>.filterDataPath(vararg validationPath: Any): List<ValidationError> {
+    val dataPath = ValidationPath.fromAny(*validationPath).dataPath
+    return filter { it.dataPath == dataPath }
+}
+
+public fun List<ValidationError>.messagesAtPath(vararg validationPath: Any): List<String> = filterPath(*validationPath).map { it.message }
+
+public fun List<ValidationError>.messagesAtDataPath(vararg validationPath: Any): List<String> =
+    filterDataPath(*validationPath).map { it.message }

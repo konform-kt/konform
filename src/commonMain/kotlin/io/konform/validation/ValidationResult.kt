@@ -7,13 +7,10 @@ import kotlin.jvm.JvmName
 public sealed class ValidationResult<out T> {
     /** Get the validation errors at a specific path. Will return empty list for [Valid]. */
     @Deprecated(
-        "Prefer filtering errors on the ValidationPath",
-        ReplaceWith(
-            "errors.filter { it.path == ValidationPath.fromAny(*validationPath) }.map { it.message }",
-            "io.konform.validation.path.ValidationPath",
-        ),
+        "Prefer using ValidationError and ValidationPath",
+        ReplaceWith("errors.messagesAtDataPath(*validationPath)", "io.konform.validation.messagesAtDataPath"),
     )
-    public abstract operator fun get(vararg validationPath: Any): List<String>
+    public operator fun get(vararg validationPath: Any): List<String> = errors.messagesAtDataPath(*validationPath)
 
     /**  If this is a valid result, returns the result of applying the given [transform] function to the value. Otherwise, return the original error. */
     public inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
@@ -46,19 +43,6 @@ public sealed class ValidationResult<out T> {
 public data class Invalid(
     override val errors: List<ValidationError>,
 ) : ValidationResult<Nothing>() {
-    @Deprecated(
-        "Prefer filtering errors on the ValidationPath",
-        replaceWith =
-            ReplaceWith(
-                "errors.filter { it.path == ValidationPath.fromAny(*validationPath) }.map { it.message }",
-                "io.konform.validation.path.ValidationPath",
-            ),
-    )
-    override fun get(vararg validationPath: Any): List<String> {
-        val path = ValidationPath.fromAny(*validationPath)
-        return errors.filter { it.dataPath == path.dataPath }.map { it.message }
-    }
-
     override val isValid: Boolean get() = false
 
     override fun prependPath(pathSegment: PathSegment): Invalid = Invalid(errors.map { it.prependPath(pathSegment) })
@@ -78,14 +62,6 @@ public data class Valid<T>(
     val value: T,
 ) : ValidationResult<T>() {
     override val isValid: Boolean get() = true
-
-    // ValidationResult has errors so this needs to have it, but we deprecate it to warn the user
-    // that it is nonsensical to do.
-    @Deprecated(
-        "It is not useful to index a valid result, it will always return empty list",
-        ReplaceWith("emptyList()"),
-    )
-    override fun get(vararg validationPath: Any): List<String> = emptyList()
 
     @Deprecated("It is not useful to call errors on a valid result, it will always return an empty list.", ReplaceWith("emptyList()"))
     override val errors: List<ValidationError>
