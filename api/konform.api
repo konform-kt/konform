@@ -107,14 +107,60 @@ public abstract class io/konform/validation/ValidationResult {
 	public final fun map (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationResult;
 }
 
+public final class io/konform/validation/constraints/EnumConstraintsKt {
+	public static final fun const (Lio/konform/validation/ValidationBuilder;Ljava/lang/Object;)Lio/konform/validation/Constraint;
+	public static final fun enum (Lio/konform/validation/ValidationBuilder;[Ljava/lang/Object;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/constraints/IterableConstraintsKt {
+	public static final fun arrayMaxItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun arrayMinItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun arrayUniqueItems (Lio/konform/validation/ValidationBuilder;Z)Lio/konform/validation/Constraint;
+	public static synthetic fun arrayUniqueItems$default (Lio/konform/validation/ValidationBuilder;ZILjava/lang/Object;)Lio/konform/validation/Constraint;
+	public static final fun maxItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun uniqueItems (Lio/konform/validation/ValidationBuilder;Z)Lio/konform/validation/Constraint;
+	public static synthetic fun uniqueItems$default (Lio/konform/validation/ValidationBuilder;ZILjava/lang/Object;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/constraints/MapConstraintsKt {
+	public static final fun maxItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maxProperties (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minItems (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minProperties (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun uniqueItems (Lio/konform/validation/ValidationBuilder;Z)Lio/konform/validation/Constraint;
+	public static synthetic fun uniqueItems$default (Lio/konform/validation/ValidationBuilder;ZILjava/lang/Object;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/constraints/NumberConstraintsKt {
+	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+}
+
+public final class io/konform/validation/constraints/StringConstraintsKt {
+	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
+	public static final fun maxLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
+	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
+	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
+}
+
 public final class io/konform/validation/jsonschema/JsonSchemaKt {
 	public static final fun const (Lio/konform/validation/ValidationBuilder;Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public static final fun enum (Lio/konform/validation/ValidationBuilder;[Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 	public static final fun maxLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maxProperties (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 	public static final fun minLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minProperties (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
@@ -136,17 +182,6 @@ public final class io/konform/validation/path/ValidationPath {
 
 public final class io/konform/validation/path/ValidationPath$Companion {
 	public final fun fromAny ([Ljava/lang/Object;)Lio/konform/validation/path/ValidationPath;
-}
-
-public final class io/konform/validation/string/ConstraintsKt {
-	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
-	public static final fun containsPattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
-	public static final fun maxLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
-	public static final fun minLength (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
-	public static final fun notBlank (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
-	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;)Lio/konform/validation/Constraint;
-	public static final fun pattern (Lio/konform/validation/ValidationBuilder;Lkotlin/text/Regex;)Lio/konform/validation/Constraint;
-	public static final fun uuid (Lio/konform/validation/ValidationBuilder;)Lio/konform/validation/Constraint;
 }
 
 public final class io/konform/validation/types/EmptyValidation : io/konform/validation/Validation {
