@@ -1,12 +1,12 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.maxItems
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.maximum
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.minimum
-import io.konform.validation.jsonschema.pattern
+import io.konform.validation.constraints.maxItems
+import io.konform.validation.constraints.maxLength
+import io.konform.validation.constraints.maximum
+import io.konform.validation.constraints.minItems
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.minimum
+import io.konform.validation.constraints.pattern
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
