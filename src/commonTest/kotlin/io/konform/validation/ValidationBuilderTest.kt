@@ -86,16 +86,16 @@ class ValidationBuilderTest {
 
         overlappingValidations shouldBeValid Register(email = "tester@test.com", password = "verysecure1")
         (overlappingValidations shouldBeInvalid Register(email = "tester@test.com")).shouldContainExactlyErrors(
-            ValidationError.ofAny(Register::password, "must have at least 8 characters"),
-            ValidationError.ofAny(Register::password, "must have at least one number"),
+            ValidationError.of(Register::password, "must have at least 8 characters"),
+            ValidationError.of(Register::password, "must have at least one number"),
         )
         (overlappingValidations shouldBeInvalid Register(password = "verysecure1")) shouldContainOnlyError
-            ValidationError.ofAny(Register::email, "must have correct format")
+            ValidationError.of(Register::email, "must have correct format")
 
         (overlappingValidations shouldBeInvalid Register()).shouldContainExactlyErrors(
-            ValidationError.ofAny(Register::password, "must have at least 8 characters"),
-            ValidationError.ofAny(Register::password, "must have at least one number"),
-            ValidationError.ofAny(Register::email, "must have correct format"),
+            ValidationError.of(Register::password, "must have at least 8 characters"),
+            ValidationError.of(Register::password, "must have at least one number"),
+            ValidationError.of(Register::email, "must have correct format"),
         )
     }
 
@@ -221,15 +221,15 @@ class ValidationBuilderTest {
 
         splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "")) {
-            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"))
+            it.shouldContainOnlyError(ValidationError.of("getPasswordLambda", "must have at least 1 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "aaaaaaaaaaa")) {
-            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at most 10 characters"))
+            it.shouldContainOnlyError(ValidationError.of("getPasswordLambda", "must have at most 10 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@", password = "")) {
             it.shouldContainExactlyErrors(
-                ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"),
-                ValidationError.ofAny("getEmailLambda", "must have correct format"),
+                ValidationError.of("getPasswordLambda", "must have at least 1 characters"),
+                ValidationError.of("getEmailLambda", "must have correct format"),
             )
         }
     }
@@ -432,7 +432,7 @@ class ValidationBuilderTest {
         ) {
             it shouldContainOnlyError
                 ValidationError(
-                    ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
+                    ValidationPath.of(Data::registrations, PathKey("user2"), Register::email),
                     "must have at least 2 characters",
                 )
 
@@ -478,7 +478,7 @@ class ValidationBuilderTest {
 
         (validation shouldBeInvalid invalidData) shouldContainOnlyError
             ValidationError(
-                ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
+                ValidationPath.of(Data::registrations, PathKey("user2"), Register::email),
                 "must have at least 2 characters",
             )
     }

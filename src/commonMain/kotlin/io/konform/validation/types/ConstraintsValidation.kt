@@ -6,16 +6,14 @@ import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
-import io.konform.validation.path.ValidationPath
 
-internal class ConstraintsValidation<T>(
-    private val path: ValidationPath = ValidationPath.EMPTY,
+public data class ConstraintsValidation<T>(
     private val constraints: List<Constraint<T>>,
 ) : Validation<T> {
     override fun validate(value: T): ValidationResult<T> =
         constraints
             .filterNot { it.test(value) }
-            .map { ValidationError(path, it.createHint(value)) }
+            .map { ValidationError(it.path, it.createHint(value), userContext = it.userContext) }
             .let { errors ->
                 if (errors.isEmpty()) {
                     Valid(value)
@@ -23,6 +21,4 @@ internal class ConstraintsValidation<T>(
                     Invalid(errors)
                 }
             }
-
-    override fun toString(): String = "ConstraintsValidation(path=$path,constraints=$constraints)"
 }

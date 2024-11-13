@@ -117,14 +117,39 @@ val validateUser = Validation<UserProfile> {
 }
 ```
 
+#### Custom context
+
+You can add customs context to validation errors
+
+```kotlin
+val validateUser = Validation<UserProfile> {
+    UserProfile::age {
+        minimum(0) userContext Severity.ERROR
+        // You can also set multiple things at once
+        minimum(0).replace(
+            hint = "Registering before birth is not supported",
+            userContext = Severity.ERROR,
+        )
+    }
+}
+```
+
 #### Custom validations
 
-You can add custom validations on properties by using `addConstraint`
+You can add custom validations on properties by using `constrain`
 
 ```kotlin
 val validateUser = Validation<UserProfile> {
     UserProfile::fullName {
-        addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+        constrain("Name cannot contain a tab") { !it.contains("\t") }
+        // Set a custom path for the error
+        constrain("Name must have a non-whitespace character", path = ValidationPath.of("trimmedName")) {
+            it.trim().isNotEmpty()
+        }
+        // Set custom context
+        constrain("Must have 5 characters", userContext = Severity.ERROR) {
+            it.size >= 5
+        }
     }
 }
 ```

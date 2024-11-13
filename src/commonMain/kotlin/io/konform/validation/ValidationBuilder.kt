@@ -29,24 +29,46 @@ public class ValidationBuilder<T> {
         subValidations
             .let {
                 if (constraints.isNotEmpty()) {
-                    it.prepend(ConstraintsValidation(ValidationPath.EMPTY, constraints))
+                    it.prepend(ConstraintsValidation(constraints))
                 } else {
                     it
                 }
             }.flatten()
 
+    @Deprecated(
+        "Use constrain(), templateValues are no longer supported, put them directly in the hint",
+        ReplaceWith("constrain(errorMessage, test)"),
+    )
     public fun addConstraint(
         errorMessage: String,
         vararg templateValues: String,
         test: (T) -> Boolean,
-    ): Constraint<T> = Constraint(errorMessage, templateValues.toList(), test).also { constraints.add(it) }
+    ): Constraint<T> = applyConstraint(Constraint(errorMessage, templateValues = templateValues.toList(), test = test))
 
-    @Suppress("DEPRECATION")
-    public infix fun Constraint<T>.hint(hint: String): Constraint<T> =
-        Constraint(hint, this.templateValues, this.test).also {
-            constraints.remove(this)
-            constraints.add(it)
-        }
+    /** Add a new [Constraint] to this validation. */
+    public fun constrain(
+        hint: String,
+        path: ValidationPath = ValidationPath.EMPTY,
+        userContext: Any? = null,
+        test: (T) -> Boolean,
+    ): Constraint<T> = applyConstraint(Constraint(hint, path, userContext, emptyList(), test))
+
+    /** Replace one or more properties of a [Constraint]. */
+    public fun Constraint<T>.replace(
+        hint: String = this.hint,
+        path: ValidationPath = this.path,
+        userContext: Any? = this.userContext,
+    ): Constraint<T> = replaceConstraint(this, this.copy(hint = hint, path = path, userContext = userContext))
+
+    /** Change the hint on a [Constraint]. */
+    public infix fun Constraint<T>.hint(hint: String): Constraint<T> = replaceConstraint(this, this.copy(hint = hint))
+
+    /** Change the path on a [Constraint]. */
+    public infix fun Constraint<T>.path(path: ValidationPath): Constraint<T> = replaceConstraint(this, this.copy(path = path))
+
+    /** Change the userContext on a [Constraint]. */
+    public infix fun Constraint<T>.userContext(userContext: Any?): Constraint<T> =
+        replaceConstraint(this, this.copy(userContext = userContext))
 
     private fun <R> onEachIterable(
         pathSegment: PathSegment,
@@ -90,7 +112,7 @@ public class ValidationBuilder<T> {
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
         onEachMap(FuncRef(this), this, init)
 
-    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(PropRef(this), this, init)
+    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 
@@ -134,6 +156,24 @@ public class ValidationBuilder<T> {
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
+    }
+
+    /** Add a [Constraint] and return it. */
+    public fun applyConstraint(constraint: Constraint<T>): Constraint<T> {
+        constraints.add(constraint)
+        return constraint
+    }
+
+    /** Replace a [Constraint] and return the replacement */
+    public fun replaceConstraint(
+        old: Constraint<T>,
+        replacement: Constraint<T>,
+    ): Constraint<T> {
+        // It's very likely that the last added constraint is the one to be replaced so optimize for that
+        val idx = if (constraints.lastOrNull() === old) constraints.size - 1 else constraints.indexOf(old)
+        if (idx == -1) throw IllegalArgumentException("Not found in existing constraints: $old")
+        constraints[idx] = replacement
+        return replacement
     }
 
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
