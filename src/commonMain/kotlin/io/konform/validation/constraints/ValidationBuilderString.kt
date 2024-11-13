@@ -1,4 +1,4 @@
-package io.konform.validation.string
+package io.konform.validation.constraints
 
 import io.konform.validation.Constraint
 import io.konform.validation.ValidationBuilder

@@ -3,8 +3,8 @@ package io.konform.validation
 import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.ACK
 import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.SYN
 import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.SYNACK
+import io.konform.validation.enum.enum
 import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.enum
 import io.konform.validation.jsonschema.exclusiveMaximum
 import io.konform.validation.jsonschema.exclusiveMinimum
 import io.konform.validation.jsonschema.maxItems
@@ -61,7 +61,7 @@ class JSONSchemaStyleConstraintsTest {
 
     @Test
     fun stringEnumConstraint() {
-        val validation = Validation<String> { enum("OK", "CANCEL") }
+        val validation = Validation<String> { this.enum("OK", "CANCEL") }
         assertEquals(Valid("OK"), validation("OK"))
         assertEquals(Valid("CANCEL"), validation("CANCEL"))
         assertEquals(1, countFieldsWithErrors(validation("???")))
