@@ -19,7 +19,7 @@ public fun <K, V> ValidationBuilder<Map<K, V>>.minProperties(minSize: Int): Cons
 public fun <K, V> ValidationBuilder<Map<K, V>>.maxProperties(maxSize: Int): Constraint<Map<K, V>> =
     maxItems(maxSize) hint "must have at most {0} properties"
 
-public fun <K, V> ValidationBuilder<Map<K, V>>.uniqueItems(unique: Boolean): Constraint<Map<K, V>> =
+public fun <K, V> ValidationBuilder<Map<K, V>>.uniqueItems(unique: Boolean = true): Constraint<Map<K, V>> =
     addConstraint("all items must be unique") {
         !unique || it.values.distinct().count() == it.count()
     }

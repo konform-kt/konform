@@ -1,30 +1,33 @@
-package io.konform.validation
+package io.konform.validation.constraints
 
-import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.ACK
-import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.SYN
-import io.konform.validation.JSONSchemaStyleConstraintsTest.TCPPacket.SYNACK
-import io.konform.validation.enum.enum
-import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.exclusiveMaximum
-import io.konform.validation.jsonschema.exclusiveMinimum
-import io.konform.validation.jsonschema.maxItems
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.maxProperties
-import io.konform.validation.jsonschema.maximum
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.minProperties
-import io.konform.validation.jsonschema.minimum
-import io.konform.validation.jsonschema.multipleOf
-import io.konform.validation.jsonschema.pattern
-import io.konform.validation.jsonschema.type
-import io.konform.validation.jsonschema.uniqueItems
-import io.konform.validation.jsonschema.uuid
+import io.konform.validation.Valid
+import io.konform.validation.Validation
+import io.konform.validation.ValidationResult
+import io.konform.validation.constraints.ConstraintsTest.TCPPacket.ACK
+import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYN
+import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYNACK
+import io.konform.validation.constraints.const
+import io.konform.validation.constraints.exclusiveMaximum
+import io.konform.validation.constraints.exclusiveMinimum
+import io.konform.validation.constraints.maxItems
+import io.konform.validation.constraints.maxLength
+import io.konform.validation.constraints.maxProperties
+import io.konform.validation.constraints.maximum
+import io.konform.validation.constraints.minItems
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.minProperties
+import io.konform.validation.constraints.minimum
+import io.konform.validation.constraints.multipleOf
+import io.konform.validation.constraints.pattern
+import io.konform.validation.constraints.type
+import io.konform.validation.constraints.uniqueItems
+import io.konform.validation.constraints.uuid
+import io.konform.validation.countFieldsWithErrors
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class JSONSchemaStyleConstraintsTest {
+class ConstraintsTest {
     @Test
     fun typeConstraint() {
         val anyValidation = Validation<Any> { type<String>() }
@@ -42,8 +45,8 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(anyNumberValidation("String")))
         assertEquals(1, countFieldsWithErrors(anyNumberValidation(true)))
 
-        assertEquals("must be of the correct type", anyValidation(1).get()!![0])
-        assertEquals("must be of the correct type", anyNumberValidation("String").get()!![0])
+        assertEquals("must be of type 'String'", anyValidation(1).get()!![0])
+        assertEquals("must be of type 'Int'", anyNumberValidation("String").get()!![0])
     }
 
     @Test
@@ -61,7 +64,7 @@ class JSONSchemaStyleConstraintsTest {
 
     @Test
     fun stringEnumConstraint() {
-        val validation = Validation<String> { this.enum("OK", "CANCEL") }
+        val validation = Validation<String> { enum("OK", "CANCEL") }
         assertEquals(Valid("OK"), validation("OK"))
         assertEquals(Valid("CANCEL"), validation("CANCEL"))
         assertEquals(1, countFieldsWithErrors(validation("???")))
@@ -110,7 +113,7 @@ class JSONSchemaStyleConstraintsTest {
         assertEquals(1, countFieldsWithErrors(nullableConstValidation("Konverse")))
 
         assertEquals("must be 'Konform'", validation("Konverse").get()!![0])
-        assertEquals("must be null", nullableConstNullValidation("Konform").get()!![0])
+        assertEquals("must be 'null'", nullableConstNullValidation("Konform").get()!![0])
         assertEquals("must be 'Konform'", nullableConstValidation(null).get()!![0])
     }
 

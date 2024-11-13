@@ -1,6 +1,6 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.minimum
+import io.konform.validation.constraints.minimum
 import io.konform.validation.types.EmptyValidation
 import io.konform.validation.types.ValidateAll
 import io.kotest.assertions.konform.shouldBeInvalid
