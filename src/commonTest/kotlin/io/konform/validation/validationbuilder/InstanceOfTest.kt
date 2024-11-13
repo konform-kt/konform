@@ -2,9 +2,9 @@ package io.konform.validation.validationbuilder
 
 import io.konform.validation.Validation
 import io.konform.validation.ValidationError
+import io.konform.validation.constraints.notBlank
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
-import io.konform.validation.string.notBlank
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainOnlyError
