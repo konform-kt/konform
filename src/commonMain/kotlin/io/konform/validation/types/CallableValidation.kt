@@ -24,5 +24,5 @@ public class CallableValidation<T, R>(
         }
     }
 
-    override fun toString(): String = "CallableValidation(callable=$callable, path=$path, validation=$validation)"
+    override fun toString(): String = "CallableValidation(path=$path, callable=$callable, validation=$validation)"
 }

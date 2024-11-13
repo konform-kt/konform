@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.constraints.const
+import io.konform.validation.constraints.containsPattern
 import io.konform.validation.constraints.enum
 import io.konform.validation.constraints.maxLength
 import io.konform.validation.constraints.minItems
@@ -9,7 +10,6 @@ import io.konform.validation.constraints.pattern
 import io.konform.validation.path.FuncRef
 import io.konform.validation.path.PathKey
 import io.konform.validation.path.ValidationPath
-import io.konform.validation.string.containsPattern
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
