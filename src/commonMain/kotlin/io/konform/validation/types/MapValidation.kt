@@ -5,7 +5,8 @@ import io.konform.validation.Validation
 import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
 import io.konform.validation.flattenOrValid
-import io.konform.validation.path.PathSegment
+import io.konform.validation.path.PathKey
+import io.konform.validation.path.PropRef
 
 internal class MapValidation<K, V>(
     private val validation: Validation<Map.Entry<K, V>>,
@@ -26,7 +27,7 @@ internal class MapValidation<K, V>(
         key: K,
         error: ValidationError,
     ): ValidationError {
-        val keySegment = PathSegment.MapKey(key)
+        val keySegment = PathKey(key)
         println(error.path.segments.firstOrNull())
         println(SEGMENT_MAP_KEY)
         println(SEGMENT_MAP_VALUE)
@@ -45,7 +46,7 @@ internal class MapValidation<K, V>(
     }
 
     private companion object {
-        private val SEGMENT_MAP_KEY = PathSegment.Prop(Map.Entry<*, *>::key)
-        private val SEGMENT_MAP_VALUE = PathSegment.Prop(Map.Entry<*, *>::value)
+        private val SEGMENT_MAP_KEY = PropRef(Map.Entry<*, *>::key)
+        private val SEGMENT_MAP_VALUE = PropRef(Map.Entry<*, *>::value)
     }
 }

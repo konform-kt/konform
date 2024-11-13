@@ -3,7 +3,7 @@ package io.konform.validation.validationbuilder
 import io.konform.validation.Validation
 import io.konform.validation.ValidationError
 import io.konform.validation.constraints.notBlank
-import io.konform.validation.path.PathSegment
+import io.konform.validation.path.PropRef
 import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
@@ -45,7 +45,7 @@ class InstanceOfTest {
         ifCatValidation shouldBeValid null
 
         val invalid = ifCatValidation shouldBeInvalid invalidCat
-        invalid shouldContainOnlyError ValidationError.of(PathSegment.Prop(Cat::favoritePrey), "must not be blank")
+        invalid shouldContainOnlyError ValidationError.of(PropRef(Cat::favoritePrey), "must not be blank")
     }
 
     @Test
@@ -53,7 +53,7 @@ class InstanceOfTest {
         requireCatValidation shouldBeValid validCat
 
         val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
-        invalidCatResult shouldContainOnlyError ValidationError.of(PathSegment.Prop(Cat::favoritePrey), "must not be blank")
+        invalidCatResult shouldContainOnlyError ValidationError.of(PropRef(Cat::favoritePrey), "must not be blank")
 
         val validDogResult = requireCatValidation shouldBeInvalid validDog
         val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog

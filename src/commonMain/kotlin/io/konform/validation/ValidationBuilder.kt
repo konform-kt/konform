@@ -2,8 +2,10 @@ package io.konform.validation
 
 import io.konform.validation.ValidationBuilder.Companion.buildWithNew
 import io.konform.validation.helpers.prepend
+import io.konform.validation.path.FuncRef
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.PathSegment.Companion.toPathSegment
+import io.konform.validation.path.PropRef
 import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.ArrayValidation
 import io.konform.validation.types.CallableValidation
@@ -66,30 +68,29 @@ public class ValidationBuilder<T> {
 
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachIterable(PathSegment.Prop(this), this, init)
+        onEachIterable(PropRef(this), this, init)
 
     @JvmName("onEachIterable")
     public infix fun <R> KFunction1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachIterable(PathSegment.Func(this), this, init)
+        onEachIterable(FuncRef(this), this, init)
 
     @JvmName("onEachArray")
     public infix fun <R> KProperty1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachArray(PathSegment.Prop(this), this, init)
+        onEachArray(PropRef(this), this, init)
 
     @JvmName("onEachArray")
     public infix fun <R> KFunction1<T, Array<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
-        onEachArray(PathSegment.Func(this), this, init)
+        onEachArray(FuncRef(this), this, init)
 
     @JvmName("onEachMap")
     public infix fun <K, V> KProperty1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
-        onEachMap(PathSegment.Prop(this), this, init)
+        onEachMap(PropRef(this), this, init)
 
     @JvmName("onEachMap")
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
-        onEachMap(PathSegment.Func(this), this, init)
+        onEachMap(FuncRef(this), this, init)
 
-    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit =
-        validate(PathSegment.Prop(this), this, init)
+    public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(PropRef(this), this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 

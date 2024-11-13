@@ -4,7 +4,7 @@ import io.konform.validation.Invalid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationResult
 import io.konform.validation.flattenOrValid
-import io.konform.validation.path.PathSegment
+import io.konform.validation.path.PathIndex
 
 internal class IterableValidation<T>(
     private val validation: Validation<T>,
@@ -14,7 +14,7 @@ internal class IterableValidation<T>(
         value.forEachIndexed { i, element ->
             val result = validation.validate(element)
             if (result is Invalid) {
-                errors += result.prependPath(PathSegment.Index(i))
+                errors += result.prependPath(PathIndex(i))
             }
         }
         return errors.flattenOrValid(value)
@@ -29,7 +29,7 @@ internal class ArrayValidation<T>(
         value.forEachIndexed { i, element ->
             val result = validation.validate(element)
             if (result is Invalid) {
-                errors += result.prependPath(PathSegment.Index(i))
+                errors += result.prependPath(PathIndex(i))
             }
         }
         return errors.flattenOrValid(value)

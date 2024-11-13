@@ -6,8 +6,8 @@ import io.konform.validation.constraints.maxLength
 import io.konform.validation.constraints.minItems
 import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.pattern
-import io.konform.validation.path.PathSegment.Func
-import io.konform.validation.path.PathSegment.MapKey
+import io.konform.validation.path.FuncRef
+import io.konform.validation.path.PathKey
 import io.konform.validation.path.ValidationPath
 import io.konform.validation.string.containsPattern
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -195,14 +195,14 @@ class ValidationBuilderTest {
                     email = "tester@test.com",
                     password = "",
                 )
-        ) shouldContainOnlyError ValidationError.of(Func(Register::getPasswordFun), "must have at least 1 characters")
+        ) shouldContainOnlyError ValidationError.of(FuncRef(Register::getPasswordFun), "must have at least 1 characters")
 
         (splitDoubleValidation shouldBeInvalid Register(email = "tester@test.com", password = "aaaaaaaaaaa")) shouldContainOnlyError
-            ValidationError.of(Func(Register::getPasswordFun), "must have at most 10 characters")
+            ValidationError.of(FuncRef(Register::getPasswordFun), "must have at most 10 characters")
 
         (splitDoubleValidation shouldBeInvalid Register(email = "tester@")).shouldContainExactlyErrors(
-            ValidationError.of(Func(Register::getPasswordFun), "must have at least 1 characters"),
-            ValidationError.of(Func(Register::getEmailFun), "must have correct format"),
+            ValidationError.of(FuncRef(Register::getPasswordFun), "must have at least 1 characters"),
+            ValidationError.of(FuncRef(Register::getEmailFun), "must have correct format"),
         )
     }
 
@@ -432,15 +432,15 @@ class ValidationBuilderTest {
         ) {
             it shouldContainOnlyError
                 ValidationError(
-                    ValidationPath.fromAny(Data::registrations, MapKey("user2"), Register::email),
+                    ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
                     "must have at least 2 characters",
                 )
 
             it.shouldContainError(
-                listOf(Data::registrations, MapKey("user2"), Register::email),
+                listOf(Data::registrations, PathKey("user2"), Register::email),
                 "must have at least 2 characters",
             )
-            it.shouldNotContainErrorAt(Data::registrations, MapKey("user1"), Register::email)
+            it.shouldNotContainErrorAt(Data::registrations, PathKey("user1"), Register::email)
             it.shouldHaveErrorCount(1)
         }
     }
@@ -478,7 +478,7 @@ class ValidationBuilderTest {
 
         (validation shouldBeInvalid invalidData) shouldContainOnlyError
             ValidationError(
-                ValidationPath.fromAny(Data::registrations, MapKey("user2"), Register::email),
+                ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
                 "must have at least 2 characters",
             )
     }
