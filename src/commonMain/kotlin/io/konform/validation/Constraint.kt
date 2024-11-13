@@ -11,7 +11,7 @@ import io.konform.validation.path.ValidationPath
  * @see [ValidationBuilder.path]
  * @see [ValidationBuilder.userContext]
  */
-public data class Constraint<in R> public constructor(
+public data class Constraint<in R>(
     public val hint: String,
     public val path: ValidationPath = ValidationPath.EMPTY,
     public val userContext: Any? = null,
