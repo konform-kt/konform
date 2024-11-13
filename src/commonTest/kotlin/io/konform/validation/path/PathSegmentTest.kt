@@ -3,6 +3,7 @@ package io.konform.validation.path
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PathSegmentTest {
     @Test
@@ -24,13 +25,14 @@ class PathSegmentTest {
     }
 
     @Test
-    fun mapKeyFromDifferentContextShouldBeEqual() {
+    fun refFromDifferentContextShouldBeEqual() {
         // We saw some differing behavior here between different Kotlin targets (mainly JS/WASM vs rest)
         // when directly using callable references
 
         val ref2 = Map.Entry<*, *>::key
 
-        PathKey(mapKeyRef) shouldBe PathKey(ref2)
+        assertEquals(PropRef(mapKeyRef), PropRef(ref2))
+        assertEquals(PropRef(ref2), PropRef(mapKeyRef))
     }
 
     @Test
@@ -38,9 +40,9 @@ class PathSegmentTest {
         val pathValue = PathValue("abc")
         val pathKey = PathKey("abc")
 
-        pathKey shouldBe pathValue
-        pathValue shouldBe pathKey
-        pathKey.hashCode() shouldBe pathValue.hashCode()
+        assertEquals<PathSegment>(pathKey, pathValue)
+        assertEquals<PathSegment>(pathValue, pathKey)
+        assertEquals(pathKey.hashCode(), pathValue.hashCode())
     }
 }
 

@@ -6,4 +6,4 @@ import kotlin.reflect.KCallable
 internal actual fun callableEquals(
     first: KCallable<*>,
     second: KCallable<*>,
-): Boolean = first.name == second.name
+): Boolean = first.name.filter { it.isLetterOrDigit() } == second.name.filter { it.isLetterOrDigit() }
