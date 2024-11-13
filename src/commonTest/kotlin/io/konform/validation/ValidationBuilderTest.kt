@@ -1,12 +1,20 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.enum
-import io.konform.validation.jsonschema.minItems
+import io.konform.validation.constraints.const
+import io.konform.validation.constraints.containsPattern
+import io.konform.validation.constraints.enum
+import io.konform.validation.constraints.maxLength
+import io.konform.validation.constraints.minItems
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.pattern
+import io.konform.validation.path.FuncRef
+import io.konform.validation.path.PathKey
+import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
 import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldContainOnlyError
 import io.kotest.assertions.konform.shouldHaveErrorCount
 import io.kotest.assertions.konform.shouldNotContainErrorAt
 import kotlin.test.Test
@@ -14,16 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ValidationBuilderTest {
-    // Some example constraints for Testing
-    private fun ValidationBuilder<String>.minLength(minValue: Int) =
-        addConstraint("must have at least {0} characters", minValue.toString()) { it.length >= minValue }
-
-    private fun ValidationBuilder<String>.maxLength(minValue: Int) =
-        addConstraint("must have at most {0} characters", minValue.toString()) { it.length <= minValue }
-
-    private fun ValidationBuilder<String>.matches(regex: Regex) = addConstraint("must have correct format") { it.contains(regex) }
-
-    private fun ValidationBuilder<String>.containsANumber() = matches("[0-9]".toRegex()) hint "must have at least one number"
+    private fun ValidationBuilder<String>.containsANumber() = containsPattern("[0-9]".toRegex()) hint "must have at least one number"
 
     @Test
     fun singleValidation() {
@@ -81,17 +80,23 @@ class ValidationBuilderTest {
                 }
 
                 Register::email {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
-        Register(email = "tester@test.com", password = "verysecure1").let { assertEquals(Valid(it), overlappingValidations(it)) }
-        Register(email = "tester@test.com").let {
-            assertEquals(1, countFieldsWithErrors(overlappingValidations(it)))
-            assertEquals(2, countErrors(overlappingValidations(it), Register::password))
-        }
-        Register(password = "verysecure1").let { assertEquals(1, countErrors(overlappingValidations(it), Register::email)) }
-        Register().let { assertEquals(2, countFieldsWithErrors(overlappingValidations(it))) }
+        overlappingValidations shouldBeValid Register(email = "tester@test.com", password = "verysecure1")
+        (overlappingValidations shouldBeInvalid Register(email = "tester@test.com")).shouldContainExactlyErrors(
+            ValidationError.ofAny(Register::password, "must have at least 8 characters"),
+            ValidationError.ofAny(Register::password, "must have at least one number"),
+        )
+        (overlappingValidations shouldBeInvalid Register(password = "verysecure1")) shouldContainOnlyError
+            ValidationError.ofAny(Register::email, "must have correct format")
+
+        (overlappingValidations shouldBeInvalid Register()).shouldContainExactlyErrors(
+            ValidationError.ofAny(Register::password, "must have at least 8 characters"),
+            ValidationError.ofAny(Register::password, "must have at least one number"),
+            ValidationError.ofAny(Register::email, "must have correct format"),
+        )
     }
 
     @Test
@@ -99,7 +104,7 @@ class ValidationBuilderTest {
         val nullableFieldValidation =
             Validation<Register> {
                 Register::referredBy ifPresent {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
@@ -113,7 +118,7 @@ class ValidationBuilderTest {
         val nullableFieldValidation =
             Validation<Register> {
                 Register::referredBy required {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
@@ -143,7 +148,7 @@ class ValidationBuilderTest {
         val nullableTypeValidation =
             Validation<String?> {
                 ifPresent {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
@@ -157,7 +162,7 @@ class ValidationBuilderTest {
         val nullableRequiredValidation =
             Validation<String?> {
                 required {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
@@ -178,19 +183,27 @@ class ValidationBuilderTest {
                     maxLength(10)
                 }
                 Register::getEmailFun {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
-        Register(email = "tester@test.com", password = "a").let { assertEquals(Valid(it), splitDoubleValidation(it)) }
-        Register(
-            email = "tester@test.com",
-            password = "",
-        ).let { assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun)) }
-        Register(email = "tester@test.com", password = "aaaaaaaaaaa").let {
-            assertEquals(1, countErrors(splitDoubleValidation(it), Register::getPasswordFun))
-        }
-        Register(email = "tester@").let { assertEquals(2, countFieldsWithErrors(splitDoubleValidation(it))) }
+        splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
+
+        (
+            splitDoubleValidation shouldBeInvalid
+                Register(
+                    email = "tester@test.com",
+                    password = "",
+                )
+        ) shouldContainOnlyError ValidationError.of(FuncRef(Register::getPasswordFun), "must have at least 1 characters")
+
+        (splitDoubleValidation shouldBeInvalid Register(email = "tester@test.com", password = "aaaaaaaaaaa")) shouldContainOnlyError
+            ValidationError.of(FuncRef(Register::getPasswordFun), "must have at most 10 characters")
+
+        (splitDoubleValidation shouldBeInvalid Register(email = "tester@")).shouldContainExactlyErrors(
+            ValidationError.of(FuncRef(Register::getPasswordFun), "must have at least 1 characters"),
+            ValidationError.of(FuncRef(Register::getEmailFun), "must have correct format"),
+        )
     }
 
     @Test
@@ -202,21 +215,21 @@ class ValidationBuilderTest {
                     maxLength(10)
                 }
                 validate("getEmailLambda", { r: Register -> r.email }) {
-                    matches(".+@.+".toRegex())
+                    pattern(".+@.+".toRegex()).hint("must have correct format")
                 }
             }
 
         splitDoubleValidation shouldBeValid Register(email = "tester@test.com", password = "a")
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "")) {
-            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at least 1 characters")
+            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@test.com", password = "aaaaaaaaaaa")) {
-            it.shouldContainExactlyErrors(".getPasswordLambda" to "must have at most 10 characters")
+            it.shouldContainOnlyError(ValidationError.ofAny("getPasswordLambda", "must have at most 10 characters"))
         }
         splitDoubleValidation.shouldBeInvalid(Register(email = "tester@", password = "")) {
             it.shouldContainExactlyErrors(
-                ".getPasswordLambda" to "must have at least 1 characters",
-                ".getEmailLambda" to "must have correct format",
+                ValidationError.ofAny("getPasswordLambda", "must have at least 1 characters"),
+                ValidationError.ofAny("getEmailLambda", "must have correct format"),
             )
         }
     }
@@ -386,6 +399,10 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateX() {
+    }
+
+    @Test
     fun validateHashMaps() {
         data class Data(
             val registrations: Map<String, Register> = emptyMap(),
@@ -413,11 +430,17 @@ class ValidationBuilderTest {
                     ),
             ),
         ) {
-            it.shouldContainExactlyErrors(
-                ".registrations.user2.email" to "must have at least 2 characters",
+            it shouldContainOnlyError
+                ValidationError(
+                    ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
+                    "must have at least 2 characters",
+                )
+
+            it.shouldContainError(
+                listOf(Data::registrations, PathKey("user2"), Register::email),
+                "must have at least 2 characters",
             )
-            it.shouldContainError(listOf(Data::registrations, "user2", Register::email), "must have at least 2 characters")
-            it.shouldNotContainErrorAt(Data::registrations, "user1", Register::email)
+            it.shouldNotContainErrorAt(Data::registrations, PathKey("user1"), Register::email)
             it.shouldHaveErrorCount(1)
         }
     }
@@ -428,7 +451,7 @@ class ValidationBuilderTest {
             val registrations: Map<String, Register>? = null,
         )
 
-        val mapValidation =
+        val validation =
             Validation<Data> {
                 Data::registrations ifPresent {
                     onEach {
@@ -441,18 +464,23 @@ class ValidationBuilderTest {
                 }
             }
 
-        Data(null).let { assertEquals(Valid(it), mapValidation(it)) }
-        Data(emptyMap()).let { assertEquals(Valid(it), mapValidation(it)) }
-        Data(
-            registrations =
-                mapOf(
-                    "user1" to Register(email = "valid"),
-                    "user2" to Register(email = "a"),
-                ),
-        ).let {
-            assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
-            assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
-        }
+        validation shouldBeValid Data(null)
+        validation shouldBeValid Data(emptyMap())
+
+        val invalidData =
+            Data(
+                registrations =
+                    mapOf(
+                        "user1" to Register(email = "valid"),
+                        "user2" to Register(email = "a"),
+                    ),
+            )
+
+        (validation shouldBeInvalid invalidData) shouldContainOnlyError
+            ValidationError(
+                ValidationPath.fromAny(Data::registrations, PathKey("user2"), Register::email),
+                "must have at least 2 characters",
+            )
     }
 
     @Test
@@ -482,7 +510,7 @@ class ValidationBuilderTest {
                     minLength(8)
                 }
             }
-        assertTrue(validation(Register(password = ""))[Register::password]!![0].contains("8"))
+        assertTrue(validation(Register(password = "")).errors.messagesAtDataPath(Register::password)[0].contains("8"))
     }
 
     private data class Register(

@@ -1,21 +1,16 @@
 package io.konform.validation
 
-import io.konform.validation.kotlin.Path
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 import kotlin.jvm.JvmName
 
-internal data class PropertyValidationError(
-    override val dataPath: String,
-    override val message: String,
-) : ValidationError {
-    override fun toString(): String = "ValidationError(dataPath=$dataPath, message=$message)"
-}
-
-@Deprecated("Replace with directly using List<ValidationError>", ReplaceWith("List<ValidationError>"))
-public interface ValidationErrors : List<ValidationError>
-
 public sealed class ValidationResult<out T> {
-    /** Get the validation errors at a specific path. Will return null for a valid result. */
-    public abstract operator fun get(vararg propertyPath: Any): List<String>?
+    /** Get the validation errors at a specific path. Will return empty list for [Valid]. */
+    @Deprecated(
+        "Prefer using ValidationError and ValidationPath",
+        ReplaceWith("errors.messagesAtDataPath(*validationPath)", "io.konform.validation.messagesAtDataPath"),
+    )
+    public operator fun get(vararg validationPath: Any): List<String> = errors.messagesAtDataPath(*validationPath)
 
     /**  If this is a valid result, returns the result of applying the given [transform] function to the value. Otherwise, return the original error. */
     public inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
@@ -26,46 +21,58 @@ public sealed class ValidationResult<out T> {
 
     public abstract val errors: List<ValidationError>
 
-    /**
-     * Returns true if the [ValidationResult] is [Valid].
-     */
-    public val isValid: Boolean =
+    /** Returns true if the [ValidationResult] is [Valid]. */
+    public abstract val isValid: Boolean
+
+    /** Merge two [ValidationResult], returning [Valid] if both are valid, and the error(s) otherwise. */
+    public infix operator fun plus(other: ValidationResult<@UnsafeVariance T>): ValidationResult<T> =
         when (this) {
-            is Invalid -> false
-            is Valid -> true
+            is Valid -> other
+            is Invalid ->
+                when (other) {
+                    is Valid -> this
+                    is Invalid -> Invalid(errors + other.errors)
+                }
         }
+
+    internal abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>
+
+    internal abstract fun prependPath(path: ValidationPath): ValidationResult<T>
 }
 
 public data class Invalid(
-    internal val internalErrors: Map<String, List<String>>,
+    override val errors: List<ValidationError>,
 ) : ValidationResult<Nothing>() {
-    override fun get(vararg propertyPath: Any): List<String>? = internalErrors[Path.toPath(*propertyPath)]
+    override val isValid: Boolean get() = false
 
-    override val errors: List<ValidationError> by lazy {
-        internalErrors.flatMap { (path, errors) ->
-            errors.map { PropertyValidationError(path, it) }
-        }
+    override fun prependPath(pathSegment: PathSegment): Invalid = Invalid(errors.map { it.prependPath(pathSegment) })
+
+    override fun prependPath(path: ValidationPath): Invalid =
+        if (path.segments.isEmpty()) this else Invalid(errors.map { it.prependPath(path) })
+
+    public companion object {
+        public fun of(
+            path: ValidationPath,
+            message: String,
+        ): Invalid = Invalid(listOf(ValidationError(path, message)))
     }
-
-    override fun toString(): String = "Invalid(errors=$errors)"
 }
 
 public data class Valid<T>(
     val value: T,
 ) : ValidationResult<T>() {
-    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
-    // that it is nonsensical to do.
-    @Deprecated("It is not useful to index a valid result, it will always return null", ReplaceWith("null"))
-    override fun get(vararg propertyPath: Any): List<String>? = null
+    override val isValid: Boolean get() = true
 
-    // This will not be removed as long as ValidationResult has it, but we still deprecate it to warn the user
-    // that it is nonsensical to do.
     @Deprecated("It is not useful to call errors on a valid result, it will always return an empty list.", ReplaceWith("emptyList()"))
     override val errors: List<ValidationError>
         get() = emptyList()
+
+    override fun prependPath(pathSegment: PathSegment): ValidationResult<T> = this
+
+    override fun prependPath(path: ValidationPath): ValidationResult<T> = this
 }
 
-internal fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T> {
+public fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T> {
     require(isNotEmpty()) { "List<ValidationResult> is not allowed to be empty in flattenNonEmpty" }
     val invalids = filterIsInstance<Invalid>()
     return if (invalids.isEmpty()) {
@@ -75,24 +82,16 @@ internal fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T
     }
 }
 
-internal fun List<Invalid>.flattenNotEmpty(): Invalid {
+public fun List<Invalid>.flattenNotEmpty(): Invalid {
     require(isNotEmpty()) { "List<Invalid> is not allowed to be empty in flattenNonEmpty" }
-    val merged = mutableMapOf<String, List<String>>()
-    for (invalid in this) {
-        val added =
-            invalid.internalErrors.mapValues {
-                merged.getOrElse(it.key, ::emptyList) + it.value
-            }
-        merged += added
-    }
-    return Invalid(merged)
+    return Invalid(map { it.errors }.flatten())
 }
 
-internal fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationResult<T> =
+public fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationResult<T> =
     takeIf { isNotEmpty() }
         ?.flattenNonEmpty()
         ?.takeIf { it is Invalid }
         ?: Valid(value)
 
 @JvmName("flattenOrValidInvalidList")
-internal fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> = if (isNotEmpty()) flattenNonEmpty() else Valid(value)
+public fun <T> List<Invalid>.flattenOrValid(value: T): ValidationResult<T> = if (isNotEmpty()) flattenNonEmpty() else Valid(value)

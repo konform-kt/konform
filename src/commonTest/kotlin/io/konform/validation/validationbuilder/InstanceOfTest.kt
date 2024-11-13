@@ -1,11 +1,13 @@
 package io.konform.validation.validationbuilder
 
-import io.konform.validation.PropertyValidationError
 import io.konform.validation.Validation
+import io.konform.validation.ValidationError
 import io.konform.validation.constraints.notBlank
+import io.konform.validation.path.PropRef
+import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
-import io.kotest.assertions.konform.shouldContainExactlyErrors
+import io.kotest.assertions.konform.shouldContainOnlyError
 import kotlin.test.Test
 
 class InstanceOfTest {
@@ -43,10 +45,7 @@ class InstanceOfTest {
         ifCatValidation shouldBeValid null
 
         val invalid = ifCatValidation shouldBeInvalid invalidCat
-        invalid shouldContainExactlyErrors
-            listOf(
-                PropertyValidationError(".favoritePrey", "must not be blank"),
-            )
+        invalid shouldContainOnlyError ValidationError.of(PropRef(Cat::favoritePrey), "must not be blank")
     }
 
     @Test
@@ -54,25 +53,16 @@ class InstanceOfTest {
         requireCatValidation shouldBeValid validCat
 
         val invalidCatResult = requireCatValidation shouldBeInvalid invalidCat
-        invalidCatResult shouldContainExactlyErrors
-            listOf(
-                PropertyValidationError(".favoritePrey", "must not be blank"),
-            )
+        invalidCatResult shouldContainOnlyError ValidationError.of(PropRef(Cat::favoritePrey), "must not be blank")
 
         val validDogResult = requireCatValidation shouldBeInvalid validDog
         val invalidDogResult = requireCatValidation shouldBeInvalid invalidDog
-        val expectedError =
-            listOf(
-                PropertyValidationError("", "must be a 'Cat', was a 'Dog'"),
-            )
-        validDogResult shouldContainExactlyErrors expectedError
-        invalidDogResult shouldContainExactlyErrors expectedError
+        val expectedError = ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'Dog'")
+        validDogResult shouldContainOnlyError expectedError
+        invalidDogResult shouldContainOnlyError expectedError
 
         val nullResult = requireCatValidation shouldBeInvalid null
-        nullResult shouldContainExactlyErrors
-            listOf(
-                PropertyValidationError("", "must be a 'Cat', was a 'null'"),
-            )
+        nullResult shouldContainOnlyError ValidationError(ValidationPath.EMPTY, "must be a 'Cat', was a 'null'")
     }
 }
 

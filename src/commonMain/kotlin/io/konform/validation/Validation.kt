@@ -1,7 +1,10 @@
 package io.konform.validation
 
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.EmptyValidation
 import io.konform.validation.types.NullableValidation
+import io.konform.validation.types.PrependPathValidation
 import io.konform.validation.types.ValidateAll
 
 public interface Validation<in T> {
@@ -12,6 +15,10 @@ public interface Validation<in T> {
     public fun validate(value: T): ValidationResult<@UnsafeVariance T>
 
     public operator fun invoke(value: T): ValidationResult<@UnsafeVariance T> = validate(value)
+
+    public fun prependPath(path: ValidationPath): Validation<T> = PrependPathValidation(path, this)
+
+    public fun prependPath(pathSegment: PathSegment): Validation<T> = prependPath(ValidationPath.of(pathSegment))
 }
 
 /** Combine a [List] of [Validation]s into a single one that returns all validation errors. */

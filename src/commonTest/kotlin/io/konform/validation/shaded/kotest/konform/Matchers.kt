@@ -4,18 +4,19 @@
 package io.kotest.assertions.konform
 
 import io.konform.validation.Invalid
-import io.konform.validation.PropertyValidationError
 import io.konform.validation.Valid
 import io.konform.validation.Validation
 import io.konform.validation.ValidationError
-import io.konform.validation.kotlin.Path
+import io.konform.validation.filterDataPath
+import io.konform.validation.messagesAtDataPath
+import io.konform.validation.path.ValidationPath
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -62,14 +63,19 @@ inline fun <T> Validation<T>.shouldBeInvalid(
 
 /**
  * Asserts that the validation result contains an error for the given field.
- * @param field either a string with the full path or a property
  */
 fun Invalid.shouldContainError(
-    field: Any,
+    path: ValidationPath,
     error: String,
 ) {
-    val path = Path.asPathOrToPath(field)
-    this.errors shouldContain PropertyValidationError(path, error)
+    this.errors shouldContain ValidationError(path, error)
+}
+
+/**
+ * Asserts that the validation result contains an error for the given field.
+ */
+fun Invalid.shouldContainError(error: ValidationError) {
+    this.errors shouldContain error
 }
 
 /**
@@ -81,29 +87,24 @@ fun Invalid.shouldContainError(
     error: String,
 ) {
     val array = propertyPaths.toTypedArray()
-    val path = Path.asPathOrToPath(*array)
+    val path = ValidationPath.fromAny(*array)
     // For a clearer error message
     this.shouldContainError(path, error)
-    val errors = this.get(*array)
+    val errors = this.errors.messagesAtDataPath(*array)
     errors.shouldNotBeNull()
     errors shouldContain error
 }
 
 fun Invalid.shouldNotContainErrorAt(vararg propertyPaths: Any) {
-    val path = Path.asPathOrToPath(*propertyPaths)
+    val path = ValidationPath.fromAny(*propertyPaths)
     this.errors.map { it.dataPath } shouldNotContain path
-    this[propertyPaths].shouldBeNull()
+    this.errors.filterDataPath(propertyPaths).shouldBeEmpty()
 }
 
 infix fun Invalid.shouldHaveErrorCount(count: Int) = this.errors shouldHaveSize count
 
-fun Invalid.shouldContainExactlyErrors(vararg errors: ValidationError) = this.errors.shouldContainExactlyInAnyOrder(*errors)
-
-fun Invalid.shouldContainExactlyErrors(vararg errors: Pair<String, String>) =
-    this.errors shouldContainExactlyInAnyOrder errors.map { PropertyValidationError(it.first, it.second) }
-
-infix fun Invalid.shouldContainExactlyErrors(errors: List<ValidationError>) = this.errors shouldContainExactlyInAnyOrder errors
-
 infix fun Invalid.shouldContainOnlyError(error: ValidationError) {
     this.errors shouldBe listOf(error)
 }
+
+fun Invalid.shouldContainExactlyErrors(vararg errors: ValidationError) = this.errors shouldContainExactlyInAnyOrder errors.toList()

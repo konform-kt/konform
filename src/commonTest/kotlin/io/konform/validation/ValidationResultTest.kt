@@ -1,8 +1,8 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.pattern
+import io.konform.validation.constraints.maxLength
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.pattern
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

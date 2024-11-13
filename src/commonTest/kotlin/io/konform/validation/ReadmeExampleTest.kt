@@ -7,6 +7,8 @@ import io.konform.validation.constraints.minItems
 import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.minimum
 import io.konform.validation.constraints.pattern
+import io.konform.validation.path.PathValue
+import io.konform.validation.path.PropRef
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
@@ -133,7 +135,14 @@ class ReadmeExampleTest {
             )
 
         assertEquals(3, countFieldsWithErrors(validateEvent(invalidEvent)))
-        assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age]!![0])
+        assertEquals(
+            "Attendees must be 18 years or older",
+            validateEvent(invalidEvent).errors.messagesAtDataPath(
+                Event::attendees,
+                0,
+                Person::age,
+            )[0],
+        )
     }
 
     @Test
@@ -147,7 +156,7 @@ class ReadmeExampleTest {
 
         validateUser1 shouldBeValid johnDoe
         validateUser1.shouldBeInvalid(UserProfile("John\tDoe", 30)) {
-            it.shouldContainError(".fullName", "Name cannot contain a tab")
+            it.shouldContainError(ValidationError.of(PropRef(UserProfile::fullName), "Name cannot contain a tab"))
         }
 
         val validateUser2 =
@@ -159,7 +168,7 @@ class ReadmeExampleTest {
 
         validateUser2 shouldBeValid johnDoe
         validateUser2.shouldBeInvalid(UserProfile("J", 30)) {
-            it.shouldContainError(".trimmedName", "must have at least 5 characters")
+            it.shouldContainError(ValidationError.of(PathValue("trimmedName"), "must have at least 5 characters"))
         }
     }
 
@@ -181,7 +190,7 @@ class ReadmeExampleTest {
 
         validateUser shouldBeValid johnDoe
         validateUser.shouldBeInvalid(UserProfile("John doe", 10)) {
-            it.shouldContainError(".age", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(PropRef(UserProfile::age), "must be at least '21'"))
         }
 
         val transform =
@@ -193,7 +202,7 @@ class ReadmeExampleTest {
 
         transform shouldBeValid UserProfile("X", 31)
         transform.shouldBeInvalid(johnDoe) {
-            it.shouldContainError(".ageMinus10", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(PathValue("ageMinus10"), "must be at least '21'"))
         }
 
         val required =
@@ -210,12 +219,12 @@ class ReadmeExampleTest {
             }
         val noAge = UserProfile("John Doe", null)
         required.shouldBeInvalid(noAge) {
-            it.shouldContainError(".age", "is required")
+            it.shouldContainError(ValidationError.of(PathValue("age"), "is required"))
         }
         optional.shouldBeValid(noAge)
         optional.shouldBeValid(johnDoe)
         optional.shouldBeInvalid(UserProfile("John Doe", 10)) {
-            it.shouldContainError(".age", "must be at least '21'")
+            it.shouldContainError(ValidationError.of(PathValue("age"), "must be at least '21'"))
         }
     }
 }

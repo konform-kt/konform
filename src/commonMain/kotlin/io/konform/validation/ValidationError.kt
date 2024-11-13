@@ -1,13 +1,46 @@
 package io.konform.validation
 
-public interface ValidationError {
-    public val dataPath: String
-    public val message: String
+import io.konform.validation.helpers.prepend
+import io.konform.validation.path.PathSegment
+import io.konform.validation.path.ValidationPath
 
-    public companion object {
-        internal operator fun invoke(
-            dataPath: String,
+/** Represents the path and error of a validation failure. */
+public data class ValidationError(
+    public val path: ValidationPath,
+    public val message: String,
+) {
+    public val dataPath: String get() = path.dataPath
+
+    public inline fun mapPath(f: (List<PathSegment>) -> List<PathSegment>): ValidationError = copy(path = ValidationPath(f(path.segments)))
+
+    internal fun prependPath(path: ValidationPath) = copy(path = this.path.prepend(path))
+
+    internal fun prependPath(pathSegment: PathSegment) = mapPath { it.prepend(pathSegment) }
+
+    internal companion object {
+        internal fun of(
+            pathSegment: PathSegment,
             message: String,
-        ): ValidationError = PropertyValidationError(dataPath, message)
+        ): ValidationError = ValidationError(ValidationPath.of(pathSegment), message)
+
+        internal fun ofAny(
+            pathSegment: Any,
+            message: String,
+        ): ValidationError = of(PathSegment.toPathSegment(pathSegment), message)
     }
 }
+
+public fun List<ValidationError>.filterPath(vararg validationPath: Any): List<ValidationError> {
+    val path = ValidationPath.fromAny(*validationPath)
+    return filter { it.path == path }
+}
+
+public fun List<ValidationError>.filterDataPath(vararg validationPath: Any): List<ValidationError> {
+    val dataPath = ValidationPath.fromAny(*validationPath).dataPath
+    return filter { it.dataPath == dataPath }
+}
+
+public fun List<ValidationError>.messagesAtPath(vararg validationPath: Any): List<String> = filterPath(*validationPath).map { it.message }
+
+public fun List<ValidationError>.messagesAtDataPath(vararg validationPath: Any): List<String> =
+    filterDataPath(*validationPath).map { it.message }
