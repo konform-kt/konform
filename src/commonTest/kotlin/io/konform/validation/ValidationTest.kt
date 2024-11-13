@@ -1,6 +1,6 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.minLength
+import io.konform.validation.constraints.minLength
 import io.kotest.assertions.konform.shouldContainExactlyErrors
 import io.kotest.assertions.konform.shouldContainOnlyError
 import io.kotest.matchers.shouldBe

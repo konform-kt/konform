@@ -1,11 +1,11 @@
 package io.konform.validation
 
-import io.konform.validation.jsonschema.const
-import io.konform.validation.jsonschema.enum
-import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.pattern
+import io.konform.validation.constraints.const
+import io.konform.validation.constraints.enum
+import io.konform.validation.constraints.maxLength
+import io.konform.validation.constraints.minItems
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.pattern
 import io.konform.validation.path.PathSegment.Func
 import io.konform.validation.path.PathSegment.MapKey
 import io.konform.validation.path.ValidationPath

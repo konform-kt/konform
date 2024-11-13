@@ -68,10 +68,10 @@ val validationResult = validateUser(invalidUser)
 since the validation fails the `validationResult` will be of type `Invalid` and you can get a list of validation errors by indexed access:
 
 ```kotlin
-validationResult[UserProfile::fullName]
+validationResult.errors.messagesAtPath(UserProfile::fullName)
 // yields listOf("must have at least 2 characters")
 
-validationResult[UserProfile::age]
+validationResult.errors.messagesAtPath(UserProfile::age)
 // yields listOf("must be at least '0'")
 ```
 
@@ -80,8 +80,8 @@ or you can get all validation errors with details as a list:
 ```kotlin
 validationResult.errors
 // yields listOf(
-//     ValidationError(dataPath=.fullName, message=must have at least 2 characters),
-//     ValidationError(dataPath=.age, message=must be at least '0'
+//     ValidationError(path=ValidationPath(Prop(fullName)), message=must have at least 2 characters),
+//     ValidationError(path=ValidationPath(Prop(age)), message=must be at least '0')
 // )
 ```
 
