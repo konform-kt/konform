@@ -6,7 +6,7 @@ import kotlin.test.Test
 class ValidationPathTest {
     @Test
     fun fromAny() {
-        ValidationPath.fromAny("abc", List<*>::isEmpty, 1) shouldBe
+        ValidationPath.of("abc", List<*>::isEmpty, 1) shouldBe
             ValidationPath(
                 listOf(PathValue("abc"), FuncRef(List<*>::isEmpty), PathIndex(1)),
             )
@@ -14,11 +14,11 @@ class ValidationPathTest {
 
     @Test
     fun appendPrepend() {
-        val base = ValidationPath.fromAny("abc", "def")
+        val base = ValidationPath.of("abc", "def")
 
-        base + PathSegment.toPathSegment("ghj") shouldBe ValidationPath.fromAny("abc", "def", "ghj")
-        base + ValidationPath.fromAny(1, 2) shouldBe ValidationPath.fromAny("abc", "def", 1, 2)
-        base.prepend(PathSegment.toPathSegment(0)) shouldBe ValidationPath.fromAny(0, "abc", "def")
-        base.prepend(ValidationPath.fromAny(1, 2)) shouldBe ValidationPath.fromAny(1, 2, "abc", "def")
+        base + PathSegment.toPathSegment("ghj") shouldBe ValidationPath.of("abc", "def", "ghj")
+        base + ValidationPath.of(1, 2) shouldBe ValidationPath.of("abc", "def", 1, 2)
+        base.prepend(PathSegment.toPathSegment(0)) shouldBe ValidationPath.of(0, "abc", "def")
+        base.prepend(ValidationPath.of(1, 2)) shouldBe ValidationPath.of(1, 2, "abc", "def")
     }
 }

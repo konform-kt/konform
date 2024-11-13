@@ -87,7 +87,7 @@ fun Invalid.shouldContainError(
     error: String,
 ) {
     val array = propertyPaths.toTypedArray()
-    val path = ValidationPath.fromAny(*array)
+    val path = ValidationPath.of(*array)
     // For a clearer error message
     this.shouldContainError(path, error)
     val errors = this.errors.messagesAtDataPath(*array)
@@ -96,7 +96,7 @@ fun Invalid.shouldContainError(
 }
 
 fun Invalid.shouldNotContainErrorAt(vararg propertyPaths: Any) {
-    val path = ValidationPath.fromAny(*propertyPaths)
+    val path = ValidationPath.of(*propertyPaths)
     this.errors.map { it.dataPath } shouldNotContain path
     this.errors.filterDataPath(propertyPaths).shouldBeEmpty()
 }

@@ -46,11 +46,11 @@ class ValidationTest {
         val invalidAnimal = animalValidation.validate(emptyCat)
         val invalidCat = catValidation.validate(emptyCat)
         invalidAnimal.shouldBeInstanceOf<Invalid>().shouldContainOnlyError(
-            ValidationError.ofAny(Animal::name, "must have at least 1 characters"),
+            ValidationError.of(Animal::name, "must have at least 1 characters"),
         )
         invalidCat.shouldBeInstanceOf<Invalid>().shouldContainExactlyErrors(
-            ValidationError.ofAny(Animal::name, "must have at least 1 characters"),
-            ValidationError.ofAny(Cat::favoritePrey, "must have at least 1 characters"),
+            ValidationError.of(Animal::name, "must have at least 1 characters"),
+            ValidationError.of(Cat::favoritePrey, "must have at least 1 characters"),
         )
     }
 }

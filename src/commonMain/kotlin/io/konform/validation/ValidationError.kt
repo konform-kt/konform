@@ -8,6 +8,7 @@ import io.konform.validation.path.ValidationPath
 public data class ValidationError(
     public val path: ValidationPath,
     public val message: String,
+    public val userContext: Any? = null,
 ) {
     public val dataPath: String get() = path.dataPath
 
@@ -19,24 +20,21 @@ public data class ValidationError(
 
     internal companion object {
         internal fun of(
-            pathSegment: PathSegment,
+            pathSegment: Any,
             message: String,
         ): ValidationError = ValidationError(ValidationPath.of(pathSegment), message)
 
-        internal fun ofAny(
-            pathSegment: Any,
-            message: String,
-        ): ValidationError = of(PathSegment.toPathSegment(pathSegment), message)
+        internal fun ofEmptyPath(message: String): ValidationError = ValidationError(ValidationPath.EMPTY, message)
     }
 }
 
 public fun List<ValidationError>.filterPath(vararg validationPath: Any): List<ValidationError> {
-    val path = ValidationPath.fromAny(*validationPath)
+    val path = ValidationPath.of(*validationPath)
     return filter { it.path == path }
 }
 
 public fun List<ValidationError>.filterDataPath(vararg validationPath: Any): List<ValidationError> {
-    val dataPath = ValidationPath.fromAny(*validationPath).dataPath
+    val dataPath = ValidationPath.of(*validationPath).dataPath
     return filter { it.dataPath == dataPath }
 }
 

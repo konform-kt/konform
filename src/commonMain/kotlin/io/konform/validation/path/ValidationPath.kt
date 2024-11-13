@@ -28,9 +28,6 @@ public data class ValidationPath(
     public companion object {
         internal val EMPTY = ValidationPath(emptyList())
 
-        public fun of(pathSegment: PathSegment): ValidationPath = ValidationPath(listOf(pathSegment))
-
-        public fun fromAny(vararg validationPath: Any): ValidationPath =
-            ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })
+        public fun of(vararg validationPath: Any): ValidationPath = ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })
     }
 }
