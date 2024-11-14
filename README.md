@@ -168,6 +168,11 @@ val validateUser = Validation<UserProfile> {
     ifPresent("yourName", /* ... */) {
         // your validations, only running if the result is not null
     }
+    // You can use a more extensive path, for example
+    // the path will be ".fullName.trimmed" here:
+    validate(ValidationPath.of(UserProfile::fullName, "trimmed"), { /* ... */ }) {
+        /* ... */
+    }
 }
 ```
 
