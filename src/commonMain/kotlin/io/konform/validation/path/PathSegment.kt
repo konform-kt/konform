@@ -39,6 +39,10 @@ public sealed interface PathSegment {
                 is Int -> PathIndex(pathSegment)
                 is Map.Entry<*, *> -> pathSegment.toPathSegment()
                 is KClass<*> -> PathClass(pathSegment)
+                is ValidationPath -> throw IllegalArgumentException(
+                    "Converting $pathSegment to a PathSegment is likely a mistake, as it would lead to a nested ValidationPath",
+                )
+
                 else -> PathValue(pathSegment)
             }
     }

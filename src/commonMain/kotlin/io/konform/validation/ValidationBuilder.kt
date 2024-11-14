@@ -4,7 +4,6 @@ import io.konform.validation.ValidationBuilder.Companion.buildWithNew
 import io.konform.validation.helpers.prepend
 import io.konform.validation.path.FuncRef
 import io.konform.validation.path.PathSegment
-import io.konform.validation.path.PathSegment.Companion.toPathSegment
 import io.konform.validation.path.PropRef
 import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.ArrayValidation
@@ -126,33 +125,37 @@ public class ValidationBuilder<T> {
 
     /**
      * Calculate a value from the input and run a validation on it.
-     * @param pathSegment The [PathSegment] of the validation.
-     *   is [Any] for backwards compatibility and easy of use, see [toPathSegment]
+     * @param path The [PathSegment] or [ValidationPath] of the validation.
+     *   is [Any] for backwards compatibility and ease of use, see [ValidationPath.of].
      * @param f The function for which you want to validate the result of
      */
     public fun <R> validate(
-        pathSegment: Any,
+        path: Any,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init)))
+    ): Unit = run(CallableValidation(path, f, buildWithNew(init)))
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
+     * @param path The [PathSegment] or [ValidationPath] of the validation.
+     *   is [Any] for backwards compatibility and ease of use, see [ValidationPath.of].
      */
     public fun <R> ifPresent(
-        pathSegment: Any,
+        path: Any,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init).ifPresent()))
+    ): Unit = run(CallableValidation(path, f, buildWithNew(init).ifPresent()))
 
     /**
      * Calculate a value from the input and run a validation on it, and give an error if the result is null.
+     * @param path The [PathSegment] or [ValidationPath] of the validation.
+     *   is [Any] for backwards compatibility and ease of use, see [ValidationPath.of].
      */
     public fun <R> required(
-        pathSegment: Any,
+        path: Any,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(pathSegment, f, buildWithNew(init).required()))
+    ): Unit = run(CallableValidation(path, f, buildWithNew(init).required()))
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
