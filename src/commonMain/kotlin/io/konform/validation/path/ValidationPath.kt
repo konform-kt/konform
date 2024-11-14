@@ -28,6 +28,20 @@ public data class ValidationPath(
     public companion object {
         internal val EMPTY = ValidationPath(emptyList())
 
-        public fun of(vararg validationPath: Any): ValidationPath = ValidationPath(validationPath.map { PathSegment.toPathSegment(it) })
+        /**
+         * Convert the specified arguments into a [ValidationPath]
+         * any [ValidationPath] given will be merged, anything else will be converted to [PathSegment]
+         * using [PathSegment.toPathSegment].
+         */
+        public fun of(vararg validationPath: Any): ValidationPath =
+            ValidationPath(
+                validationPath.flatMap {
+                    if (it is ValidationPath) {
+                        it.segments
+                    } else {
+                        listOf(PathSegment.toPathSegment(it))
+                    }
+                },
+            )
     }
 }
