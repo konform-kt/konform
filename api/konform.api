@@ -338,6 +338,15 @@ public final class io/konform/validation/path/ValidationPath$Companion {
 	public final fun of ([Ljava/lang/Object;)Lio/konform/validation/path/ValidationPath;
 }
 
+public final class io/konform/validation/types/AlwaysInvalidValidation : io/konform/validation/Validation {
+	public static final field INSTANCE Lio/konform/validation/types/AlwaysInvalidValidation;
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
+	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/Invalid;
+	public synthetic fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
 public final class io/konform/validation/types/CallableValidation : io/konform/validation/Validation {
 	public fun <init> (Lio/konform/validation/path/ValidationPath;Lkotlin/jvm/functions/Function1;Lio/konform/validation/Validation;)V
 	public synthetic fun <init> (Lio/konform/validation/path/ValidationPath;Lkotlin/jvm/functions/Function1;Lio/konform/validation/Validation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
