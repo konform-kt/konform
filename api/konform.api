@@ -33,8 +33,10 @@ public final class io/konform/validation/Invalid : io/konform/validation/Validat
 	public fun getErrors ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun isValid ()Z
-	public synthetic fun prependPath$konform (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/ValidationResult;
-	public synthetic fun prependPath$konform (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Invalid;
+	public synthetic fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Invalid;
+	public synthetic fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/ValidationResult;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -52,6 +54,8 @@ public final class io/konform/validation/Valid : io/konform/validation/Validatio
 	public final fun getValue ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public fun isValid ()Z
+	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/ValidationResult;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -73,7 +77,7 @@ public final class io/konform/validation/Validation$DefaultImpls {
 	public static fun prependPath (Lio/konform/validation/Validation;Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
 }
 
-public final class io/konform/validation/ValidationBuilder {
+public class io/konform/validation/ValidationBuilder {
 	public static final field Companion Lio/konform/validation/ValidationBuilder$Companion;
 	public fun <init> ()V
 	public final fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
@@ -154,6 +158,8 @@ public abstract class io/konform/validation/ValidationResult {
 	public abstract fun isValid ()Z
 	public final fun map (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationResult;
 	public final fun plus (Lio/konform/validation/ValidationResult;)Lio/konform/validation/ValidationResult;
+	public abstract fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/ValidationResult;
+	public abstract fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/ValidationResult;
 }
 
 public final class io/konform/validation/ValidationResultKt {
