@@ -14,9 +14,9 @@ public data class ValidationError(
 
     public inline fun mapPath(f: (List<PathSegment>) -> List<PathSegment>): ValidationError = copy(path = ValidationPath(f(path.segments)))
 
-    internal fun prependPath(path: ValidationPath) = copy(path = this.path.prepend(path))
+    public fun prependPath(path: ValidationPath): ValidationError = copy(path = this.path.prepend(path))
 
-    internal fun prependPath(pathSegment: PathSegment) = mapPath { it.prepend(pathSegment) }
+    public fun prependPath(pathSegment: PathSegment): ValidationError = mapPath { it.prepend(pathSegment) }
 
     internal companion object {
         internal fun of(

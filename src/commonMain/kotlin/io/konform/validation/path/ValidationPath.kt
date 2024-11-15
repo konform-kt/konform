@@ -26,7 +26,7 @@ public data class ValidationPath(
     override fun toString(): String = "ValidationPath(${segments.joinToString(", ")})"
 
     public companion object {
-        internal val EMPTY = ValidationPath(emptyList())
+        public val EMPTY: ValidationPath = ValidationPath(emptyList())
 
         /**
          * Convert the specified arguments into a [ValidationPath]

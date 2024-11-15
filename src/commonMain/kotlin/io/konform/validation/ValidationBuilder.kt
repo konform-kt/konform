@@ -9,6 +9,7 @@ import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.ArrayValidation
 import io.konform.validation.types.CallableValidation
 import io.konform.validation.types.ConstraintsValidation
+import io.konform.validation.types.DynamicCallableValidation
 import io.konform.validation.types.DynamicValidation
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.IterableValidation
@@ -125,6 +126,10 @@ public open class ValidationBuilder<T> {
 
     public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
+    public infix fun <R> KProperty1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
+
+    public infix fun <R> KFunction1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
+
     /**
      * Calculate a value from the input and run a validation on it.
      * @param path The [PathSegment] or [ValidationPath] of the validation.
@@ -136,6 +141,15 @@ public open class ValidationBuilder<T> {
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = run(CallableValidation(path, f, buildWithNew(init)))
+
+    public fun <R> dynamic(
+        path: Any,
+        f: (T) -> R,
+        init: ValidationBuilder<R>.(T) -> Unit,
+    ): Unit = run(DynamicCallableValidation(ValidationPath.of(path), f, init))
+
+    /** Build a new validation based on the current value being validated and run it. */
+    public fun dynamic(init: ValidationBuilder<T>.(T) -> Unit): Unit = dynamic(ValidationPath.EMPTY, { it }, init)
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
