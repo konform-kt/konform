@@ -9,6 +9,7 @@ import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.ArrayValidation
 import io.konform.validation.types.CallableValidation
 import io.konform.validation.types.ConstraintsValidation
+import io.konform.validation.types.DynamicValidation
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.IterableValidation
 import io.konform.validation.types.MapValidation
@@ -22,8 +23,8 @@ private annotation class ValidationScope
 @ValidationScope
 // Class is open to users can define their extra local extension methods
 public open class ValidationBuilder<T> {
-    private val constraints = mutableListOf<Constraint<T>>()
-    private val subValidations = mutableListOf<Validation<T>>()
+    protected val constraints: MutableList<Constraint<T>> = mutableListOf()
+    protected val subValidations: MutableList<Validation<T>> = mutableListOf()
 
     public fun build(): Validation<T> =
         subValidations
@@ -160,6 +161,11 @@ public open class ValidationBuilder<T> {
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
+    }
+
+    /** Create a validation based on the current value being validated and run it. */
+    public fun runDynamic(creator: (T) -> Validation<T>) {
+        run(DynamicValidation(creator))
     }
 
     /** Add a [Constraint] and return it. */

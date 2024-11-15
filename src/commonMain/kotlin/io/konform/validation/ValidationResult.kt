@@ -13,9 +13,11 @@ public sealed class ValidationResult<out T> {
     public operator fun get(vararg validationPath: Any): List<String> = errors.messagesAtDataPath(*validationPath)
 
     /**  If this is a valid result, returns the result of applying the given [transform] function to the value. Otherwise, return the original error. */
-    public inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
+    public inline fun <R> map(transform: (T) -> R): ValidationResult<R> = flatMap { Valid(transform(it)) }
+
+    public inline fun <R> flatMap(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
         when (this) {
-            is Valid -> Valid(transform(this.value))
+            is Valid -> transform(this.value)
             is Invalid -> this
         }
 
