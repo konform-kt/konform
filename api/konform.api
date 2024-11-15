@@ -85,6 +85,12 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun build ()Lio/konform/validation/Validation;
 	public final fun constrain (Ljava/lang/String;Lio/konform/validation/path/ValidationPath;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
 	public static synthetic fun constrain$default (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;Lio/konform/validation/path/ValidationPath;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/konform/validation/Constraint;
+	public final fun dynamic (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+	public final fun dynamic (Lkotlin/jvm/functions/Function2;)V
+	public final fun dynamic (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function2;)V
+	public final fun dynamic (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function2;)V
+	protected final fun getConstraints ()Ljava/util/List;
+	protected final fun getSubValidations ()Ljava/util/List;
 	public final fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
 	public final fun ifPresent (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
@@ -105,6 +111,7 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun required (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun required (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun run (Lio/konform/validation/Validation;)V
+	public final fun runDynamic (Lkotlin/jvm/functions/Function1;)V
 	public final fun userContext (Lio/konform/validation/Constraint;Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public final fun validate (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 }
@@ -136,6 +143,8 @@ public final class io/konform/validation/ValidationError {
 	public final fun getUserContext ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public final fun mapPath (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationError;
+	public final fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/ValidationError;
+	public final fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/ValidationError;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -153,6 +162,7 @@ public final class io/konform/validation/ValidationKt {
 }
 
 public abstract class io/konform/validation/ValidationResult {
+	public final fun flatMap (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/ValidationResult;
 	public final fun get ([Ljava/lang/Object;)Ljava/util/List;
 	public abstract fun getErrors ()Ljava/util/List;
 	public abstract fun isValid ()Z
@@ -341,6 +351,7 @@ public final class io/konform/validation/path/ValidationPath {
 }
 
 public final class io/konform/validation/path/ValidationPath$Companion {
+	public final fun getEMPTY ()Lio/konform/validation/path/ValidationPath;
 	public final fun of ([Ljava/lang/Object;)Lio/konform/validation/path/ValidationPath;
 }
 
