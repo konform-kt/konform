@@ -35,9 +35,9 @@ public sealed class ValidationResult<out T> {
                 }
         }
 
-    internal abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>
+    public abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>
 
-    internal abstract fun prependPath(path: ValidationPath): ValidationResult<T>
+    public abstract fun prependPath(path: ValidationPath): ValidationResult<T>
 }
 
 public data class Invalid(
