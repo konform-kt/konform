@@ -20,7 +20,8 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-public class ValidationBuilder<T> {
+// Class is open to users can define their extra local extension methods
+public open class ValidationBuilder<T> {
     private val constraints = mutableListOf<Constraint<T>>()
     private val subValidations = mutableListOf<Validation<T>>()
 
