@@ -5,6 +5,9 @@ import io.konform.validation.Validation
 import io.konform.validation.ValidationBuilder
 import io.konform.validation.ValidationError
 import io.konform.validation.constraints.pattern
+import io.konform.validation.path.ValidationPath
+import io.konform.validation.types.AlwaysInvalidValidation
+import io.konform.validation.types.EmptyValidation
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainOnlyError
@@ -86,6 +89,27 @@ class DynamicValidationTest {
             ValidationError.of(
                 Range::to,
                 "must be larger than from",
+            )
+    }
+
+    @Test
+    fun runDynamic() {
+        val validation =
+            Validation<String> {
+                runDynamic {
+                    if (it == "a") {
+                        AlwaysInvalidValidation
+                    } else {
+                        EmptyValidation
+                    }
+                }
+            }
+
+        validation shouldBeValid "b"
+        (validation shouldBeInvalid "a") shouldContainOnlyError
+            ValidationError(
+                ValidationPath.EMPTY,
+                "always invalid",
             )
     }
 }

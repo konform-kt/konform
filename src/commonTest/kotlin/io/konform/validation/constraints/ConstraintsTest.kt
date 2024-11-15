@@ -2,6 +2,7 @@ package io.konform.validation.constraints
 
 import io.konform.validation.Valid
 import io.konform.validation.Validation
+import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.ACK
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYN
@@ -23,6 +24,10 @@ import io.konform.validation.constraints.type
 import io.konform.validation.constraints.uniqueItems
 import io.konform.validation.constraints.uuid
 import io.konform.validation.countFieldsWithErrors
+import io.konform.validation.path.ValidationPath
+import io.kotest.assertions.konform.shouldBeInvalid
+import io.kotest.assertions.konform.shouldBeValid
+import io.kotest.assertions.konform.shouldContainOnlyError
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -176,7 +181,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
         assertEquals(1, countFieldsWithErrors(validation(11)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)))
+        assertEquals(
+            1,
+            countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)),
+        )
 
         assertEquals("must be less than '10'", validation(11).get()[0])
     }
@@ -219,7 +227,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
         assertEquals(1, countFieldsWithErrors(validation(8)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)))
+        assertEquals(
+            1,
+            countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)),
+        )
 
         assertEquals("must be greater than '10'", validation(9).get()[0])
     }
@@ -254,24 +265,26 @@ class ConstraintsTest {
     fun patternConstraint() {
         val validation = Validation<String> { pattern(".+@.+") }
 
-        assertEquals(Valid("a@a"), validation("a@a"))
-        assertEquals(Valid("a@a@a@a"), validation("a@a@a@a"))
-        assertEquals(Valid(" a@a "), validation(" a@a "))
+        validation shouldBeValid "a@a"
+        validation shouldBeValid "a@a@a@a"
+        validation shouldBeValid " a@a "
 
-        assertEquals(1, countFieldsWithErrors(validation("a")))
-        assertEquals("must match the expected pattern", validation("").get()[0])
+        (validation shouldBeInvalid "a") shouldContainOnlyError
+            ValidationError.of(
+                ValidationPath.EMPTY,
+                "must match pattern '.+@.+'",
+            )
 
         val compiledRegexValidation =
             Validation<String> {
                 pattern("^\\w+@\\w+\\.\\w+$".toRegex())
             }
 
-        assertEquals(Valid("tester@example.com"), compiledRegexValidation("tester@example.com"))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example")))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation(" tester@example.com")))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example.com ")))
-
-        assertEquals("must match the expected pattern", compiledRegexValidation("").get()[0])
+        val expectedError = ValidationError.ofEmptyPath("must match pattern '^\\w+@\\w+\\.\\w+\$'")
+        compiledRegexValidation shouldBeValid "tester@example.com"
+        (compiledRegexValidation shouldBeInvalid "tester@example") shouldContainOnlyError expectedError
+        (compiledRegexValidation shouldBeInvalid " tester@example.com") shouldContainOnlyError expectedError
+        (compiledRegexValidation shouldBeInvalid "tester@example.com ") shouldContainOnlyError expectedError
     }
 
     @Test

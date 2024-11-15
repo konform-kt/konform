@@ -19,12 +19,12 @@ public data class ValidationError(
     public fun prependPath(pathSegment: PathSegment): ValidationError = mapPath { it.prepend(pathSegment) }
 
     internal companion object {
-        internal fun of(
+        public fun of(
             pathSegment: Any,
             message: String,
         ): ValidationError = ValidationError(ValidationPath.of(pathSegment), message)
 
-        internal fun ofEmptyPath(message: String): ValidationError = ValidationError(ValidationPath.EMPTY, message)
+        public fun ofEmptyPath(message: String): ValidationError = ValidationError(ValidationPath.EMPTY, message)
     }
 }
 
