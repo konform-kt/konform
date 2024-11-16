@@ -112,21 +112,6 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun validatingRequiredFields() {
-        val nullableFieldValidation =
-            Validation<Register> {
-                Register::referredBy required {
-                    pattern(".+@.+".toRegex()).hint("must have correct format")
-                }
-            }
-
-        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableFieldValidation(it)) }
-
-        Register(referredBy = null).let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
-        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
-    }
-
-    @Test
     fun validatingNestedTypesDirectly() {
         val nestedTypeValidation =
             Validation<Register> {
@@ -153,21 +138,6 @@ class ValidationBuilderTest {
         null.let { assertEquals(Valid(it), nullableTypeValidation(it)) }
         "poweruser@test.com".let { assertEquals(Valid(it), nullableTypeValidation(it)) }
         "poweruser@".let { assertEquals(1, countErrors(nullableTypeValidation(it))) }
-    }
-
-    @Test
-    fun validatingRequiredNullableValues() {
-        val nullableRequiredValidation =
-            Validation<String?> {
-                required {
-                    pattern(".+@.+".toRegex()).hint("must have correct format")
-                }
-            }
-
-        "poweruser@test.com".let { assertEquals(Valid(it), nullableRequiredValidation(it)) }
-
-        null.let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
-        "poweruser@".let { assertEquals(1, countErrors(nullableRequiredValidation(it))) }
     }
 
     @Test

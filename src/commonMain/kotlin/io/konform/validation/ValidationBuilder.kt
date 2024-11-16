@@ -1,6 +1,7 @@
 package io.konform.validation
 
 import io.konform.validation.ValidationBuilder.Companion.buildWithNew
+import io.konform.validation.builders.RequiredValidationBuilder
 import io.konform.validation.helpers.prepend
 import io.konform.validation.path.FuncRef
 import io.konform.validation.path.PathSegment
@@ -27,7 +28,7 @@ public open class ValidationBuilder<T> {
     protected val constraints: MutableList<Constraint<T>> = mutableListOf()
     protected val subValidations: MutableList<Validation<T>> = mutableListOf()
 
-    public fun build(): Validation<T> =
+    public open fun build(): Validation<T> =
         subValidations
             .let {
                 if (constraints.isNotEmpty()) {
@@ -118,13 +119,13 @@ public open class ValidationBuilder<T> {
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 
-    public infix fun <R> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
+    public infix fun <R : Any> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
 
-    public infix fun <R> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
+    public infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
 
-    public infix fun <R> KProperty1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
+    public infix fun <R : Any> KProperty1<T, R?>.required(init: RequiredValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
-    public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
+    public infix fun <R : Any> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
     public infix fun <R> KProperty1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
 
@@ -167,11 +168,11 @@ public open class ValidationBuilder<T> {
      * @param path The [PathSegment] or [ValidationPath] of the validation.
      *   is [Any] for backwards compatibility and ease of use, see [ValidationPath.of].
      */
-    public fun <R> required(
+    public fun <R : Any> required(
         path: Any,
         f: (T) -> R?,
-        init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(path, f, buildWithNew(init).required()))
+        init: RequiredValidationBuilder<R>.() -> Unit,
+    ): Unit = run(CallableValidation(path, f, RequiredValidationBuilder.buildWithNew(init)))
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)

@@ -3,8 +3,10 @@ package io.konform.validation
 import io.konform.validation.path.PathSegment
 import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.EmptyValidation
-import io.konform.validation.types.NullableValidation
+import io.konform.validation.types.IfNotNullValidation
 import io.konform.validation.types.PrependPathValidation
+import io.konform.validation.types.RequireNotNullValidation
+import io.konform.validation.types.RequireNotNullValidation.Companion.DEFAULT_REQUIRED_HINT
 import io.konform.validation.types.ValidateAll
 
 public interface Validation<in T> {
@@ -30,7 +32,7 @@ public fun <T> List<Validation<T>>.flatten(): Validation<T> =
     }
 
 /** Run a validation only if the actual value is not-null. */
-public fun <T : Any> Validation<T>.ifPresent(): Validation<T?> = NullableValidation(required = false, validation = this)
+public fun <T : Any> Validation<T>.ifPresent(): Validation<T?> = IfNotNullValidation(this)
 
 /** Require a nullable value to actually be present. */
-public fun <T : Any> Validation<T>.required(): Validation<T?> = NullableValidation(required = true, validation = this)
+public fun <T : Any> Validation<T>.required(hint: String = DEFAULT_REQUIRED_HINT): Validation<T?> = RequireNotNullValidation(hint, this)
