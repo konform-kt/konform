@@ -259,15 +259,46 @@ numerical index and in case of `Maps` you use the key as string.
 
 ```kotlin
 // get the error messages for the first attendees age if any
-result[Event::attendees, 0, Person::age]
+result.errors.messagesAtPath(Event::attendees, 0, Person::age)
 
 // get the error messages for the free ticket if any
-result[Event::ticketPrices, "free"]
+result.errors.messagesAtPath(Event::ticketPrices, "free")
+```
+
+#### Dynamic Validations
+
+Sometimes you want to create validations that depend on the context of the actual value being validated,
+or define validations for fields that depend on other fields.
+Note that this will generally have worse performance than using static validations.
+
+```kotlin
+Validation<Address> {
+    Address::postalCode dynamic { address ->
+        when (address.countryCode) {
+            "US" -> pattern("[0-9]{5}")
+            else -> pattern("[A-Z]+")
+        }
+    }
+}
+```
+
+if you need to use a value further in, you can capture an earlier value with `dynamic`.
+
+```kotlin
+data class Numbers(val minimum: Int, val numbers: List<Int>)
+
+Validation<Numbers> {
+    dynamic { numbers ->
+        Numbers::numbers onEach {
+            minimum(numbers.minimum)
+        }
+    }
+}
 ```
 
 #### Subtypes
 
-You can run validations only if the valuen is of a specific subtype, or require it to be specific subtype.
+You can run validations only if the value is of a specific subtype, or require it to be specific subtype.
 
 ```kotlin
 sealed interface Animal {

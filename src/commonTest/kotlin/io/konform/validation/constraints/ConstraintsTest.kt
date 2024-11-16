@@ -23,6 +23,12 @@ import io.konform.validation.constraints.type
 import io.konform.validation.constraints.uniqueItems
 import io.konform.validation.constraints.uuid
 import io.konform.validation.countFieldsWithErrors
+import io.konform.validation.path.ValidationPath
+import io.kotest.assertions.konform.shouldBeInvalid
+import io.kotest.assertions.konform.shouldBeValid
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -176,7 +182,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
         assertEquals(1, countFieldsWithErrors(validation(11)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)))
+        assertEquals(
+            1,
+            countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)),
+        )
 
         assertEquals("must be less than '10'", validation(11).get()[0])
     }
@@ -219,7 +228,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
         assertEquals(1, countFieldsWithErrors(validation(8)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
-        assertEquals(1, countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)))
+        assertEquals(
+            1,
+            countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)),
+        )
 
         assertEquals("must be greater than '10'", validation(9).get()[0])
     }
@@ -254,24 +266,26 @@ class ConstraintsTest {
     fun patternConstraint() {
         val validation = Validation<String> { pattern(".+@.+") }
 
-        assertEquals(Valid("a@a"), validation("a@a"))
-        assertEquals(Valid("a@a@a@a"), validation("a@a@a@a"))
-        assertEquals(Valid(" a@a "), validation(" a@a "))
+        validation shouldBeValid "a@a"
+        validation shouldBeValid "a@a@a@a"
+        validation shouldBeValid " a@a "
 
-        assertEquals(1, countFieldsWithErrors(validation("a")))
-        assertEquals("must match the expected pattern", validation("").get()[0])
+        val invalid = validation shouldBeInvalid "a"
+        invalid.errors shouldHaveSize 1
+        invalid.errors[0].path shouldBe ValidationPath.EMPTY
+        invalid.errors[0].message shouldContain "must match pattern '"
 
         val compiledRegexValidation =
             Validation<String> {
                 pattern("^\\w+@\\w+\\.\\w+$".toRegex())
             }
 
-        assertEquals(Valid("tester@example.com"), compiledRegexValidation("tester@example.com"))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example")))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation(" tester@example.com")))
-        assertEquals(1, countFieldsWithErrors(compiledRegexValidation("tester@example.com ")))
-
-        assertEquals("must match the expected pattern", compiledRegexValidation("").get()[0])
+        compiledRegexValidation shouldBeValid "tester@example.com"
+        val invalidComplex = (compiledRegexValidation shouldBeInvalid "tester@example")
+        invalidComplex.errors shouldHaveSize 1
+        invalidComplex.errors[0].message shouldContain "must match pattern '"
+        compiledRegexValidation shouldBeInvalid " tester@example.com"
+        compiledRegexValidation shouldBeInvalid "tester@example.com "
     }
 
     @Test

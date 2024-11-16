@@ -9,6 +9,8 @@ import io.konform.validation.path.ValidationPath
 import io.konform.validation.types.ArrayValidation
 import io.konform.validation.types.CallableValidation
 import io.konform.validation.types.ConstraintsValidation
+import io.konform.validation.types.DynamicCallableValidation
+import io.konform.validation.types.DynamicValidation
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.IterableValidation
 import io.konform.validation.types.MapValidation
@@ -22,8 +24,8 @@ private annotation class ValidationScope
 @ValidationScope
 // Class is open to users can define their extra local extension methods
 public open class ValidationBuilder<T> {
-    private val constraints = mutableListOf<Constraint<T>>()
-    private val subValidations = mutableListOf<Validation<T>>()
+    protected val constraints: MutableList<Constraint<T>> = mutableListOf()
+    protected val subValidations: MutableList<Validation<T>> = mutableListOf()
 
     public fun build(): Validation<T> =
         subValidations
@@ -124,6 +126,10 @@ public open class ValidationBuilder<T> {
 
     public infix fun <R> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
+    public infix fun <R> KProperty1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
+
+    public infix fun <R> KFunction1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
+
     /**
      * Calculate a value from the input and run a validation on it.
      * @param path The [PathSegment] or [ValidationPath] of the validation.
@@ -135,6 +141,15 @@ public open class ValidationBuilder<T> {
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = run(CallableValidation(path, f, buildWithNew(init)))
+
+    public fun <R> dynamic(
+        path: Any,
+        f: (T) -> R,
+        init: ValidationBuilder<R>.(T) -> Unit,
+    ): Unit = run(DynamicCallableValidation(ValidationPath.of(path), f, init))
+
+    /** Build a new validation based on the current value being validated and run it. */
+    public fun dynamic(init: ValidationBuilder<T>.(T) -> Unit): Unit = dynamic(ValidationPath.EMPTY, { it }, init)
 
     /**
      * Calculate a value from the input and run a validation on it, but only if the value is not null.
@@ -160,6 +175,11 @@ public open class ValidationBuilder<T> {
 
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
+    }
+
+    /** Create a validation based on the current value being validated and run it. */
+    public fun runDynamic(creator: (T) -> Validation<T>) {
+        run(DynamicValidation(creator))
     }
 
     /** Add a [Constraint] and return it. */
