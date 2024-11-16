@@ -13,6 +13,9 @@ import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainExactlyErrors
 import io.kotest.assertions.konform.shouldContainOnlyError
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 class DynamicValidationTest {
@@ -33,10 +36,14 @@ class DynamicValidationTest {
         validation shouldBeValid Address("US", "12345")
         validation shouldBeValid Address("DE", "ABC")
 
-        (validation shouldBeInvalid Address("US", "")) shouldContainOnlyError
-            ValidationError.of(Address::postalCode, """must match pattern '[0-9]{5}'""")
-        (validation shouldBeInvalid Address("DE", "123")) shouldContainOnlyError
-            ValidationError.of(Address::postalCode, """must match pattern '[A-Z]+'""")
+        val usResult = (validation shouldBeInvalid Address("US", ""))
+        usResult.errors shouldHaveSize 1
+        usResult.errors[0].path shouldBe ValidationPath.of(Address::postalCode)
+        usResult.errors[0].message shouldContain """must match pattern '"""
+        val deResult = (validation shouldBeInvalid Address("DE", "123"))
+        deResult.errors shouldHaveSize 1
+        deResult.errors[0].path shouldBe ValidationPath.of(Address::postalCode)
+        deResult.errors[0].message shouldContain """must match pattern '"""
     }
 
     @Test

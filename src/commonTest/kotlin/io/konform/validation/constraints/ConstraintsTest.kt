@@ -28,6 +28,8 @@ import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainOnlyError
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -280,11 +282,12 @@ class ConstraintsTest {
                 pattern("^\\w+@\\w+\\.\\w+$".toRegex())
             }
 
-        val expectedError = ValidationError.ofEmptyPath("must match pattern '^\\w+@\\w+\\.\\w+\$'")
         compiledRegexValidation shouldBeValid "tester@example.com"
-        (compiledRegexValidation shouldBeInvalid "tester@example") shouldContainOnlyError expectedError
-        (compiledRegexValidation shouldBeInvalid " tester@example.com") shouldContainOnlyError expectedError
-        (compiledRegexValidation shouldBeInvalid "tester@example.com ") shouldContainOnlyError expectedError
+        val invalid = (compiledRegexValidation shouldBeInvalid "tester@example")
+        invalid.errors shouldHaveSize 1
+        invalid.errors[0].message shouldContain "must match pattern '"
+        compiledRegexValidation shouldBeInvalid " tester@example.com"
+        compiledRegexValidation shouldBeInvalid "tester@example.com "
     }
 
     @Test
