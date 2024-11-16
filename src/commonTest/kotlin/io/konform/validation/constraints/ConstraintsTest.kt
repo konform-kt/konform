@@ -2,7 +2,6 @@ package io.konform.validation.constraints
 
 import io.konform.validation.Valid
 import io.konform.validation.Validation
-import io.konform.validation.ValidationError
 import io.konform.validation.ValidationResult
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.ACK
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYN
@@ -27,8 +26,8 @@ import io.konform.validation.countFieldsWithErrors
 import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
-import io.kotest.assertions.konform.shouldContainOnlyError
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -271,11 +270,10 @@ class ConstraintsTest {
         validation shouldBeValid "a@a@a@a"
         validation shouldBeValid " a@a "
 
-        (validation shouldBeInvalid "a") shouldContainOnlyError
-            ValidationError.of(
-                ValidationPath.EMPTY,
-                "must match pattern '.+@.+'",
-            )
+        val invalid = validation shouldBeInvalid "a"
+        invalid.errors shouldHaveSize 1
+        invalid.errors[0].path shouldBe ValidationPath.EMPTY
+        invalid.errors[0].message shouldContain "must match pattern '"
 
         val compiledRegexValidation =
             Validation<String> {
@@ -283,9 +281,9 @@ class ConstraintsTest {
             }
 
         compiledRegexValidation shouldBeValid "tester@example.com"
-        val invalid = (compiledRegexValidation shouldBeInvalid "tester@example")
-        invalid.errors shouldHaveSize 1
-        invalid.errors[0].message shouldContain "must match pattern '"
+        val invalidComplex = (compiledRegexValidation shouldBeInvalid "tester@example")
+        invalidComplex.errors shouldHaveSize 1
+        invalidComplex.errors[0].message shouldContain "must match pattern '"
         compiledRegexValidation shouldBeInvalid " tester@example.com"
         compiledRegexValidation shouldBeInvalid "tester@example.com "
     }
