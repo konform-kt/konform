@@ -262,7 +262,7 @@ numerical index and in case of `Maps` you use the key as string.
 result.errors.messagesAtPath(Event::attendees, 0, Person::age)
 
 // get the error messages for the free ticket if any
-result.errorss.messagesAtPath(Event::ticketPrices, "free")
+result.errors.messagesAtPath(Event::ticketPrices, "free")
 ```
 
 #### Dynamic Validations
@@ -282,7 +282,7 @@ Validation<Address> {
 }
 ```
 
-if you need to use a value further in, you can capture an earlier value with dynamic.
+if you need to use a value further in, you can capture an earlier value with `dynamic`.
 
 ```kotlin
 data class Numbers(val minimum: Int, val numbers: List<Int>)
