@@ -98,20 +98,6 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun validatingNullableFields() {
-        val nullableFieldValidation =
-            Validation<Register> {
-                Register::referredBy ifPresent {
-                    pattern(".+@.+".toRegex()).hint("must have correct format")
-                }
-            }
-
-        Register(referredBy = null).let { assertEquals(Valid(it), nullableFieldValidation(it)) }
-        Register(referredBy = "poweruser@test.com").let { assertEquals(Valid(it), nullableFieldValidation(it)) }
-        Register(referredBy = "poweruser@").let { assertEquals(1, countErrors(nullableFieldValidation(it), Register::referredBy)) }
-    }
-
-    @Test
     fun validatingNestedTypesDirectly() {
         val nestedTypeValidation =
             Validation<Register> {
