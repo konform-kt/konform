@@ -95,6 +95,7 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun ifPresent (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun ifPresent (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun ifPresentOnNotNullProperty (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun invoke (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun invoke (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun onEachArray (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
@@ -110,6 +111,7 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun required (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public final fun required (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function1;)V
 	public final fun required (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
+	public final fun requiredOnNotNullProperty (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun run (Lio/konform/validation/Validation;)V
 	public final fun runDynamic (Lkotlin/jvm/functions/Function1;)V
 	public final fun userContext (Lio/konform/validation/Constraint;Ljava/lang/Object;)Lio/konform/validation/Constraint;
