@@ -82,7 +82,7 @@ public class io/konform/validation/ValidationBuilder {
 	public fun <init> ()V
 	public final fun addConstraint (Ljava/lang/String;[Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
 	public final fun applyConstraint (Lio/konform/validation/Constraint;)Lio/konform/validation/Constraint;
-	public final fun build ()Lio/konform/validation/Validation;
+	public fun build ()Lio/konform/validation/Validation;
 	public final fun constrain (Ljava/lang/String;Lio/konform/validation/path/ValidationPath;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Lio/konform/validation/Constraint;
 	public static synthetic fun constrain$default (Lio/konform/validation/ValidationBuilder;Ljava/lang/String;Lio/konform/validation/path/ValidationPath;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/konform/validation/Constraint;
 	public final fun dynamic (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
@@ -158,7 +158,8 @@ public final class io/konform/validation/ValidationErrorKt {
 public final class io/konform/validation/ValidationKt {
 	public static final fun flatten (Ljava/util/List;)Lio/konform/validation/Validation;
 	public static final fun ifPresent (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
-	public static final fun required (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
+	public static final fun required (Lio/konform/validation/Validation;Ljava/lang/String;)Lio/konform/validation/Validation;
+	public static synthetic fun required$default (Lio/konform/validation/Validation;Ljava/lang/String;ILjava/lang/Object;)Lio/konform/validation/Validation;
 }
 
 public abstract class io/konform/validation/ValidationResult {
@@ -177,6 +178,19 @@ public final class io/konform/validation/ValidationResultKt {
 	public static final fun flattenNotEmpty (Ljava/util/List;)Lio/konform/validation/Invalid;
 	public static final fun flattenOrValid (Ljava/util/List;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 	public static final fun flattenOrValidInvalidList (Ljava/util/List;Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/builders/RequiredValidationBuilder : io/konform/validation/ValidationBuilder {
+	public static final field Companion Lio/konform/validation/builders/RequiredValidationBuilder$Companion;
+	public fun <init> ()V
+	public synthetic fun build ()Lio/konform/validation/Validation;
+	public fun build ()Lio/konform/validation/types/RequireNotNullValidation;
+	public final fun getHint ()Ljava/lang/String;
+	public final fun setHint (Ljava/lang/String;)V
+}
+
+public final class io/konform/validation/builders/RequiredValidationBuilder$Companion {
+	public final fun buildWithNew (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/types/RequireNotNullValidation;
 }
 
 public final class io/konform/validation/constraints/EnumConstraintsKt {
@@ -412,6 +426,14 @@ public final class io/konform/validation/types/PrependPathValidation : io/konfor
 	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
 	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
 	public fun toString ()Ljava/lang/String;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/types/RequireNotNullValidation : io/konform/validation/Validation {
+	public fun <init> (Ljava/lang/String;Lio/konform/validation/Validation;)V
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
+	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
 	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 }
 

@@ -216,6 +216,8 @@ val validateEvent = Validation<Event> {
     Event::organizer {
         // even though the email is nullable you can force it to be set in the validation
         Person::email required {
+            // Optionally set a hint, default hint is "is required"
+            hint = "Email address must be given"
             pattern(".+@bigcorp.com") hint "Organizers must have a BigCorp email address"
         }
     }
