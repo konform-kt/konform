@@ -15,6 +15,7 @@ import io.konform.validation.types.DynamicValidation
 import io.konform.validation.types.IsClassValidation
 import io.konform.validation.types.IterableValidation
 import io.konform.validation.types.MapValidation
+import kotlin.js.JsName
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -38,6 +39,7 @@ public open class ValidationBuilder<T> {
                 }
             }.flatten()
 
+    // region constraints
     @Deprecated(
         "Use constrain(), templateValues are no longer supported, put them directly in the hint",
         ReplaceWith("constrain(errorMessage, test)"),
@@ -73,6 +75,26 @@ public open class ValidationBuilder<T> {
     public infix fun Constraint<T>.userContext(userContext: Any?): Constraint<T> =
         replaceConstraint(this, this.copy(userContext = userContext))
 
+    /** Add a [Constraint] and return it. */
+    public fun applyConstraint(constraint: Constraint<T>): Constraint<T> {
+        constraints.add(constraint)
+        return constraint
+    }
+
+    /** Replace a [Constraint] and return the replacement */
+    public fun replaceConstraint(
+        old: Constraint<T>,
+        replacement: Constraint<T>,
+    ): Constraint<T> {
+        // It's very likely that the last added constraint is the one to be replaced so optimize for that
+        val idx = if (constraints.lastOrNull() === old) constraints.size - 1 else constraints.indexOf(old)
+        if (idx == -1) throw IllegalArgumentException("Not found in existing constraints: $old")
+        constraints[idx] = replacement
+        return replacement
+    }
+    // endregion
+
+    // region onEach
     private fun <R> onEachIterable(
         pathSegment: PathSegment,
         prop: (T) -> Iterable<R>,
@@ -114,22 +136,49 @@ public open class ValidationBuilder<T> {
     @JvmName("onEachMap")
     public infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit): Unit =
         onEachMap(FuncRef(this), this, init)
+    // endregion
 
+    // region Callable infix
     public operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 
     public operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<R>.() -> Unit): Unit = validate(this, this, init)
 
+    /** Run a validation on the result of this property, but only if it's not null. */
     public infix fun <R : Any> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
 
+    @JsName("ifPresentOnNotNullProperty")
+    @JvmName("ifPresentOnNotNullProperty")
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("ifPresent has no effect on not-null property, can be removed.")
+    public infix fun <R : Any> KProperty1<T, R>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit =
+        (this as KProperty1<T, R?>).ifPresent(init)
+
+    // Don't deprecate calling this on not null props, to ease working with functions returning platform types
+
+    /** Run a validation on the result of this function, but only if it's not null. */
     public infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<R>.() -> Unit): Unit = ifPresent(this, this, init)
 
+    /** Validate that the result of this property is not null and run a validation on it. */
     public infix fun <R : Any> KProperty1<T, R?>.required(init: RequiredValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
+    @JsName("requiredOnNotNullProperty")
+    @JvmName("requiredOnNotNullProperty")
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("required has no effect on not-null property, can be removed.")
+    public infix fun <R : Any> KProperty1<T, R>.required(init: RequiredValidationBuilder<R>.() -> Unit): Unit =
+        (this as KProperty1<T, R?>).required(init)
+
+    // Don't deprecate calling this on not null props, to ease working with functions returning platform types
+
+    /** Validate that the result of this function is not null and run a validation on it. */
     public infix fun <R : Any> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
     public infix fun <R> KProperty1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
 
     public infix fun <R> KFunction1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
+    // endregion
+
+    // region transform
 
     /**
      * Calculate a value from the input and run a validation on it.
@@ -143,6 +192,12 @@ public open class ValidationBuilder<T> {
         init: ValidationBuilder<R>.() -> Unit,
     ): Unit = run(CallableValidation(path, f, buildWithNew(init)))
 
+    /**
+     * Build a new validation based on a transformed value of the input and run it.
+     * @param path The [PathSegment] or [ValidationPath] of the validation.
+     *   is [Any] for backwards compatibility and ease of use, see [ValidationPath.of].
+     * @see validate
+     * */
     public fun <R> dynamic(
         path: Any,
         f: (T) -> R,
@@ -174,6 +229,9 @@ public open class ValidationBuilder<T> {
         init: RequiredValidationBuilder<R>.() -> Unit,
     ): Unit = run(CallableValidation(path, f, RequiredValidationBuilder.buildWithNew(init)))
 
+    // endregion
+
+    // region run
     public fun run(validation: Validation<T>) {
         subValidations.add(validation)
     }
@@ -182,30 +240,15 @@ public open class ValidationBuilder<T> {
     public fun runDynamic(creator: (T) -> Validation<T>) {
         run(DynamicValidation(creator))
     }
+    // endregion
 
-    /** Add a [Constraint] and return it. */
-    public fun applyConstraint(constraint: Constraint<T>): Constraint<T> {
-        constraints.add(constraint)
-        return constraint
-    }
-
-    /** Replace a [Constraint] and return the replacement */
-    public fun replaceConstraint(
-        old: Constraint<T>,
-        replacement: Constraint<T>,
-    ): Constraint<T> {
-        // It's very likely that the last added constraint is the one to be replaced so optimize for that
-        val idx = if (constraints.lastOrNull() === old) constraints.size - 1 else constraints.indexOf(old)
-        if (idx == -1) throw IllegalArgumentException("Not found in existing constraints: $old")
-        constraints[idx] = replacement
-        return replacement
-    }
-
+    // region subtypes
     public inline fun <reified SubT : T & Any> ifInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = false, buildWithNew(init)))
 
     public inline fun <reified SubT : T & Any> requireInstanceOf(init: ValidationBuilder<SubT>.() -> Unit): Unit =
         run(IsClassValidation<SubT, T>(SubT::class, required = true, buildWithNew(init)))
+    // endregion
 
     public companion object {
         public inline fun <T> buildWithNew(block: ValidationBuilder<T>.() -> Unit): Validation<T> {

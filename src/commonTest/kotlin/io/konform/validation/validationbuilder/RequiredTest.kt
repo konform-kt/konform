@@ -74,7 +74,23 @@ class RequiredTest {
             ValidationError.of("trimmed", "must have at least 2 characters")
     }
 
+    @Test
+    fun deprecationWhenPropertyIsNotNull() {
+        val validation =
+            Validation<Foo> {
+                // This itself will give a warning if no deprecation is suppressed
+                @Suppress("DEPRECATION")
+                Foo::bar required {}
+            }
+
+        validation shouldBeValid Foo("")
+    }
+
     private data class Register(
         val referredBy: String? = null,
+    )
+
+    private data class Foo(
+        val bar: String,
     )
 }
