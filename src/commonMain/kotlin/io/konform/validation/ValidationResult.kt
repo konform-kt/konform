@@ -86,7 +86,7 @@ public fun <T> List<ValidationResult<T>>.flattenNonEmpty(): ValidationResult<T> 
 
 public fun List<Invalid>.flattenNotEmpty(): Invalid {
     require(isNotEmpty()) { "List<Invalid> is not allowed to be empty in flattenNonEmpty" }
-    return Invalid(map { it.errors }.flatten())
+    return Invalid(this.flatMap { it.errors })
 }
 
 public fun <T> List<ValidationResult<T>>.flattenOrValid(value: T): ValidationResult<T> =
