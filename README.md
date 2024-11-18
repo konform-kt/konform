@@ -330,6 +330,25 @@ val requireCat = Validation<Animal> {
 }
 ```
 
+#### Recursive validation
+
+If you have a recursive type that you can validate, this requires
+
+1) an extra getter to get a self-reference to the validation, and
+2) dynamic to create an extra instance of the validation as-needed to avoid an infinite loop
+
+```
+data class Node(val children: List<Node>)
+val validation = Validation<Node> {
+  // Use dynamic and a function to get the current validation again
+  Node::children onEach {
+    runDynamic { validationRef() }
+  }
+}
+// Type must be explicitly specified on either this or the val
+private val validationRef get(): Validation<Node> = validation
+```
+
 ### Other validation libraries for Kotlin
 
 - Akkurate: https://akkurate.dev/docs/overview.html

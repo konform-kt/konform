@@ -9,9 +9,11 @@ import io.konform.validation.constraints.minimum
 import io.konform.validation.constraints.pattern
 import io.konform.validation.path.PathValue
 import io.konform.validation.path.PropRef
+import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainError
+import io.kotest.assertions.konform.shouldContainOnlyError
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -226,5 +228,44 @@ class ReadmeExampleTest {
         optional.shouldBeInvalid(UserProfile("John Doe", 10)) {
             it.shouldContainError(ValidationError.of(PathValue("age"), "must be at least '21'"))
         }
+    }
+
+    @Test
+    fun recursiveValidation() {
+        Recursive.validation shouldBeValid Recursive.Node()
+        val invalid =
+            Recursive.Node(
+                listOf(
+                    Recursive.Node(
+                        listOf(
+                            Recursive.Node(),
+                            Recursive.Node(),
+                        ),
+                    ),
+                ),
+            )
+        (Recursive.validation shouldBeInvalid invalid) shouldContainOnlyError
+            ValidationError.of(
+                ValidationPath.of(Recursive.Node::children, 0, Recursive.Node::children),
+                "must have at most 1 items",
+            )
+    }
+
+    object Recursive {
+        data class Node(
+            val children: List<Node> = emptyList(),
+        )
+
+        val validation =
+            Validation<Node> {
+                Node::children {
+                    maxItems(1)
+                }
+                // Use dynamic and a function to get the current validation again
+                Node::children onEach {
+                    runDynamic { validationRef }
+                }
+            }
+        private val validationRef get(): Validation<Node> = validation
     }
 }
