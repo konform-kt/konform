@@ -53,4 +53,16 @@ class ListValidationTest {
             ValidationError(ValidationPath.EMPTY, "must be at least '10'"),
         )
     }
+
+    @Test
+    fun flattenFailFast() {
+        val validationException =
+            object : Validation<Int> {
+                override fun validate(value: Int): ValidationResult<Int> =
+                    throw IllegalStateException("This validation should never be called")
+            }
+        val result = listOf(validation1, validationException).flatten(failFast = true)
+
+        result shouldBeInvalid -1
+    }
 }
