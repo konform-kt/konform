@@ -195,6 +195,13 @@ public final class io/konform/validation/builders/RequiredValidationBuilder$Comp
 	public final fun buildWithNew (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/types/RequireNotNullValidation;
 }
 
+public final class io/konform/validation/constraints/ComparableConstraintsKt {
+	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+}
+
 public final class io/konform/validation/constraints/EnumConstraintsKt {
 	public static final fun const (Lio/konform/validation/ValidationBuilder;Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public static final fun enum (Lio/konform/validation/ValidationBuilder;[Ljava/lang/Object;)Lio/konform/validation/Constraint;
@@ -221,10 +228,14 @@ public final class io/konform/validation/constraints/MapConstraintsKt {
 }
 
 public final class io/konform/validation/constraints/NumberConstraintsKt {
-	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 }
 
