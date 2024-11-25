@@ -148,32 +148,37 @@ class ConstraintsTest {
     fun maximumConstraint() {
         assertEquals(
             Valid<Int>(10),
-            Validation<Int> { maximum(10) }(10)
+            Validation<Int> { maximum(10) }(10),
         )
 
         assertEquals(
             Valid<Long>(10),
-            Validation<Long> { maximum(10) }(10)
+            Validation<Long> { maximum(10) }(10),
         )
 
         assertEquals(
             Valid<Float>(10.0f),
-            Validation<Float> { maximum(10) }(10.0f)
+            Validation<Float> { maximum(10) }(10.0f),
         )
 
         assertEquals(
             Valid<Double>(10.0),
-            Validation<Double> { maximum(10) }(10.0)
+            Validation<Double> { maximum(10) }(10.0),
         )
 
         assertEquals(
             Valid<String>("a"),
-            Validation<String> { maximum("b") }("a")
+            Validation<String> { maximum("b") }("a"),
         )
 
         assertEquals(
             Valid<String>("b"),
-            Validation<String> { maximum("b") }("b")
+            Validation<String> { maximum("b") }("b"),
+        )
+
+        assertEquals(
+            Valid(10.0),
+            Validation<Double> { maximum(10) }(10.0),
         )
 
         val validation = Validation<Double> { maximum(10.0) }
@@ -184,7 +189,7 @@ class ConstraintsTest {
         assertEquals(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
         assertEquals(
             Valid(Double.POSITIVE_INFINITY),
-            Validation { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)
+            Validation { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY),
         )
 
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
@@ -198,27 +203,32 @@ class ConstraintsTest {
     fun exclusiveMaximumConstraint() {
         assertEquals(
             Valid<Int>(9),
-            Validation<Int> { exclusiveMaximum(10) }(9)
+            Validation<Int> { exclusiveMaximum(10) }(9),
         )
 
         assertEquals(
             Valid<Long>(9),
-            Validation<Long> { exclusiveMaximum(10) }(9)
+            Validation<Long> { exclusiveMaximum(10) }(9),
         )
 
         assertEquals(
             Valid<Float>(9.0f),
-            Validation<Float> { exclusiveMaximum(10) }(9.0f)
+            Validation<Float> { exclusiveMaximum(10) }(9.0f),
         )
 
         assertEquals(
             Valid<Double>(9.0),
-            Validation<Double> { exclusiveMaximum(10) }(9.0)
+            Validation<Double> { exclusiveMaximum(10) }(9.0),
         )
 
         assertEquals(
             Valid<String>("a"),
-            Validation<String> { exclusiveMaximum("b") }("a")
+            Validation<String> { exclusiveMaximum("b") }("a"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { exclusiveMaximum(11) }(10.0),
         )
 
         val validation = Validation<Double> { exclusiveMaximum(10.0) }
@@ -244,32 +254,37 @@ class ConstraintsTest {
     fun minimumConstraint() {
         assertEquals(
             Valid<Int>(10),
-            Validation<Int> { minimum(10) }(10)
+            Validation<Int> { minimum(10) }(10),
         )
 
         assertEquals(
             Valid<Long>(10),
-            Validation<Long> { minimum(10) }(10)
+            Validation<Long> { minimum(10) }(10),
         )
 
         assertEquals(
             Valid<Float>(10.0f),
-            Validation<Float> { minimum(10) }(10.0f)
+            Validation<Float> { minimum(10) }(10.0f),
         )
 
         assertEquals(
             Valid<Double>(10.0),
-            Validation<Double> { minimum(10) }(10.0)
+            Validation<Double> { minimum(10) }(10.0),
         )
 
         assertEquals(
             Valid<String>("b"),
-            Validation<String> { minimum("a") }("b")
+            Validation<String> { minimum("a") }("b"),
         )
 
         assertEquals(
             Valid<String>("a"),
-            Validation<String> { minimum("a") }("a")
+            Validation<String> { minimum("a") }("a"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { minimum(10) }(10.0),
         )
 
         val validation = Validation<Double> { minimum(10.0) }
@@ -279,7 +294,7 @@ class ConstraintsTest {
         assertEquals(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
         assertEquals(
             Valid(Double.NEGATIVE_INFINITY),
-            Validation { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)
+            Validation { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY),
         )
 
         assertEquals(1, countFieldsWithErrors(validation(9.99999)))
@@ -293,27 +308,32 @@ class ConstraintsTest {
     fun exclusiveMinimumConstraint() {
         assertEquals(
             Valid<Int>(11),
-            Validation<Int> { exclusiveMinimum(10) }(11)
+            Validation<Int> { exclusiveMinimum(10) }(11),
         )
 
         assertEquals(
             Valid<Long>(11),
-            Validation<Long> { exclusiveMinimum(10) }(11)
+            Validation<Long> { exclusiveMinimum(10) }(11),
         )
 
         assertEquals(
             Valid<Float>(11.0f),
-            Validation<Float> { exclusiveMinimum(10) }(11.0f)
+            Validation<Float> { exclusiveMinimum(10) }(11.0f),
         )
 
         assertEquals(
             Valid<Double>(11.0),
-            Validation<Double> { exclusiveMinimum(10) }(11.0)
+            Validation<Double> { exclusiveMinimum(10) }(11.0),
         )
 
         assertEquals(
             Valid<String>("b"),
-            Validation<String> { exclusiveMinimum("a") }("b")
+            Validation<String> { exclusiveMinimum("a") }("b"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { minimum(9) }(10.0),
         )
 
         val validation = Validation<Double> { exclusiveMinimum(10.0) }
