@@ -4,14 +4,10 @@ import io.konform.validation.Constraint
 import io.konform.validation.ValidationBuilder
 import io.konform.validation.constraints.const as movedConst
 import io.konform.validation.constraints.enum as movedEnum
-import io.konform.validation.constraints.exclusiveMaximum as movedExclusiveMaximum
-import io.konform.validation.constraints.exclusiveMinimum as movedExclusiveMinimum
 import io.konform.validation.constraints.maxLength as movedMaxLength
 import io.konform.validation.constraints.maxProperties as movedMaxProperties
-import io.konform.validation.constraints.maximum as movedMaximum
 import io.konform.validation.constraints.minLength as movedMinLength
 import io.konform.validation.constraints.minProperties as movedMinProperties
-import io.konform.validation.constraints.minimum as movedMinimum
 import io.konform.validation.constraints.multipleOf as movedMultipleOf
 import io.konform.validation.constraints.pattern as movedPattern
 import io.konform.validation.constraints.type as movedType
@@ -81,27 +77,41 @@ public fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constra
     "Moved to io.konform.validation.constraints",
     ReplaceWith("maximum(maximumInclusive)", "io.konform.validation.constraints.maximum"),
 )
-public fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number): Constraint<T> = movedMaximum(maximumInclusive)
+public fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number): Constraint<T> =
+    addConstraint(
+        "must be at most '{0}'",
+        maximumInclusive.toString(),
+    ) { it.toDouble() <= maximumInclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("exclusiveMaximum(maximumExclusive)", "io.konform.validation.constraints.exclusiveMaximum"),
 )
 public fun <T : Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number): Constraint<T> =
-    movedExclusiveMaximum(maximumExclusive)
+    addConstraint(
+        "must be less than '{0}'",
+        maximumExclusive.toString(),
+    ) { it.toDouble() < maximumExclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("minimum(minimumInclusive)", "io.konform.validation.constraints.minimum"),
 )
-public fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number): Constraint<T> = movedMinimum(minimumInclusive)
+public fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number): Constraint<T> =
+    addConstraint(
+        "must be at least '{0}'",
+        minimumInclusive.toString(),
+    ) { it.toDouble() >= minimumInclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("exclusiveMinimum(minimumExclusive)", "io.konform.validation.constraints.exclusiveMinimum"),
 )
 public fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number): Constraint<T> =
-    movedExclusiveMinimum(minimumExclusive)
+    addConstraint(
+        "must be greater than '{0}'",
+        minimumExclusive.toString(),
+    ) { it.toDouble() > minimumExclusive.toDouble() }
 
 @Suppress("UNCHECKED_CAST")
 @Deprecated(
