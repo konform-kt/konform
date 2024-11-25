@@ -6,22 +6,6 @@ import io.konform.validation.ValidationResult
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.ACK
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYN
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYNACK
-import io.konform.validation.constraints.const
-import io.konform.validation.constraints.exclusiveMaximum
-import io.konform.validation.constraints.exclusiveMinimum
-import io.konform.validation.constraints.maxItems
-import io.konform.validation.constraints.maxLength
-import io.konform.validation.constraints.maxProperties
-import io.konform.validation.constraints.maximum
-import io.konform.validation.constraints.minItems
-import io.konform.validation.constraints.minLength
-import io.konform.validation.constraints.minProperties
-import io.konform.validation.constraints.minimum
-import io.konform.validation.constraints.multipleOf
-import io.konform.validation.constraints.pattern
-import io.konform.validation.constraints.type
-import io.konform.validation.constraints.uniqueItems
-import io.konform.validation.constraints.uuid
 import io.konform.validation.countFieldsWithErrors
 import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -29,6 +13,7 @@ import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldMatch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -196,7 +181,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(11.0)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
 
-        assertEquals("must be at most '10.0'", validation(11.0).get()[0])
+        val invalid = validation shouldBeInvalid 11.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be at most '10(\\.0)?'".toRegex()
     }
 
     @Test
@@ -247,7 +235,10 @@ class ConstraintsTest {
             countFieldsWithErrors(Validation<Double> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)),
         )
 
-        assertEquals("must be less than '10.0'", validation(11.0).get()[0])
+        val invalid = validation shouldBeInvalid 11.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be less than '10(\\.0)?'".toRegex()
     }
 
     @Test
@@ -301,7 +292,10 @@ class ConstraintsTest {
         assertEquals(1, countFieldsWithErrors(validation(9.0)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
 
-        assertEquals("must be at least '10.0'", validation(9.0).get()[0])
+        val invalid = validation shouldBeInvalid 9.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be at least '10(\\.0)?'".toRegex()
     }
 
     @Test
@@ -351,7 +345,10 @@ class ConstraintsTest {
             countFieldsWithErrors(Validation<Double> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)),
         )
 
-        assertEquals("must be greater than '10.0'", validation(9.0).get()[0])
+        val invalid = validation shouldBeInvalid 9.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be greater than '10(\\.0)?'".toRegex()
     }
 
     @Test
