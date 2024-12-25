@@ -1,5 +1,4 @@
 import org.gradle.internal.extensions.stdlib.capitalized
-import org.jetbrains.kotlin.cli.common.toBooleanLenient
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -19,7 +18,7 @@ val kotlinApiTarget = "1.7"
 val jvm = JvmTarget.JVM_1_8
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
-val onCI: Boolean = System.getenv("CI")?.toBooleanLenient() ?: false
+val onCI: Boolean = System.getenv("CI") == "true"
 
 plugins {
     alias(libs.plugins.kotest.multiplatform)
