@@ -58,7 +58,8 @@ class ValidationSubTypingCompilerTest {
                 }.compile()
 
         result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-        result.messages shouldContain "Type mismatch: inferred type is Validation<Int> but Validation<Number> was expected"
+        result.messages shouldContain "Initializer type mismatch: expected 'io.konform.validation.Validation<kotlin.Number>', " +
+            "actual 'io.konform.validation.Validation<kotlin.Int>'"
     }
 
     @Test
@@ -86,6 +87,7 @@ class ValidationSubTypingCompilerTest {
                 }.compile()
 
         result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-        result.messages shouldContain "Type mismatch: inferred type is Validation<Int> but Validation<Number> was expected"
+        result.messages shouldContain "Argument type mismatch: actual type is 'io.konform.validation.Validation<kotlin.Int>', " +
+            "but 'io.konform.validation.Validation<kotlin.Number>' was expected"
     }
 }
