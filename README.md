@@ -349,6 +349,21 @@ val validation = Validation<Node> {
 private val validationRef get(): Validation<Node> = validation
 ```
 
+#### Fail-fast validations
+
+Konform is primarily intended to validate the complete data and return all validation errors.
+However, if you want to "fail fast" and not run later validations, you can do this with `andThen`
+on `Validation` or `flatten` on a list of validations.
+
+```kotlin
+val fastValidation = Validation<String> { /* ... */ }
+val slowValidation = Validation<String> { /* ... */ }
+
+val runSlowOnlyIfFastValidationSucceeds = Validation<String> {
+    run(fastValidation andThen slowValidation)
+}
+```
+
 ### Other validation libraries for Kotlin
 
 - Akkurate: https://akkurate.dev/docs/overview.html

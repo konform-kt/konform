@@ -158,7 +158,9 @@ public final class io/konform/validation/ValidationErrorKt {
 }
 
 public final class io/konform/validation/ValidationKt {
-	public static final fun flatten (Ljava/util/List;)Lio/konform/validation/Validation;
+	public static final fun andThen (Lio/konform/validation/Validation;Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
+	public static final fun flatten (Ljava/util/List;Z)Lio/konform/validation/Validation;
+	public static synthetic fun flatten$default (Ljava/util/List;ZILjava/lang/Object;)Lio/konform/validation/Validation;
 	public static final fun ifPresent (Lio/konform/validation/Validation;)Lio/konform/validation/Validation;
 	public static final fun required (Lio/konform/validation/Validation;Ljava/lang/String;)Lio/konform/validation/Validation;
 	public static synthetic fun required$default (Lio/konform/validation/Validation;Ljava/lang/String;ILjava/lang/Object;)Lio/konform/validation/Validation;
@@ -195,6 +197,13 @@ public final class io/konform/validation/builders/RequiredValidationBuilder$Comp
 	public final fun buildWithNew (Lkotlin/jvm/functions/Function1;)Lio/konform/validation/types/RequireNotNullValidation;
 }
 
+public final class io/konform/validation/constraints/ComparableConstraintsKt {
+	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Comparable;)Lio/konform/validation/Constraint;
+}
+
 public final class io/konform/validation/constraints/EnumConstraintsKt {
 	public static final fun const (Lio/konform/validation/ValidationBuilder;Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public static final fun enum (Lio/konform/validation/ValidationBuilder;[Ljava/lang/Object;)Lio/konform/validation/Constraint;
@@ -221,10 +230,14 @@ public final class io/konform/validation/constraints/MapConstraintsKt {
 }
 
 public final class io/konform/validation/constraints/NumberConstraintsKt {
-	public static final fun exclusiveMaximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun exclusiveMinimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun maximum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
-	public static final fun minimum (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 }
 
@@ -407,6 +420,15 @@ public final class io/konform/validation/types/EmptyValidation : io/konform/vali
 	public static final field INSTANCE Lio/konform/validation/types/EmptyValidation;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
+	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
+	public fun toString ()Ljava/lang/String;
+	public fun validate (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
+}
+
+public final class io/konform/validation/types/FailFastValidation : io/konform/validation/Validation {
+	public fun <init> (Ljava/util/List;)V
 	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
 	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;

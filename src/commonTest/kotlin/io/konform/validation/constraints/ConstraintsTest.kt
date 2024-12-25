@@ -6,22 +6,6 @@ import io.konform.validation.ValidationResult
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.ACK
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYN
 import io.konform.validation.constraints.ConstraintsTest.TCPPacket.SYNACK
-import io.konform.validation.constraints.const
-import io.konform.validation.constraints.exclusiveMaximum
-import io.konform.validation.constraints.exclusiveMinimum
-import io.konform.validation.constraints.maxItems
-import io.konform.validation.constraints.maxLength
-import io.konform.validation.constraints.maxProperties
-import io.konform.validation.constraints.maximum
-import io.konform.validation.constraints.minItems
-import io.konform.validation.constraints.minLength
-import io.konform.validation.constraints.minProperties
-import io.konform.validation.constraints.minimum
-import io.konform.validation.constraints.multipleOf
-import io.konform.validation.constraints.pattern
-import io.konform.validation.constraints.type
-import io.konform.validation.constraints.uniqueItems
-import io.konform.validation.constraints.uuid
 import io.konform.validation.countFieldsWithErrors
 import io.konform.validation.path.ValidationPath
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -29,6 +13,7 @@ import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldMatch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -146,94 +131,224 @@ class ConstraintsTest {
 
     @Test
     fun maximumConstraint() {
-        val validation = Validation<Number> { maximum(10) }
-
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(-10), validation(-10))
-        assertEquals<ValidationResult<Number>>(Valid(9), validation(9))
-        assertEquals<ValidationResult<Number>>(Valid(10), validation(10))
-        assertEquals<ValidationResult<Number>>(Valid(10.0), validation(10.0))
-
-        assertEquals(1, countFieldsWithErrors(validation(10.00001)))
-        assertEquals(1, countFieldsWithErrors(validation(11)))
-        assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
-
-        assertEquals<ValidationResult<Number>>(
-            Valid(Double.POSITIVE_INFINITY),
-            Validation<Number> {
-                maximum(Double.POSITIVE_INFINITY)
-            }(Double.POSITIVE_INFINITY),
+        assertEquals(
+            Valid<Int>(10),
+            Validation<Int> { maximum(10) }(10),
         )
 
-        assertEquals("must be at most '10'", validation(11).get()[0])
+        assertEquals(
+            Valid<Long>(10),
+            Validation<Long> { maximum(10) }(10),
+        )
+
+        assertEquals(
+            Valid<Float>(10.0f),
+            Validation<Float> { maximum(10) }(10.0f),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { maximum(10) }(10.0),
+        )
+
+        assertEquals(
+            Valid<String>("a"),
+            Validation<String> { maximum("b") }("a"),
+        )
+
+        assertEquals(
+            Valid<String>("b"),
+            Validation<String> { maximum("b") }("b"),
+        )
+
+        assertEquals(
+            Valid(10.0),
+            Validation<Double> { maximum(10) }(10.0),
+        )
+
+        val validation = Validation<Double> { maximum(10.0) }
+
+        assertEquals(Valid(9.0), validation(9.0))
+        assertEquals(Valid(10.0), validation(10.0))
+        assertEquals(Valid(-10.0), validation(-10.0))
+        assertEquals(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
+        assertEquals(
+            Valid(Double.POSITIVE_INFINITY),
+            Validation { maximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY),
+        )
+
+        assertEquals(1, countFieldsWithErrors(validation(10.00001)))
+        assertEquals(1, countFieldsWithErrors(validation(11.0)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
+
+        val invalid = validation shouldBeInvalid 11.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be at most '10(\\.0)?'".toRegex()
     }
 
     @Test
     fun exclusiveMaximumConstraint() {
-        val validation = Validation<Number> { exclusiveMaximum(10) }
+        assertEquals(
+            Valid<Int>(9),
+            Validation<Int> { exclusiveMaximum(10) }(9),
+        )
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(-10), validation(-10))
-        assertEquals<ValidationResult<Number>>(Valid(9), validation(9))
-        assertEquals<ValidationResult<Number>>(Valid(9.99999999), validation(9.99999999))
+        assertEquals(
+            Valid<Long>(9),
+            Validation<Long> { exclusiveMaximum(10) }(9),
+        )
 
-        assertEquals(1, countFieldsWithErrors(validation(10)))
+        assertEquals(
+            Valid<Float>(9.0f),
+            Validation<Float> { exclusiveMaximum(10) }(9.0f),
+        )
+
+        assertEquals(
+            Valid<Double>(9.0),
+            Validation<Double> { exclusiveMaximum(10) }(9.0),
+        )
+
+        assertEquals(
+            Valid<String>("a"),
+            Validation<String> { exclusiveMaximum("b") }("a"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { exclusiveMaximum(11) }(10.0),
+        )
+
+        val validation = Validation<Double> { exclusiveMaximum(10.0) }
+
+        assertEquals(Valid(9.0), validation(9.0))
+        assertEquals(Valid(9.99999999), validation(9.99999999))
+        assertEquals(Valid(-10.0), validation(-10.0))
+        assertEquals(Valid(Double.NEGATIVE_INFINITY), validation(Double.NEGATIVE_INFINITY))
+
         assertEquals(1, countFieldsWithErrors(validation(10.0)))
         assertEquals(1, countFieldsWithErrors(validation(10.00001)))
-        assertEquals(1, countFieldsWithErrors(validation(11)))
+        assertEquals(1, countFieldsWithErrors(validation(11.0)))
         assertEquals(1, countFieldsWithErrors(validation(Double.POSITIVE_INFINITY)))
         assertEquals(
             1,
-            countFieldsWithErrors(Validation<Number> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)),
+            countFieldsWithErrors(Validation<Double> { exclusiveMaximum(Double.POSITIVE_INFINITY) }(Double.POSITIVE_INFINITY)),
         )
 
-        assertEquals("must be less than '10'", validation(11).get()[0])
+        val invalid = validation shouldBeInvalid 11.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be less than '10(\\.0)?'".toRegex()
     }
 
     @Test
     fun minimumConstraint() {
-        val validation = Validation<Number> { minimum(10) }
-
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
-        assertEquals<ValidationResult<Number>>(Valid(11), validation(11))
-        assertEquals<ValidationResult<Number>>(Valid(10.1), validation(10.1))
-        assertEquals<ValidationResult<Number>>(Valid(10.0), validation(10.0))
-
-        assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
-        assertEquals(1, countFieldsWithErrors(validation(8)))
-        assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
-
-        assertEquals<ValidationResult<Number>>(
-            Valid(Double.NEGATIVE_INFINITY),
-            Validation<Number> {
-                minimum(Double.NEGATIVE_INFINITY)
-            }(Double.NEGATIVE_INFINITY),
+        assertEquals(
+            Valid<Int>(10),
+            Validation<Int> { minimum(10) }(10),
         )
 
-        assertEquals("must be at least '10'", validation(9).get()[0])
+        assertEquals(
+            Valid<Long>(10),
+            Validation<Long> { minimum(10) }(10),
+        )
+
+        assertEquals(
+            Valid<Float>(10.0f),
+            Validation<Float> { minimum(10) }(10.0f),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { minimum(10) }(10.0),
+        )
+
+        assertEquals(
+            Valid<String>("b"),
+            Validation<String> { minimum("a") }("b"),
+        )
+
+        assertEquals(
+            Valid<String>("a"),
+            Validation<String> { minimum("a") }("a"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { minimum(10) }(10.0),
+        )
+
+        val validation = Validation<Double> { minimum(10.0) }
+
+        assertEquals(Valid(11.0), validation(11.0))
+        assertEquals(Valid(10.0), validation(10.0))
+        assertEquals(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
+        assertEquals(
+            Valid(Double.NEGATIVE_INFINITY),
+            Validation { minimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY),
+        )
+
+        assertEquals(1, countFieldsWithErrors(validation(9.99999)))
+        assertEquals(1, countFieldsWithErrors(validation(9.0)))
+        assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
+
+        val invalid = validation shouldBeInvalid 9.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be at least '10(\\.0)?'".toRegex()
     }
 
     @Test
-    fun minimumExclusiveConstraint() {
-        val validation = Validation<Number> { exclusiveMinimum(10) }
+    fun exclusiveMinimumConstraint() {
+        assertEquals(
+            Valid<Int>(11),
+            Validation<Int> { exclusiveMinimum(10) }(11),
+        )
 
-        assertEquals<ValidationResult<Number>>(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
-        assertEquals<ValidationResult<Number>>(Valid(20), validation(20))
-        assertEquals<ValidationResult<Number>>(Valid(11), validation(11))
-        assertEquals<ValidationResult<Number>>(Valid(10.1), validation(10.1))
+        assertEquals(
+            Valid<Long>(11),
+            Validation<Long> { exclusiveMinimum(10) }(11),
+        )
 
-        assertEquals(1, countFieldsWithErrors(validation(10)))
-        assertEquals(1, countFieldsWithErrors(validation(10.0)))
-        assertEquals(1, countFieldsWithErrors(validation(9.99999999999)))
-        assertEquals(1, countFieldsWithErrors(validation(8)))
+        assertEquals(
+            Valid<Float>(11.0f),
+            Validation<Float> { exclusiveMinimum(10) }(11.0f),
+        )
+
+        assertEquals(
+            Valid<Double>(11.0),
+            Validation<Double> { exclusiveMinimum(10) }(11.0),
+        )
+
+        assertEquals(
+            Valid<String>("b"),
+            Validation<String> { exclusiveMinimum("a") }("b"),
+        )
+
+        assertEquals(
+            Valid<Double>(10.0),
+            Validation<Double> { minimum(9) }(10.0),
+        )
+
+        val validation = Validation<Double> { exclusiveMinimum(10.0) }
+
+        assertEquals(Valid(11.0), validation(11.0))
+        assertEquals(Valid(10.00000001), validation(10.00000001))
+        assertEquals(Valid(Double.POSITIVE_INFINITY), validation(Double.POSITIVE_INFINITY))
+
+        assertEquals(1, countFieldsWithErrors(validation(9.0)))
+        assertEquals(1, countFieldsWithErrors(validation(9.99999)))
+        assertEquals(1, countFieldsWithErrors(validation(-9.0)))
         assertEquals(1, countFieldsWithErrors(validation(Double.NEGATIVE_INFINITY)))
         assertEquals(
             1,
-            countFieldsWithErrors(Validation<Number> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)),
+            countFieldsWithErrors(Validation<Double> { exclusiveMinimum(Double.NEGATIVE_INFINITY) }(Double.NEGATIVE_INFINITY)),
         )
 
-        assertEquals("must be greater than '10'", validation(9).get()[0])
+        val invalid = validation shouldBeInvalid 9.0
+        invalid.errors shouldHaveSize 1
+        // Small difference in numbers between kotlin JS and others
+        invalid.errors[0].message shouldMatch "must be greater than '10(\\.0)?'".toRegex()
     }
 
     @Test

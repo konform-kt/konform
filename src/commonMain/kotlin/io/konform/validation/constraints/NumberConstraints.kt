@@ -2,6 +2,7 @@ package io.konform.validation.constraints
 
 import io.konform.validation.Constraint
 import io.konform.validation.ValidationBuilder
+import kotlin.jvm.JvmName
 import kotlin.math.roundToInt
 
 public fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constraint<T> {
@@ -13,26 +14,34 @@ public fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constra
     }
 }
 
-public fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be at most '{0}'",
-        maximumInclusive.toString(),
-    ) { it.toDouble() <= maximumInclusive.toDouble() }
+@JvmName("maximumFloat")
+public fun ValidationBuilder<Float>.maximum(maximumInclusive: Int): Constraint<Float> =
+    constrain("must be at most '$maximumInclusive'") { it <= maximumInclusive.toFloat() }
 
-public fun <T : Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be less than '{0}'",
-        maximumExclusive.toString(),
-    ) { it.toDouble() < maximumExclusive.toDouble() }
+@JvmName("maximumDouble")
+public fun ValidationBuilder<Double>.maximum(maximumInclusive: Int): Constraint<Double> =
+    constrain("must be at most '$maximumInclusive'") { it <= maximumInclusive.toDouble() }
 
-public fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be at least '{0}'",
-        minimumInclusive.toString(),
-    ) { it.toDouble() >= minimumInclusive.toDouble() }
+@JvmName("exclusiveMaximumFloat")
+public fun ValidationBuilder<Float>.exclusiveMaximum(maximumExclusive: Int): Constraint<Float> =
+    constrain("must be at most '$maximumExclusive'") { it < maximumExclusive.toFloat() }
 
-public fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be greater than '{0}'",
-        minimumExclusive.toString(),
-    ) { it.toDouble() > minimumExclusive.toDouble() }
+@JvmName("exclusiveMaximumDouble")
+public fun ValidationBuilder<Double>.exclusiveMaximum(maximumExclusive: Int): Constraint<Double> =
+    constrain("must be at most '$maximumExclusive'") { it < maximumExclusive.toDouble() }
+
+@JvmName("minimumFloat")
+public fun ValidationBuilder<Float>.minimum(minimumInclusive: Int): Constraint<Float> =
+    constrain("must be at most '$minimumInclusive'") { it >= minimumInclusive.toFloat() }
+
+@JvmName("minimumDouble")
+public fun ValidationBuilder<Double>.minimum(minimumInclusive: Int): Constraint<Double> =
+    constrain("must be at most '$minimumInclusive'") { it >= minimumInclusive.toDouble() }
+
+@JvmName("exclusiveMinimumFloat")
+public fun ValidationBuilder<Float>.exclusiveMinimum(minimumExclusive: Int): Constraint<Float> =
+    constrain("must be at most '$minimumExclusive'") { it > minimumExclusive.toFloat() }
+
+@JvmName("exclusiveMinimumDouble")
+public fun ValidationBuilder<Double>.exclusiveMinimum(minimumExclusive: Int): Constraint<Double> =
+    constrain("must be at most '$minimumExclusive'") { it > minimumExclusive.toDouble() }
