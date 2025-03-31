@@ -15,7 +15,6 @@ internal class MapValidation<K, V>(
         val errors = mutableListOf<Invalid>()
         value.forEach {
             val result = validation.validate(it)
-            println(result)
             if (result is Invalid) {
                 errors += Invalid(result.errors.map { e -> setMapPath(it.key, e) })
             }
