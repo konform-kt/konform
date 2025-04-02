@@ -1,21 +1,17 @@
 import org.gradle.internal.extensions.stdlib.capitalized
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
 
 val projectName = "konform"
 val projectGroup = "io.konform"
 val projectDesc = "Konform: Portable validations for Kotlin"
-val projectHost = "github"
-val projectOrg = "konform-kt"
 val projectLicense = "MIT"
 val projectLicenseUrl = "https://opensource.org/licenses/MIT"
 val projectScmUrl = "https://github.com/konform-kt/konform.git"
 val projectInceptionYear = 2018
 
 val kotlinApiTarget = "1.9"
-val jvm = JvmTarget.JVM_1_8
+val jvmTarget = JavaLanguageVersion.of(11)
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
 val onCI: Boolean = System.getenv("CI") == "true"
@@ -56,14 +52,10 @@ kotlin {
     androidNativeArm64()
     androidNativeX86()
     androidNativeX64()
-    jvm {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            // note lang toolchain cannot be used here
-            // because gradle no longer supports running on java 8
-            jvmTarget = jvm
-        }
+    jvmToolchain {
+        languageVersion.set(jvmTarget)
     }
+    jvm {}
     js(IR) {
         browser {}
         nodejs {}
@@ -175,6 +167,7 @@ publishing {
             pom {
                 name = projectName
                 description = projectDesc
+                inceptionYear = projectInceptionYear.toString()
                 url = "https://github.com/konform-kt/konform"
                 licenses {
                     license {
