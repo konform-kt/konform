@@ -218,6 +218,8 @@ val validateEvent = Validation<Event> {
         Person::email required {
             // Optionally set a hint, default hint is "is required"
             hint = "Email address must be given"
+            // Optionally set a user context, default is `null`
+            userContext = Severity.ERROR
             pattern(".+@bigcorp.com") hint "Organizers must have a BigCorp email address"
         }
     }
@@ -337,7 +339,7 @@ If you have a recursive type that you can validate, this requires
 1) an extra getter to get a self-reference to the validation, and
 2) dynamic to create an extra instance of the validation as-needed to avoid an infinite loop
 
-```
+```kotlin
 data class Node(val children: List<Node>)
 val validation = Validation<Node> {
   // Use dynamic and a function to get the current validation again

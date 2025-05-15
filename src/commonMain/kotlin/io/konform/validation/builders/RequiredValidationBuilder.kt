@@ -16,10 +16,11 @@ import io.konform.validation.types.RequireNotNullValidation.Companion.DEFAULT_RE
  */
 public class RequiredValidationBuilder<T : Any> : ValidationBuilder<T>() {
     public var hint: String = DEFAULT_REQUIRED_HINT
+    public var userContext: Any? = null
 
     override fun build(): RequireNotNullValidation<T> {
         val subValidation = super.build()
-        return RequireNotNullValidation(hint, subValidation)
+        return RequireNotNullValidation(hint, subValidation, userContext)
     }
 
     public companion object {
