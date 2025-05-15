@@ -21,10 +21,11 @@ internal class IfNotNullValidation<T : Any>(
 public class RequireNotNullValidation<T : Any>(
     private val hint: String,
     private val validation: Validation<T>,
+    private val userContext: Any? = null,
 ) : Validation<T?> {
     override fun validate(value: T?): ValidationResult<T?> =
         if (value == null) {
-            Invalid.of(ValidationPath.EMPTY, hint)
+            Invalid.of(ValidationPath.EMPTY, hint, userContext)
         } else {
             // Don't prepend path here since we expect the validation to contain the complete path
             validation(value)
