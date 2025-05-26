@@ -22,7 +22,8 @@ public data class ValidationError(
         public fun of(
             pathSegment: Any,
             message: String,
-        ): ValidationError = ValidationError(ValidationPath.of(pathSegment), message)
+            userContext: Any? = null,
+        ): ValidationError = ValidationError(ValidationPath.of(pathSegment), message, userContext)
 
         public fun ofEmptyPath(message: String): ValidationError = ValidationError(ValidationPath.EMPTY, message)
     }
