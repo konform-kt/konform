@@ -3,6 +3,9 @@ name: Dependabot Auto-merge
 on:
   pull_request:
     branches: [main]
+  check_run:
+    types: [completed]
+  status: {}
 
 permissions:
   contents: write
@@ -13,8 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     steps:
+      - name: Auto-approve dependabot PRs
+        if: github.event_name == 'pull_request'
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Enable auto-merge for dependabot PRs
+        if: github.event_name == 'pull_request'
         run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  check-failures:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'check_run' && github.event.check_run.conclusion == 'failure' && github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Disable auto-merge on check failure
+        run: gh pr merge --disable-auto "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
