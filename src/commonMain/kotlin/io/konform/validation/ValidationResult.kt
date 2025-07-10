@@ -56,7 +56,8 @@ public data class Invalid(
         public fun of(
             path: ValidationPath,
             message: String,
-        ): Invalid = Invalid(listOf(ValidationError(path, message)))
+            userContext: Any? = null,
+        ): Invalid = Invalid(listOf(ValidationError(path, message, userContext)))
     }
 }
 

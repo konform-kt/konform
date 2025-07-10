@@ -7,6 +7,7 @@ import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.pattern
 import io.konform.validation.countErrors
 import io.konform.validation.required
+import io.konform.validation.types.RequireNotNullValidation.Companion.DEFAULT_REQUIRED_HINT
 import io.kotest.assertions.konform.shouldBeInvalid
 import io.kotest.assertions.konform.shouldBeValid
 import io.kotest.assertions.konform.shouldContainOnlyError
@@ -40,6 +41,19 @@ class RequiredTest {
 
         (validation shouldBeInvalid Register(null)) shouldContainOnlyError
             ValidationError.of(Register::referredBy, "a referral is required")
+    }
+
+    @Test
+    fun setRequiredUserContext() {
+        val validation =
+            Validation<Register> {
+                Register::referredBy required {
+                    userContext = CustomUserContext("referrer_required")
+                }
+            }
+
+        (validation shouldBeInvalid Register(null)) shouldContainOnlyError
+            ValidationError.of(Register::referredBy, DEFAULT_REQUIRED_HINT, CustomUserContext("referrer_required"))
     }
 
     @Test
@@ -92,5 +106,9 @@ class RequiredTest {
 
     private data class Foo(
         val bar: String,
+    )
+
+    private data class CustomUserContext(
+        val errorKey: String,
     )
 }
