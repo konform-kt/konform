@@ -22,7 +22,7 @@ jobs:
       is_snapshot: ${{ steps.get-version.outputs.is_snapshot }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
@@ -81,7 +81,7 @@ jobs:
     environment: ${{needs.create-artifacts.outputs.is_snapshot=='false' && 'maven-central-release' || 'maven-central-snapshot'}}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
