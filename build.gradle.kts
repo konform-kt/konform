@@ -204,6 +204,8 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 nexusPublishing {
     repositories {
         sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             // Fallback to empty for local and CI builds with no access to the secrets
             // They should not need to publish anyway
             username = System.getenv("MAVEN_CENTRAL_TOKEN_USER") ?: ""
