@@ -1,6 +1,7 @@
 [versions]
 kotest = "6.0.4"
-kotlin = "2.1.21"
+kotlin = "2.2.21"
+ksp = "2.3.0"
 ktlint = "1.7.1"
 
 [libraries]
@@ -14,8 +15,10 @@ kotlincompiletesting = { module = "dev.zacsweers.kctfork:core", version = "0.7.1
 ktlint = { module = "com.pinterest.ktlint:ktlint-bom", version.ref = "ktlint" }
 
 [plugins]
-kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
+kotest-multiplatform = { id = "io.kotest", version.ref = "kotest" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-powerassert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "12.3.0" }
 nexuspublish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 kotlinx-binarycompatibilityvalidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }
