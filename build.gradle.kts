@@ -1,5 +1,6 @@
-import org.gradle.internal.extensions.stdlib.capitalized
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
 
 val projectName = "konform"
@@ -18,7 +19,9 @@ val onCI: Boolean = System.getenv("CI") == "true"
 
 plugins {
     alias(libs.plugins.kotest.multiplatform)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.powerassert)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.nexuspublish)
     alias(libs.plugins.kotlinx.binarycompatibilityvalidator)
@@ -97,8 +100,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotest.assertions.core)
-            //            implementation(kotlin("test-annotations-common"))
-            //            implementation(kotlin("test-common"))
+            implementation(libs.kotest.framework.engine)
         }
         jvmTest.dependencies {
             implementation(libs.kotlincompiletesting)
@@ -126,21 +128,15 @@ tasks.named<Test>("jvmTest") {
     }
 }
 
-// Disable test tasks for the unsupported source sets
-val kotestUnsupported =
-    listOf(
-        // https://github.com/kotest/kotest/issues/4015
-        "wasmWasi",
-    )
-kotestUnsupported.forEach {
-    // Disable tests for targets kotest doesn't support yet
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
+powerAssert {
+    functions = listOf("io.kotest.matchers.shouldBe")
+}
 
-    val capitalized = it.capitalized()
-    tasks.named("compileTestKotlin$capitalized") {
-        enabled = false
-    }
-
-    tasks.named<KotlinTestReport>("${it}Test") {
+// WASM does not have tier 1 test support yet, and this fails with error
+// "Module parse failed: Identifier 'startUnitTests' has already been declared (14:0)"
+listOf("wasmJsNodeTest", "wasmJsD8Test", "wasmJsBrowserTest").forEach {
+    tasks.named<KotlinJsTest>(it) {
         enabled = false
     }
 }

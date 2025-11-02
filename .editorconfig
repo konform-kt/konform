@@ -18,3 +18,10 @@ ktlint_code_style = ktlint_official
 ij_kotlin_packages_to_use_import_on_demand = unset
 ij_kotlin_name_count_to_use_star_import = 99
 ij_kotlin_name_count_to_use_star_import_for_members = 99
+
+# Work around for checking generated files: https://github.com/JLLeitschuh/ktlint-gradle/issues/746
+[**/build/generated/**]
+ktlint = disabled
+
+[build/generated/**]
+ktlint = disabled
