@@ -1,5 +1,6 @@
-import org.gradle.internal.extensions.stdlib.capitalized
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
 
 val projectName = "konform"
@@ -127,8 +128,15 @@ tasks.named<Test>("jvmTest") {
     }
 }
 
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
 powerAssert {
     functions = listOf("io.kotest.matchers.shouldBe")
+}
+
+// WASM does not have tier 1 test support yet, and this fails with error
+// "Module parse failed: Identifier 'startUnitTests' has already been declared (14:0)"
+tasks.named<KotlinJsTest>("wasmJsD8Test") {
+    enabled = false
 }
 
 apiValidation {
