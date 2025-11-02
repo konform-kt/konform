@@ -135,8 +135,10 @@ powerAssert {
 
 // WASM does not have tier 1 test support yet, and this fails with error
 // "Module parse failed: Identifier 'startUnitTests' has already been declared (14:0)"
-tasks.named<KotlinJsTest>("wasmJsD8Test") {
-    enabled = false
+listOf("wasmJsNodeTest", "wasmJsD8Test", "wasmJsBrowserTest").forEach {
+    tasks.named<KotlinJsTest>(it) {
+        enabled = false
+    }
 }
 
 apiValidation {
