@@ -41,7 +41,8 @@ public final class io/konform/validation/Invalid : io/konform/validation/Validat
 }
 
 public final class io/konform/validation/Invalid$Companion {
-	public final fun of (Lio/konform/validation/path/ValidationPath;Ljava/lang/String;)Lio/konform/validation/Invalid;
+	public final fun of (Lio/konform/validation/path/ValidationPath;Ljava/lang/String;Ljava/lang/Object;)Lio/konform/validation/Invalid;
+	public static synthetic fun of$default (Lio/konform/validation/Invalid$Companion;Lio/konform/validation/path/ValidationPath;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lio/konform/validation/Invalid;
 }
 
 public final class io/konform/validation/Valid : io/konform/validation/ValidationResult {
@@ -190,7 +191,9 @@ public final class io/konform/validation/builders/RequiredValidationBuilder : io
 	public synthetic fun build ()Lio/konform/validation/Validation;
 	public fun build ()Lio/konform/validation/types/RequireNotNullValidation;
 	public final fun getHint ()Ljava/lang/String;
+	public final fun getUserContext ()Ljava/lang/Object;
 	public final fun setHint (Ljava/lang/String;)V
+	public final fun setUserContext (Ljava/lang/Object;)V
 }
 
 public final class io/konform/validation/builders/RequiredValidationBuilder$Companion {
@@ -454,7 +457,8 @@ public final class io/konform/validation/types/PrependPathValidation : io/konfor
 }
 
 public final class io/konform/validation/types/RequireNotNullValidation : io/konform/validation/Validation {
-	public fun <init> (Ljava/lang/String;Lio/konform/validation/Validation;)V
+	public fun <init> (Ljava/lang/String;Lio/konform/validation/Validation;Ljava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/String;Lio/konform/validation/Validation;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun invoke (Ljava/lang/Object;)Lio/konform/validation/ValidationResult;
 	public fun prependPath (Lio/konform/validation/path/PathSegment;)Lio/konform/validation/Validation;
 	public fun prependPath (Lio/konform/validation/path/ValidationPath;)Lio/konform/validation/Validation;
