@@ -223,6 +223,11 @@ nexusPublishing {
         }
     }
 }
+
+// Disable configuration cache for nexus publishing tasks due to incompatibility
+tasks.matching { it.name.contains("Sonatype", ignoreCase = true) }.configureEach {
+    notCompatibleWithConfigurationCache("Nexus publishing plugin tasks are not compatible with configuration cache")
+}
 //endregion
 
 //region IDE configuration
