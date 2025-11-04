@@ -25,21 +25,20 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          cache: 'gradle'
+      - uses: gradle/actions/setup-gradle@v5
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Cache Kotlin JS/Native and Gradle toolchain dependencies
+      - name: Cache Kotlin JS/Native dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.konan
             ~/.npm
-            ~/.gradle/jdks
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: build-${{ runner.os }}-${{ hashFiles('build.gradle.kts', '**/gradle-wrapper.properties', 'settings.gradle.kts', 'kotlin-js-store/yarn.lock') }}
+          key: kotlin-native-${{ runner.os }}-${{ hashFiles('build.gradle.kts', '**/gradle-wrapper.properties', 'settings.gradle.kts', 'kotlin-js-store/yarn.lock') }}
           restore-keys: |
-            build-${{ runner.os }}-${{ hashFiles('build.gradle.kts') }}
-            build-${{ runner.os }}-
+            kotlin-native-${{ runner.os }}-${{ hashFiles('build.gradle.kts') }}
+            kotlin-native-${{ runner.os }}-
       - name: Assemble & Test project
         run: ./gradlew build
