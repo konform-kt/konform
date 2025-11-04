@@ -32,6 +32,11 @@ jobs:
         with:
           # Only restore from cache, don't save during publishing job
           cache-read-only: true
+          # Cache downloaded JDKs (we compile for Java 11 while running Gradle with Java 21)
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            jdks
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
@@ -92,6 +97,11 @@ jobs:
         with:
           # Only restore from cache, don't save during release job
           cache-read-only: true
+          # Cache downloaded JDKs (we compile for Java 11 while running Gradle with Java 21)
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            jdks
 
       - name: "Release version '${{needs.create-artifacts.outputs.version}}'"
         env:

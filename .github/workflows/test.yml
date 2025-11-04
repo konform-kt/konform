@@ -26,6 +26,12 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          # Cache downloaded JDKs (we compile for Java 11 while running Gradle with Java 21)
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            jdks
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
