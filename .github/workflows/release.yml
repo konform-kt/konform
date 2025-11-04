@@ -25,8 +25,8 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
-          # and the publishing plugin requires it
+          # Library is built for JVM 11, but we run gradle itself with a newer one because we can
+          # and Gradle 9 requires JVM 17+
           java-version: 21
           cache: 'gradle'
       - name: Get yarn cache directory path
@@ -38,6 +38,7 @@ jobs:
           path: |
             ~/.konan
             ~/.npm
+            ~/.gradle/jdks
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: build-${{ runner.os }}-${{ hashFiles('build.gradle.kts', '**/gradle-wrapper.properties', 'settings.gradle.kts', 'kotlin-js-store/yarn.lock') }}
           # There should've been at least one test run that creates the cache at this point
