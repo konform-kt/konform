@@ -25,9 +25,9 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          # Library is built for JVM 1.8, but we run gradle itself with a newer one because we can
-          # and the publishing plugin requires it
-          java-version: 21
+          # Library is built for JVM 11, but we run gradle itself with a newer one because we can
+          # and Gradle 9 requires JVM 17+
+          java-version: 17
           cache: 'gradle'
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 17
           cache: 'gradle'
 
       - name: "Release version '${{needs.create-artifacts.outputs.version}}'"
