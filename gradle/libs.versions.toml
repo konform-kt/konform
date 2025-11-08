@@ -21,4 +21,3 @@ kotlin-powerassert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "13.1.0" }
 nexuspublish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
-kotlinx-binarycompatibilityvalidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }

@@ -1,0 +1,453 @@
+// Klib ABI Dump
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.konform:konform>
+abstract interface <#A: in kotlin/Any?> io.konform.validation/Validation { // io.konform.validation/Validation|null[0]
+    abstract fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation/Validation.validate|validate(1:0){}[0]
+    open fun invoke(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation/Validation.invoke|invoke(1:0){}[0]
+    open fun prependPath(io.konform.validation.path/PathSegment): io.konform.validation/Validation<#A> // io.konform.validation/Validation.prependPath|prependPath(io.konform.validation.path.PathSegment){}[0]
+    open fun prependPath(io.konform.validation.path/ValidationPath): io.konform.validation/Validation<#A> // io.konform.validation/Validation.prependPath|prependPath(io.konform.validation.path.ValidationPath){}[0]
+
+    final object Companion { // io.konform.validation/Validation.Companion|null[0]
+        final fun <#A2: kotlin/Any?> invoke(kotlin/Function1<io.konform.validation/ValidationBuilder<#A2>, kotlin/Unit>): io.konform.validation/Validation<#A2> // io.konform.validation/Validation.Companion.invoke|invoke(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    }
+}
+
+sealed interface io.konform.validation.path/PathSegment { // io.konform.validation.path/PathSegment|null[0]
+    abstract val pathString // io.konform.validation.path/PathSegment.pathString|{}pathString[0]
+        abstract fun <get-pathString>(): kotlin/String // io.konform.validation.path/PathSegment.pathString.<get-pathString>|<get-pathString>(){}[0]
+
+    final object Companion { // io.konform.validation.path/PathSegment.Companion|null[0]
+        final fun toPathSegment(kotlin/Any?): io.konform.validation.path/PathSegment // io.konform.validation.path/PathSegment.Companion.toPathSegment|toPathSegment(kotlin.Any?){}[0]
+    }
+}
+
+final class <#A: #B!!, #B: kotlin/Any?> io.konform.validation.types/IsClassValidation : io.konform.validation/Validation<#B> { // io.konform.validation.types/IsClassValidation|null[0]
+    constructor <init>(kotlin.reflect/KClass<#A>, kotlin/Boolean, io.konform.validation/Validation<#A>) // io.konform.validation.types/IsClassValidation.<init>|<init>(kotlin.reflect.KClass<1:0>;kotlin.Boolean;io.konform.validation.Validation<1:0>){}[0]
+
+    final fun validate(#B): io.konform.validation/ValidationResult<#B> // io.konform.validation.types/IsClassValidation.validate|validate(1:1){}[0]
+}
+
+final class <#A: in kotlin/Any?> io.konform.validation/Constraint { // io.konform.validation/Constraint|null[0]
+    constructor <init>(kotlin/String, io.konform.validation.path/ValidationPath = ..., kotlin/Any? = ..., kotlin.collections/List<kotlin/String> = ..., kotlin/Function1<#A, kotlin/Boolean>) // io.konform.validation/Constraint.<init>|<init>(kotlin.String;io.konform.validation.path.ValidationPath;kotlin.Any?;kotlin.collections.List<kotlin.String>;kotlin.Function1<1:0,kotlin.Boolean>){}[0]
+
+    final val hint // io.konform.validation/Constraint.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String // io.konform.validation/Constraint.hint.<get-hint>|<get-hint>(){}[0]
+    final val path // io.konform.validation/Constraint.path|{}path[0]
+        final fun <get-path>(): io.konform.validation.path/ValidationPath // io.konform.validation/Constraint.path.<get-path>|<get-path>(){}[0]
+    final val templateValues // io.konform.validation/Constraint.templateValues|{}templateValues[0]
+        final fun <get-templateValues>(): kotlin.collections/List<kotlin/String> // io.konform.validation/Constraint.templateValues.<get-templateValues>|<get-templateValues>(){}[0]
+    final val test // io.konform.validation/Constraint.test|{}test[0]
+        final fun <get-test>(): kotlin/Function1<#A, kotlin/Boolean> // io.konform.validation/Constraint.test.<get-test>|<get-test>(){}[0]
+    final val userContext // io.konform.validation/Constraint.userContext|{}userContext[0]
+        final fun <get-userContext>(): kotlin/Any? // io.konform.validation/Constraint.userContext.<get-userContext>|<get-userContext>(){}[0]
+
+    final fun component1(): kotlin/String // io.konform.validation/Constraint.component1|component1(){}[0]
+    final fun component2(): io.konform.validation.path/ValidationPath // io.konform.validation/Constraint.component2|component2(){}[0]
+    final fun component3(): kotlin/Any? // io.konform.validation/Constraint.component3|component3(){}[0]
+    final fun component4(): kotlin.collections/List<kotlin/String> // io.konform.validation/Constraint.component4|component4(){}[0]
+    final fun component5(): kotlin/Function1<#A, kotlin/Boolean> // io.konform.validation/Constraint.component5|component5(){}[0]
+    final fun copy(kotlin/String = ..., io.konform.validation.path/ValidationPath = ..., kotlin/Any? = ..., kotlin.collections/List<kotlin/String> = ..., kotlin/Function1<#A, kotlin/Boolean> = ...): io.konform.validation/Constraint<#A> // io.konform.validation/Constraint.copy|copy(kotlin.String;io.konform.validation.path.ValidationPath;kotlin.Any?;kotlin.collections.List<kotlin.String>;kotlin.Function1<1:0,kotlin.Boolean>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation/Constraint.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation/Constraint.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation/Constraint.toString|toString(){}[0]
+
+    final object Companion { // io.konform.validation/Constraint.Companion|null[0]
+        final const val VALUE_IN_HINT // io.konform.validation/Constraint.Companion.VALUE_IN_HINT|{}VALUE_IN_HINT[0]
+            final fun <get-VALUE_IN_HINT>(): kotlin/String // io.konform.validation/Constraint.Companion.VALUE_IN_HINT.<get-VALUE_IN_HINT>|<get-VALUE_IN_HINT>(){}[0]
+    }
+}
+
+final class <#A: kotlin/Any> io.konform.validation.builders/RequiredValidationBuilder : io.konform.validation/ValidationBuilder<#A> { // io.konform.validation.builders/RequiredValidationBuilder|null[0]
+    constructor <init>() // io.konform.validation.builders/RequiredValidationBuilder.<init>|<init>(){}[0]
+
+    final var hint // io.konform.validation.builders/RequiredValidationBuilder.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String // io.konform.validation.builders/RequiredValidationBuilder.hint.<get-hint>|<get-hint>(){}[0]
+        final fun <set-hint>(kotlin/String) // io.konform.validation.builders/RequiredValidationBuilder.hint.<set-hint>|<set-hint>(kotlin.String){}[0]
+    final var userContext // io.konform.validation.builders/RequiredValidationBuilder.userContext|{}userContext[0]
+        final fun <get-userContext>(): kotlin/Any? // io.konform.validation.builders/RequiredValidationBuilder.userContext.<get-userContext>|<get-userContext>(){}[0]
+        final fun <set-userContext>(kotlin/Any?) // io.konform.validation.builders/RequiredValidationBuilder.userContext.<set-userContext>|<set-userContext>(kotlin.Any?){}[0]
+
+    final fun build(): io.konform.validation.types/RequireNotNullValidation<#A> // io.konform.validation.builders/RequiredValidationBuilder.build|build(){}[0]
+
+    final object Companion { // io.konform.validation.builders/RequiredValidationBuilder.Companion|null[0]
+        final inline fun <#A2: kotlin/Any> buildWithNew(kotlin/Function1<io.konform.validation.builders/RequiredValidationBuilder<#A2>, kotlin/Unit>): io.konform.validation.types/RequireNotNullValidation<#A2> // io.konform.validation.builders/RequiredValidationBuilder.Companion.buildWithNew|buildWithNew(kotlin.Function1<io.konform.validation.builders.RequiredValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    }
+}
+
+final class <#A: kotlin/Any> io.konform.validation.types/RequireNotNullValidation : io.konform.validation/Validation<#A?> { // io.konform.validation.types/RequireNotNullValidation|null[0]
+    constructor <init>(kotlin/String, io.konform.validation/Validation<#A>, kotlin/Any? = ...) // io.konform.validation.types/RequireNotNullValidation.<init>|<init>(kotlin.String;io.konform.validation.Validation<1:0>;kotlin.Any?){}[0]
+
+    final fun validate(#A?): io.konform.validation/ValidationResult<#A?> // io.konform.validation.types/RequireNotNullValidation.validate|validate(1:0?){}[0]
+}
+
+final class <#A: kotlin/Any?, #B: kotlin/Any?> io.konform.validation.types/CallableValidation : io.konform.validation/Validation<#A> { // io.konform.validation.types/CallableValidation|null[0]
+    constructor <init>(io.konform.validation.path/ValidationPath = ..., kotlin/Function1<#A, #B>, io.konform.validation/Validation<#B>) // io.konform.validation.types/CallableValidation.<init>|<init>(io.konform.validation.path.ValidationPath;kotlin.Function1<1:0,1:1>;io.konform.validation.Validation<1:1>){}[0]
+
+    final fun toString(): kotlin/String // io.konform.validation.types/CallableValidation.toString|toString(){}[0]
+    final fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation.types/CallableValidation.validate|validate(1:0){}[0]
+}
+
+final class <#A: kotlin/Any?> io.konform.validation.types/ConstraintsValidation : io.konform.validation/Validation<#A> { // io.konform.validation.types/ConstraintsValidation|null[0]
+    constructor <init>(kotlin.collections/List<io.konform.validation/Constraint<#A>>) // io.konform.validation.types/ConstraintsValidation.<init>|<init>(kotlin.collections.List<io.konform.validation.Constraint<1:0>>){}[0]
+
+    final fun copy(kotlin.collections/List<io.konform.validation/Constraint<#A>> = ...): io.konform.validation.types/ConstraintsValidation<#A> // io.konform.validation.types/ConstraintsValidation.copy|copy(kotlin.collections.List<io.konform.validation.Constraint<1:0>>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.types/ConstraintsValidation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.types/ConstraintsValidation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.types/ConstraintsValidation.toString|toString(){}[0]
+    final fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation.types/ConstraintsValidation.validate|validate(1:0){}[0]
+}
+
+final class <#A: kotlin/Any?> io.konform.validation.types/FailFastValidation : io.konform.validation/Validation<#A> { // io.konform.validation.types/FailFastValidation|null[0]
+    constructor <init>(kotlin.collections/List<io.konform.validation/Validation<#A>>) // io.konform.validation.types/FailFastValidation.<init>|<init>(kotlin.collections.List<io.konform.validation.Validation<1:0>>){}[0]
+
+    final fun toString(): kotlin/String // io.konform.validation.types/FailFastValidation.toString|toString(){}[0]
+    final fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation.types/FailFastValidation.validate|validate(1:0){}[0]
+}
+
+final class <#A: kotlin/Any?> io.konform.validation.types/PrependPathValidation : io.konform.validation/Validation<#A> { // io.konform.validation.types/PrependPathValidation|null[0]
+    constructor <init>(io.konform.validation.path/ValidationPath, io.konform.validation/Validation<#A>) // io.konform.validation.types/PrependPathValidation.<init>|<init>(io.konform.validation.path.ValidationPath;io.konform.validation.Validation<1:0>){}[0]
+
+    final fun toString(): kotlin/String // io.konform.validation.types/PrependPathValidation.toString|toString(){}[0]
+    final fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation.types/PrependPathValidation.validate|validate(1:0){}[0]
+}
+
+final class <#A: kotlin/Any?> io.konform.validation.types/ValidateAll : io.konform.validation/Validation<#A> { // io.konform.validation.types/ValidateAll|null[0]
+    constructor <init>(kotlin.collections/List<io.konform.validation/Validation<#A>>) // io.konform.validation.types/ValidateAll.<init>|<init>(kotlin.collections.List<io.konform.validation.Validation<1:0>>){}[0]
+
+    final fun toString(): kotlin/String // io.konform.validation.types/ValidateAll.toString|toString(){}[0]
+    final fun validate(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation.types/ValidateAll.validate|validate(1:0){}[0]
+}
+
+final class <#A: kotlin/Any?> io.konform.validation/Valid : io.konform.validation/ValidationResult<#A> { // io.konform.validation/Valid|null[0]
+    constructor <init>(#A) // io.konform.validation/Valid.<init>|<init>(1:0){}[0]
+
+    final val errors // io.konform.validation/Valid.errors|{}errors[0]
+        final fun <get-errors>(): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/Valid.errors.<get-errors>|<get-errors>(){}[0]
+    final val isValid // io.konform.validation/Valid.isValid|{}isValid[0]
+        final fun <get-isValid>(): kotlin/Boolean // io.konform.validation/Valid.isValid.<get-isValid>|<get-isValid>(){}[0]
+    final val value // io.konform.validation/Valid.value|{}value[0]
+        final fun <get-value>(): #A // io.konform.validation/Valid.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): #A // io.konform.validation/Valid.component1|component1(){}[0]
+    final fun copy(#A = ...): io.konform.validation/Valid<#A> // io.konform.validation/Valid.copy|copy(1:0){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation/Valid.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation/Valid.hashCode|hashCode(){}[0]
+    final fun prependPath(io.konform.validation.path/PathSegment): io.konform.validation/ValidationResult<#A> // io.konform.validation/Valid.prependPath|prependPath(io.konform.validation.path.PathSegment){}[0]
+    final fun prependPath(io.konform.validation.path/ValidationPath): io.konform.validation/ValidationResult<#A> // io.konform.validation/Valid.prependPath|prependPath(io.konform.validation.path.ValidationPath){}[0]
+    final fun toString(): kotlin/String // io.konform.validation/Valid.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/FuncRef : io.konform.validation.path/PathSegment { // io.konform.validation.path/FuncRef|null[0]
+    constructor <init>(kotlin.reflect/KFunction1<*, *>) // io.konform.validation.path/FuncRef.<init>|<init>(kotlin.reflect.KFunction1<*,*>){}[0]
+
+    final val function // io.konform.validation.path/FuncRef.function|{}function[0]
+        final fun <get-function>(): kotlin.reflect/KFunction1<*, *> // io.konform.validation.path/FuncRef.function.<get-function>|<get-function>(){}[0]
+    final val pathString // io.konform.validation.path/FuncRef.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/FuncRef.pathString.<get-pathString>|<get-pathString>(){}[0]
+
+    final fun component1(): kotlin.reflect/KFunction1<*, *> // io.konform.validation.path/FuncRef.component1|component1(){}[0]
+    final fun copy(kotlin.reflect/KFunction1<*, *> = ...): io.konform.validation.path/FuncRef // io.konform.validation.path/FuncRef.copy|copy(kotlin.reflect.KFunction1<*,*>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/FuncRef.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/FuncRef.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/FuncRef.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/PathClass : io.konform.validation.path/PathSegment { // io.konform.validation.path/PathClass|null[0]
+    constructor <init>(kotlin.reflect/KClass<*>) // io.konform.validation.path/PathClass.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
+
+    final val kcls // io.konform.validation.path/PathClass.kcls|{}kcls[0]
+        final fun <get-kcls>(): kotlin.reflect/KClass<*> // io.konform.validation.path/PathClass.kcls.<get-kcls>|<get-kcls>(){}[0]
+    final val pathString // io.konform.validation.path/PathClass.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/PathClass.pathString.<get-pathString>|<get-pathString>(){}[0]
+
+    final fun component1(): kotlin.reflect/KClass<*> // io.konform.validation.path/PathClass.component1|component1(){}[0]
+    final fun copy(kotlin.reflect/KClass<*> = ...): io.konform.validation.path/PathClass // io.konform.validation.path/PathClass.copy|copy(kotlin.reflect.KClass<*>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/PathClass.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/PathClass.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/PathClass.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/PathIndex : io.konform.validation.path/PathSegment { // io.konform.validation.path/PathIndex|null[0]
+    constructor <init>(kotlin/Int) // io.konform.validation.path/PathIndex.<init>|<init>(kotlin.Int){}[0]
+
+    final val index // io.konform.validation.path/PathIndex.index|{}index[0]
+        final fun <get-index>(): kotlin/Int // io.konform.validation.path/PathIndex.index.<get-index>|<get-index>(){}[0]
+    final val pathString // io.konform.validation.path/PathIndex.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/PathIndex.pathString.<get-pathString>|<get-pathString>(){}[0]
+
+    final fun component1(): kotlin/Int // io.konform.validation.path/PathIndex.component1|component1(){}[0]
+    final fun copy(kotlin/Int = ...): io.konform.validation.path/PathIndex // io.konform.validation.path/PathIndex.copy|copy(kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/PathIndex.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/PathIndex.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/PathIndex.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/PathKey : io.konform.validation.path/PathSegment { // io.konform.validation.path/PathKey|null[0]
+    constructor <init>(kotlin/Any?) // io.konform.validation.path/PathKey.<init>|<init>(kotlin.Any?){}[0]
+
+    final val key // io.konform.validation.path/PathKey.key|{}key[0]
+        final fun <get-key>(): kotlin/Any? // io.konform.validation.path/PathKey.key.<get-key>|<get-key>(){}[0]
+    final val pathString // io.konform.validation.path/PathKey.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/PathKey.pathString.<get-pathString>|<get-pathString>(){}[0]
+
+    final fun component1(): kotlin/Any? // io.konform.validation.path/PathKey.component1|component1(){}[0]
+    final fun copy(kotlin/Any? = ...): io.konform.validation.path/PathKey // io.konform.validation.path/PathKey.copy|copy(kotlin.Any?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/PathKey.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/PathKey.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/PathKey.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/PathValue : io.konform.validation.path/PathSegment { // io.konform.validation.path/PathValue|null[0]
+    constructor <init>(kotlin/Any?) // io.konform.validation.path/PathValue.<init>|<init>(kotlin.Any?){}[0]
+
+    final val pathString // io.konform.validation.path/PathValue.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/PathValue.pathString.<get-pathString>|<get-pathString>(){}[0]
+    final val value // io.konform.validation.path/PathValue.value|{}value[0]
+        final fun <get-value>(): kotlin/Any? // io.konform.validation.path/PathValue.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): kotlin/Any? // io.konform.validation.path/PathValue.component1|component1(){}[0]
+    final fun copy(kotlin/Any? = ...): io.konform.validation.path/PathValue // io.konform.validation.path/PathValue.copy|copy(kotlin.Any?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/PathValue.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/PathValue.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/PathValue.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/PropRef : io.konform.validation.path/PathSegment { // io.konform.validation.path/PropRef|null[0]
+    constructor <init>(kotlin.reflect/KProperty1<*, *>) // io.konform.validation.path/PropRef.<init>|<init>(kotlin.reflect.KProperty1<*,*>){}[0]
+
+    final val pathString // io.konform.validation.path/PropRef.pathString|{}pathString[0]
+        final fun <get-pathString>(): kotlin/String // io.konform.validation.path/PropRef.pathString.<get-pathString>|<get-pathString>(){}[0]
+    final val property // io.konform.validation.path/PropRef.property|{}property[0]
+        final fun <get-property>(): kotlin.reflect/KProperty1<*, *> // io.konform.validation.path/PropRef.property.<get-property>|<get-property>(){}[0]
+
+    final fun component1(): kotlin.reflect/KProperty1<*, *> // io.konform.validation.path/PropRef.component1|component1(){}[0]
+    final fun copy(kotlin.reflect/KProperty1<*, *> = ...): io.konform.validation.path/PropRef // io.konform.validation.path/PropRef.copy|copy(kotlin.reflect.KProperty1<*,*>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/PropRef.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/PropRef.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/PropRef.toString|toString(){}[0]
+}
+
+final class io.konform.validation.path/ValidationPath { // io.konform.validation.path/ValidationPath|null[0]
+    constructor <init>(kotlin.collections/List<io.konform.validation.path/PathSegment>) // io.konform.validation.path/ValidationPath.<init>|<init>(kotlin.collections.List<io.konform.validation.path.PathSegment>){}[0]
+
+    final val dataPath // io.konform.validation.path/ValidationPath.dataPath|{}dataPath[0]
+        final fun <get-dataPath>(): kotlin/String // io.konform.validation.path/ValidationPath.dataPath.<get-dataPath>|<get-dataPath>(){}[0]
+    final val segments // io.konform.validation.path/ValidationPath.segments|{}segments[0]
+        final fun <get-segments>(): kotlin.collections/List<io.konform.validation.path/PathSegment> // io.konform.validation.path/ValidationPath.segments.<get-segments>|<get-segments>(){}[0]
+
+    final fun component1(): kotlin.collections/List<io.konform.validation.path/PathSegment> // io.konform.validation.path/ValidationPath.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<io.konform.validation.path/PathSegment> = ...): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.copy|copy(kotlin.collections.List<io.konform.validation.path.PathSegment>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.path/ValidationPath.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.path/ValidationPath.hashCode|hashCode(){}[0]
+    final fun plus(io.konform.validation.path/PathSegment): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.plus|plus(io.konform.validation.path.PathSegment){}[0]
+    final fun plus(io.konform.validation.path/ValidationPath): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.plus|plus(io.konform.validation.path.ValidationPath){}[0]
+    final fun prepend(io.konform.validation.path/PathSegment): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.prepend|prepend(io.konform.validation.path.PathSegment){}[0]
+    final fun prepend(io.konform.validation.path/ValidationPath): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.prepend|prepend(io.konform.validation.path.ValidationPath){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.path/ValidationPath.toString|toString(){}[0]
+
+    final object Companion { // io.konform.validation.path/ValidationPath.Companion|null[0]
+        final val EMPTY // io.konform.validation.path/ValidationPath.Companion.EMPTY|{}EMPTY[0]
+            final fun <get-EMPTY>(): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.Companion.EMPTY.<get-EMPTY>|<get-EMPTY>(){}[0]
+
+        final fun of(kotlin/Array<out kotlin/Any>...): io.konform.validation.path/ValidationPath // io.konform.validation.path/ValidationPath.Companion.of|of(kotlin.Array<out|kotlin.Any>...){}[0]
+    }
+}
+
+final class io.konform.validation/Invalid : io.konform.validation/ValidationResult<kotlin/Nothing> { // io.konform.validation/Invalid|null[0]
+    constructor <init>(kotlin.collections/List<io.konform.validation/ValidationError>) // io.konform.validation/Invalid.<init>|<init>(kotlin.collections.List<io.konform.validation.ValidationError>){}[0]
+
+    final val errors // io.konform.validation/Invalid.errors|{}errors[0]
+        final fun <get-errors>(): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/Invalid.errors.<get-errors>|<get-errors>(){}[0]
+    final val isValid // io.konform.validation/Invalid.isValid|{}isValid[0]
+        final fun <get-isValid>(): kotlin/Boolean // io.konform.validation/Invalid.isValid.<get-isValid>|<get-isValid>(){}[0]
+
+    final fun component1(): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/Invalid.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<io.konform.validation/ValidationError> = ...): io.konform.validation/Invalid // io.konform.validation/Invalid.copy|copy(kotlin.collections.List<io.konform.validation.ValidationError>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation/Invalid.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation/Invalid.hashCode|hashCode(){}[0]
+    final fun prependPath(io.konform.validation.path/PathSegment): io.konform.validation/Invalid // io.konform.validation/Invalid.prependPath|prependPath(io.konform.validation.path.PathSegment){}[0]
+    final fun prependPath(io.konform.validation.path/ValidationPath): io.konform.validation/Invalid // io.konform.validation/Invalid.prependPath|prependPath(io.konform.validation.path.ValidationPath){}[0]
+    final fun toString(): kotlin/String // io.konform.validation/Invalid.toString|toString(){}[0]
+
+    final object Companion { // io.konform.validation/Invalid.Companion|null[0]
+        final fun of(io.konform.validation.path/ValidationPath, kotlin/String, kotlin/Any? = ...): io.konform.validation/Invalid // io.konform.validation/Invalid.Companion.of|of(io.konform.validation.path.ValidationPath;kotlin.String;kotlin.Any?){}[0]
+    }
+}
+
+final class io.konform.validation/ValidationError { // io.konform.validation/ValidationError|null[0]
+    constructor <init>(io.konform.validation.path/ValidationPath, kotlin/String, kotlin/Any? = ...) // io.konform.validation/ValidationError.<init>|<init>(io.konform.validation.path.ValidationPath;kotlin.String;kotlin.Any?){}[0]
+
+    final val dataPath // io.konform.validation/ValidationError.dataPath|{}dataPath[0]
+        final fun <get-dataPath>(): kotlin/String // io.konform.validation/ValidationError.dataPath.<get-dataPath>|<get-dataPath>(){}[0]
+    final val message // io.konform.validation/ValidationError.message|{}message[0]
+        final fun <get-message>(): kotlin/String // io.konform.validation/ValidationError.message.<get-message>|<get-message>(){}[0]
+    final val path // io.konform.validation/ValidationError.path|{}path[0]
+        final fun <get-path>(): io.konform.validation.path/ValidationPath // io.konform.validation/ValidationError.path.<get-path>|<get-path>(){}[0]
+    final val userContext // io.konform.validation/ValidationError.userContext|{}userContext[0]
+        final fun <get-userContext>(): kotlin/Any? // io.konform.validation/ValidationError.userContext.<get-userContext>|<get-userContext>(){}[0]
+
+    final fun component1(): io.konform.validation.path/ValidationPath // io.konform.validation/ValidationError.component1|component1(){}[0]
+    final fun component2(): kotlin/String // io.konform.validation/ValidationError.component2|component2(){}[0]
+    final fun component3(): kotlin/Any? // io.konform.validation/ValidationError.component3|component3(){}[0]
+    final fun copy(io.konform.validation.path/ValidationPath = ..., kotlin/String = ..., kotlin/Any? = ...): io.konform.validation/ValidationError // io.konform.validation/ValidationError.copy|copy(io.konform.validation.path.ValidationPath;kotlin.String;kotlin.Any?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation/ValidationError.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation/ValidationError.hashCode|hashCode(){}[0]
+    final fun prependPath(io.konform.validation.path/PathSegment): io.konform.validation/ValidationError // io.konform.validation/ValidationError.prependPath|prependPath(io.konform.validation.path.PathSegment){}[0]
+    final fun prependPath(io.konform.validation.path/ValidationPath): io.konform.validation/ValidationError // io.konform.validation/ValidationError.prependPath|prependPath(io.konform.validation.path.ValidationPath){}[0]
+    final fun toString(): kotlin/String // io.konform.validation/ValidationError.toString|toString(){}[0]
+    final inline fun mapPath(kotlin/Function1<kotlin.collections/List<io.konform.validation.path/PathSegment>, kotlin.collections/List<io.konform.validation.path/PathSegment>>): io.konform.validation/ValidationError // io.konform.validation/ValidationError.mapPath|mapPath(kotlin.Function1<kotlin.collections.List<io.konform.validation.path.PathSegment>,kotlin.collections.List<io.konform.validation.path.PathSegment>>){}[0]
+}
+
+open class <#A: kotlin/Any?> io.konform.validation/ValidationBuilder { // io.konform.validation/ValidationBuilder|null[0]
+    constructor <init>() // io.konform.validation/ValidationBuilder.<init>|<init>(){}[0]
+
+    final val constraints // io.konform.validation/ValidationBuilder.constraints|{}constraints[0]
+        final fun <get-constraints>(): kotlin.collections/MutableList<io.konform.validation/Constraint<#A>> // io.konform.validation/ValidationBuilder.constraints.<get-constraints>|<get-constraints>(){}[0]
+    final val subValidations // io.konform.validation/ValidationBuilder.subValidations|{}subValidations[0]
+        final fun <get-subValidations>(): kotlin.collections/MutableList<io.konform.validation/Validation<#A>> // io.konform.validation/ValidationBuilder.subValidations.<get-subValidations>|<get-subValidations>(){}[0]
+
+    final fun (io.konform.validation/Constraint<#A>).hint(kotlin/String): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.hint|hint@io.konform.validation.Constraint<1:0>(kotlin.String){}[0]
+    final fun (io.konform.validation/Constraint<#A>).path(io.konform.validation.path/ValidationPath): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.path|path@io.konform.validation.Constraint<1:0>(io.konform.validation.path.ValidationPath){}[0]
+    final fun (io.konform.validation/Constraint<#A>).replace(kotlin/String = ..., io.konform.validation.path/ValidationPath = ..., kotlin/Any? = ...): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.replace|replace@io.konform.validation.Constraint<1:0>(kotlin.String;io.konform.validation.path.ValidationPath;kotlin.Any?){}[0]
+    final fun (io.konform.validation/Constraint<#A>).userContext(kotlin/Any?): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.userContext|userContext@io.konform.validation.Constraint<1:0>(kotlin.Any?){}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KFunction1<#A, #A1?>).ifPresent(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.ifPresent|ifPresent@kotlin.reflect.KFunction1<1:0,0:0?>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KFunction1<#A, #A1?>).required(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.required|required@kotlin.reflect.KFunction1<1:0,0:0?>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KProperty1<#A, #A1>).ifPresent(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.ifPresent|ifPresent@kotlin.reflect.KProperty1<1:0,0:0>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KProperty1<#A, #A1>).required(kotlin/Function1<io.konform.validation.builders/RequiredValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.required|required@kotlin.reflect.KProperty1<1:0,0:0>(kotlin.Function1<io.konform.validation.builders.RequiredValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KProperty1<#A, #A1?>).ifPresent(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.ifPresent|ifPresent@kotlin.reflect.KProperty1<1:0,0:0?>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> (kotlin.reflect/KProperty1<#A, #A1?>).required(kotlin/Function1<io.konform.validation.builders/RequiredValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.required|required@kotlin.reflect.KProperty1<1:0,0:0?>(kotlin.Function1<io.konform.validation.builders.RequiredValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> required(kotlin/Any, kotlin/Function1<#A, #A1?>, kotlin/Function1<io.konform.validation.builders/RequiredValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.required|required(kotlin.Any;kotlin.Function1<1:0,0:0?>;kotlin.Function1<io.konform.validation.builders.RequiredValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (kotlin.reflect/KFunction1<#A, kotlin.collections/Map<#A1, #B1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<kotlin.collections/Map.Entry<#A1, #B1>>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KFunction1<1:0,kotlin.collections.Map<0:0,0:1>>(kotlin.Function1<io.konform.validation.ValidationBuilder<kotlin.collections.Map.Entry<0:0,0:1>>,kotlin.Unit>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (kotlin.reflect/KProperty1<#A, kotlin.collections/Map<#A1, #B1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<kotlin.collections/Map.Entry<#A1, #B1>>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KProperty1<1:0,kotlin.collections.Map<0:0,0:1>>(kotlin.Function1<io.konform.validation.ValidationBuilder<kotlin.collections.Map.Entry<0:0,0:1>>,kotlin.Unit>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KFunction1<#A, #A1>).dynamic(kotlin/Function2<io.konform.validation/ValidationBuilder<#A1>, #A, kotlin/Unit>) // io.konform.validation/ValidationBuilder.dynamic|dynamic@kotlin.reflect.KFunction1<1:0,0:0>(kotlin.Function2<io.konform.validation.ValidationBuilder<0:0>,1:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KFunction1<#A, #A1>).invoke(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.invoke|invoke@kotlin.reflect.KFunction1<1:0,0:0>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KFunction1<#A, kotlin.collections/Iterable<#A1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KFunction1<1:0,kotlin.collections.Iterable<0:0>>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KFunction1<#A, kotlin/Array<#A1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KFunction1<1:0,kotlin.Array<0:0>>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KProperty1<#A, #A1>).dynamic(kotlin/Function2<io.konform.validation/ValidationBuilder<#A1>, #A, kotlin/Unit>) // io.konform.validation/ValidationBuilder.dynamic|dynamic@kotlin.reflect.KProperty1<1:0,0:0>(kotlin.Function2<io.konform.validation.ValidationBuilder<0:0>,1:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KProperty1<#A, #A1>).invoke(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.invoke|invoke@kotlin.reflect.KProperty1<1:0,0:0>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KProperty1<#A, kotlin.collections/Iterable<#A1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KProperty1<1:0,kotlin.collections.Iterable<0:0>>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> (kotlin.reflect/KProperty1<#A, kotlin/Array<#A1>>).onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.onEach|onEach@kotlin.reflect.KProperty1<1:0,kotlin.Array<0:0>>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> dynamic(kotlin/Any, kotlin/Function1<#A, #A1>, kotlin/Function2<io.konform.validation/ValidationBuilder<#A1>, #A, kotlin/Unit>) // io.konform.validation/ValidationBuilder.dynamic|dynamic(kotlin.Any;kotlin.Function1<1:0,0:0>;kotlin.Function2<io.konform.validation.ValidationBuilder<0:0>,1:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> ifPresent(kotlin/Any, kotlin/Function1<#A, #A1?>, kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.ifPresent|ifPresent(kotlin.Any;kotlin.Function1<1:0,0:0?>;kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> validate(kotlin/Any, kotlin/Function1<#A, #A1>, kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.validate|validate(kotlin.Any;kotlin.Function1<1:0,0:0>;kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    final fun addConstraint(kotlin/String, kotlin/Array<out kotlin/String>..., kotlin/Function1<#A, kotlin/Boolean>): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.addConstraint|addConstraint(kotlin.String;kotlin.Array<out|kotlin.String>...;kotlin.Function1<1:0,kotlin.Boolean>){}[0]
+    final fun applyConstraint(io.konform.validation/Constraint<#A>): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.applyConstraint|applyConstraint(io.konform.validation.Constraint<1:0>){}[0]
+    final fun constrain(kotlin/String, io.konform.validation.path/ValidationPath = ..., kotlin/Any? = ..., kotlin/Function1<#A, kotlin/Boolean>): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.constrain|constrain(kotlin.String;io.konform.validation.path.ValidationPath;kotlin.Any?;kotlin.Function1<1:0,kotlin.Boolean>){}[0]
+    final fun dynamic(kotlin/Function2<io.konform.validation/ValidationBuilder<#A>, #A, kotlin/Unit>) // io.konform.validation/ValidationBuilder.dynamic|dynamic(kotlin.Function2<io.konform.validation.ValidationBuilder<1:0>,1:0,kotlin.Unit>){}[0]
+    final fun replaceConstraint(io.konform.validation/Constraint<#A>, io.konform.validation/Constraint<#A>): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.replaceConstraint|replaceConstraint(io.konform.validation.Constraint<1:0>;io.konform.validation.Constraint<1:0>){}[0]
+    final fun run(io.konform.validation/Validation<#A>) // io.konform.validation/ValidationBuilder.run|run(io.konform.validation.Validation<1:0>){}[0]
+    final fun runDynamic(kotlin/Function1<#A, io.konform.validation/Validation<#A>>) // io.konform.validation/ValidationBuilder.runDynamic|runDynamic(kotlin.Function1<1:0,io.konform.validation.Validation<1:0>>){}[0]
+    final inline fun <#A1: reified #A!!> ifInstanceOf(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.ifInstanceOf|ifInstanceOf(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<1:0>}[0]
+    final inline fun <#A1: reified #A!!> requireInstanceOf(kotlin/Function1<io.konform.validation/ValidationBuilder<#A1>, kotlin/Unit>) // io.konform.validation/ValidationBuilder.requireInstanceOf|requireInstanceOf(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<1:0>}[0]
+    open fun build(): io.konform.validation/Validation<#A> // io.konform.validation/ValidationBuilder.build|build(){}[0]
+
+    final object Companion { // io.konform.validation/ValidationBuilder.Companion|null[0]
+        final inline fun <#A2: kotlin/Any?> buildWithNew(kotlin/Function1<io.konform.validation/ValidationBuilder<#A2>, kotlin/Unit>): io.konform.validation/Validation<#A2> // io.konform.validation/ValidationBuilder.Companion.buildWithNew|buildWithNew(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+    }
+}
+
+sealed class <#A: out kotlin/Any?> io.konform.validation/ValidationResult { // io.konform.validation/ValidationResult|null[0]
+    abstract val errors // io.konform.validation/ValidationResult.errors|{}errors[0]
+        abstract fun <get-errors>(): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/ValidationResult.errors.<get-errors>|<get-errors>(){}[0]
+    abstract val isValid // io.konform.validation/ValidationResult.isValid|{}isValid[0]
+        abstract fun <get-isValid>(): kotlin/Boolean // io.konform.validation/ValidationResult.isValid.<get-isValid>|<get-isValid>(){}[0]
+
+    abstract fun prependPath(io.konform.validation.path/PathSegment): io.konform.validation/ValidationResult<#A> // io.konform.validation/ValidationResult.prependPath|prependPath(io.konform.validation.path.PathSegment){}[0]
+    abstract fun prependPath(io.konform.validation.path/ValidationPath): io.konform.validation/ValidationResult<#A> // io.konform.validation/ValidationResult.prependPath|prependPath(io.konform.validation.path.ValidationPath){}[0]
+    final fun get(kotlin/Array<out kotlin/Any>...): kotlin.collections/List<kotlin/String> // io.konform.validation/ValidationResult.get|get(kotlin.Array<out|kotlin.Any>...){}[0]
+    final fun plus(io.konform.validation/ValidationResult<#A>): io.konform.validation/ValidationResult<#A> // io.konform.validation/ValidationResult.plus|plus(io.konform.validation.ValidationResult<1:0>){}[0]
+    final inline fun <#A1: kotlin/Any?> flatMap(kotlin/Function1<#A, io.konform.validation/ValidationResult<#A1>>): io.konform.validation/ValidationResult<#A1> // io.konform.validation/ValidationResult.flatMap|flatMap(kotlin.Function1<1:0,io.konform.validation.ValidationResult<0:0>>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> map(kotlin/Function1<#A, #A1>): io.konform.validation/ValidationResult<#A1> // io.konform.validation/ValidationResult.map|map(kotlin.Function1<1:0,0:0>){0§<kotlin.Any?>}[0]
+}
+
+final object io.konform.validation.types/AlwaysInvalidValidation : io.konform.validation/Validation<kotlin/Any?> { // io.konform.validation.types/AlwaysInvalidValidation|null[0]
+    final fun validate(kotlin/Any?): io.konform.validation/Invalid // io.konform.validation.types/AlwaysInvalidValidation.validate|validate(kotlin.Any?){}[0]
+}
+
+final object io.konform.validation.types/EmptyValidation : io.konform.validation/Validation<kotlin/Any?> { // io.konform.validation.types/EmptyValidation|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // io.konform.validation.types/EmptyValidation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // io.konform.validation.types/EmptyValidation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // io.konform.validation.types/EmptyValidation.toString|toString(){}[0]
+    final fun validate(kotlin/Any?): io.konform.validation/ValidationResult<kotlin/Any?> // io.konform.validation.types/EmptyValidation.validate|validate(kotlin.Any?){}[0]
+}
+
+final fun (io.konform.validation/ValidationBuilder<kotlin/Double>).io.konform.validation.constraints/exclusiveMaximum(kotlin/Int): io.konform.validation/Constraint<kotlin/Double> // io.konform.validation.constraints/exclusiveMaximum|exclusiveMaximum@io.konform.validation.ValidationBuilder<kotlin.Double>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Double>).io.konform.validation.constraints/exclusiveMinimum(kotlin/Int): io.konform.validation/Constraint<kotlin/Double> // io.konform.validation.constraints/exclusiveMinimum|exclusiveMinimum@io.konform.validation.ValidationBuilder<kotlin.Double>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Double>).io.konform.validation.constraints/maximum(kotlin/Int): io.konform.validation/Constraint<kotlin/Double> // io.konform.validation.constraints/maximum|maximum@io.konform.validation.ValidationBuilder<kotlin.Double>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Double>).io.konform.validation.constraints/minimum(kotlin/Int): io.konform.validation/Constraint<kotlin/Double> // io.konform.validation.constraints/minimum|minimum@io.konform.validation.ValidationBuilder<kotlin.Double>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Float>).io.konform.validation.constraints/exclusiveMaximum(kotlin/Int): io.konform.validation/Constraint<kotlin/Float> // io.konform.validation.constraints/exclusiveMaximum|exclusiveMaximum@io.konform.validation.ValidationBuilder<kotlin.Float>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Float>).io.konform.validation.constraints/exclusiveMinimum(kotlin/Int): io.konform.validation/Constraint<kotlin/Float> // io.konform.validation.constraints/exclusiveMinimum|exclusiveMinimum@io.konform.validation.ValidationBuilder<kotlin.Float>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Float>).io.konform.validation.constraints/maximum(kotlin/Int): io.konform.validation/Constraint<kotlin/Float> // io.konform.validation.constraints/maximum|maximum@io.konform.validation.ValidationBuilder<kotlin.Float>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/Float>).io.konform.validation.constraints/minimum(kotlin/Int): io.konform.validation/Constraint<kotlin/Float> // io.konform.validation.constraints/minimum|minimum@io.konform.validation.ValidationBuilder<kotlin.Float>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/containsPattern(kotlin.text/Regex): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/containsPattern|containsPattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.text.Regex){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/containsPattern(kotlin/String): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/containsPattern|containsPattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.String){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/maxLength(kotlin/Int): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/maxLength|maxLength@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/minLength(kotlin/Int): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/minLength|minLength@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/notBlank(): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/notBlank|notBlank@io.konform.validation.ValidationBuilder<kotlin.String>(){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/pattern(kotlin.text/Regex): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/pattern|pattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.text.Regex){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/pattern(kotlin/String): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/pattern|pattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.String){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/uuid(): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/uuid|uuid@io.konform.validation.ValidationBuilder<kotlin.String>(){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/maxLength(kotlin/Int): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/maxLength|maxLength@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/minLength(kotlin/Int): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/minLength|minLength@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.Int){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/pattern(kotlin.text/Regex): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/pattern|pattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.text.Regex){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/pattern(kotlin/String): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/pattern|pattern@io.konform.validation.ValidationBuilder<kotlin.String>(kotlin.String){}[0]
+final fun (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/uuid(): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/uuid|uuid@io.konform.validation.ValidationBuilder<kotlin.String>(){}[0]
+final fun (kotlin.collections/List<io.konform.validation/Invalid>).io.konform.validation/flattenNotEmpty(): io.konform.validation/Invalid // io.konform.validation/flattenNotEmpty|flattenNotEmpty@kotlin.collections.List<io.konform.validation.Invalid>(){}[0]
+final fun (kotlin.collections/List<io.konform.validation/ValidationError>).io.konform.validation/filterDataPath(kotlin/Array<out kotlin/Any>...): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/filterDataPath|filterDataPath@kotlin.collections.List<io.konform.validation.ValidationError>(kotlin.Array<out|kotlin.Any>...){}[0]
+final fun (kotlin.collections/List<io.konform.validation/ValidationError>).io.konform.validation/filterPath(kotlin/Array<out kotlin/Any>...): kotlin.collections/List<io.konform.validation/ValidationError> // io.konform.validation/filterPath|filterPath@kotlin.collections.List<io.konform.validation.ValidationError>(kotlin.Array<out|kotlin.Any>...){}[0]
+final fun (kotlin.collections/List<io.konform.validation/ValidationError>).io.konform.validation/messagesAtDataPath(kotlin/Array<out kotlin/Any>...): kotlin.collections/List<kotlin/String> // io.konform.validation/messagesAtDataPath|messagesAtDataPath@kotlin.collections.List<io.konform.validation.ValidationError>(kotlin.Array<out|kotlin.Any>...){}[0]
+final fun (kotlin.collections/List<io.konform.validation/ValidationError>).io.konform.validation/messagesAtPath(kotlin/Array<out kotlin/Any>...): kotlin.collections/List<kotlin/String> // io.konform.validation/messagesAtPath|messagesAtPath@kotlin.collections.List<io.konform.validation.ValidationError>(kotlin.Array<out|kotlin.Any>...){}[0]
+final fun (kotlin.collections/Map.Entry<*, *>).io.konform.validation.path/toPathSegment(): io.konform.validation.path/PathKey // io.konform.validation.path/toPathSegment|toPathSegment@kotlin.collections.Map.Entry<*,*>(){}[0]
+final fun (kotlin.reflect/KFunction1<*, *>).io.konform.validation.path/toPathSegment(): io.konform.validation.path/FuncRef // io.konform.validation.path/toPathSegment|toPathSegment@kotlin.reflect.KFunction1<*,*>(){}[0]
+final fun (kotlin.reflect/KProperty1<*, *>).io.konform.validation.path/toPathSegment(): io.konform.validation.path/PropRef // io.konform.validation.path/toPathSegment|toPathSegment@kotlin.reflect.KProperty1<*,*>(){}[0]
+final fun <#A: kotlin.collections/Iterable<*>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/maxItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/maxItems|maxItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Iterable<*>>}[0]
+final fun <#A: kotlin.collections/Iterable<*>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/minItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/minItems|minItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Iterable<*>>}[0]
+final fun <#A: kotlin.collections/Iterable<*>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/uniqueItems(kotlin/Boolean = ...): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/uniqueItems|uniqueItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Boolean){0§<kotlin.collections.Iterable<*>>}[0]
+final fun <#A: kotlin.collections/Map<*, *>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/maxItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/maxItems|maxItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Map<*,*>>}[0]
+final fun <#A: kotlin.collections/Map<*, *>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/maxProperties(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/maxProperties|maxProperties@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Map<*,*>>}[0]
+final fun <#A: kotlin.collections/Map<*, *>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/minItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/minItems|minItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Map<*,*>>}[0]
+final fun <#A: kotlin.collections/Map<*, *>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/minProperties(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/minProperties|minProperties@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.collections.Map<*,*>>}[0]
+final fun <#A: kotlin.collections/Map<*, *>> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/uniqueItems(kotlin/Boolean = ...): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/uniqueItems|uniqueItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Boolean){0§<kotlin.collections.Map<*,*>>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/Validation<#A>).io.konform.validation/ifPresent(): io.konform.validation/Validation<#A?> // io.konform.validation/ifPresent|ifPresent@io.konform.validation.Validation<0:0>(){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/Validation<#A>).io.konform.validation/required(kotlin/String = ...): io.konform.validation/Validation<#A?> // io.konform.validation/required|required@io.konform.validation.Validation<0:0>(kotlin.String){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/exclusiveMaximum(kotlin/Comparable<#A>): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/exclusiveMaximum|exclusiveMaximum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Comparable<0:0>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/exclusiveMinimum(kotlin/Comparable<#A>): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/exclusiveMinimum|exclusiveMinimum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Comparable<0:0>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/maximum(kotlin/Comparable<#A>): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/maximum|maximum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Comparable<0:0>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/minimum(kotlin/Comparable<#A>): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/minimum|minimum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Comparable<0:0>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A?>).io.konform.validation/ifPresent(kotlin/Function1<io.konform.validation/ValidationBuilder<#A>, kotlin/Unit>) // io.konform.validation/ifPresent|ifPresent@io.konform.validation.ValidationBuilder<0:0?>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (io.konform.validation/ValidationBuilder<#A?>).io.konform.validation/required(kotlin/Function1<io.konform.validation/ValidationBuilder<#A>, kotlin/Unit>) // io.konform.validation/required|required@io.konform.validation.ValidationBuilder<0:0?>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin.collections/Iterable<#A>> (io.konform.validation/ValidationBuilder<#B>).io.konform.validation/onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A>, kotlin/Unit>) // io.konform.validation/onEach|onEach@io.konform.validation.ValidationBuilder<0:1>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>;1§<kotlin.collections.Iterable<0:0>>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin.collections/Map<#A, #B>> (io.konform.validation/ValidationBuilder<#C>).io.konform.validation/onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<kotlin.collections/Map.Entry<#A, #B>>, kotlin/Unit>) // io.konform.validation/onEach|onEach@io.konform.validation.ValidationBuilder<0:2>(kotlin.Function1<io.konform.validation.ValidationBuilder<kotlin.collections.Map.Entry<0:0,0:1>>,kotlin.Unit>){0§<kotlin.Any?>;1§<kotlin.Any?>;2§<kotlin.collections.Map<0:0,0:1>>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin.collections/Map<#A, #B>>).io.konform.validation.jsonschema/maxProperties(kotlin/Int): io.konform.validation/Constraint<kotlin.collections/Map<#A, #B>> // io.konform.validation.jsonschema/maxProperties|maxProperties@io.konform.validation.ValidationBuilder<kotlin.collections.Map<0:0,0:1>>(kotlin.Int){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin.collections/Map<#A, #B>>).io.konform.validation.jsonschema/minProperties(kotlin/Int): io.konform.validation/Constraint<kotlin.collections/Map<#A, #B>> // io.konform.validation.jsonschema/minProperties|minProperties@io.konform.validation.ValidationBuilder<kotlin.collections.Map<0:0,0:1>>(kotlin.Int){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/Validation<#A>).io.konform.validation/andThen(io.konform.validation/Validation<#A>): io.konform.validation/Validation<#A> // io.konform.validation/andThen|andThen@io.konform.validation.Validation<0:0>(io.konform.validation.Validation<0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/const(#A): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/const|const@io.konform.validation.ValidationBuilder<0:0>(0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/enum(kotlin/Array<out #A>...): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/enum|enum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Array<out|0:0>...){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/const(#A): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/const|const@io.konform.validation.ValidationBuilder<0:0>(0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/enum(kotlin/Array<out #A>...): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/enum|enum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Array<out|0:0>...){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin/Array<#A>>).io.konform.validation.constraints/maxItems(kotlin/Int): io.konform.validation/Constraint<kotlin/Array<#A>> // io.konform.validation.constraints/maxItems|maxItems@io.konform.validation.ValidationBuilder<kotlin.Array<0:0>>(kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin/Array<#A>>).io.konform.validation.constraints/minItems(kotlin/Int): io.konform.validation/Constraint<kotlin/Array<#A>> // io.konform.validation.constraints/minItems|minItems@io.konform.validation.ValidationBuilder<kotlin.Array<0:0>>(kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin/Array<#A>>).io.konform.validation.constraints/uniqueItems(kotlin/Boolean = ...): io.konform.validation/Constraint<kotlin/Array<#A>> // io.konform.validation.constraints/uniqueItems|uniqueItems@io.konform.validation.ValidationBuilder<kotlin.Array<0:0>>(kotlin.Boolean){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (io.konform.validation/ValidationBuilder<kotlin/Array<#A>>).io.konform.validation/onEach(kotlin/Function1<io.konform.validation/ValidationBuilder<#A>, kotlin/Unit>) // io.konform.validation/onEach|onEach@io.konform.validation.ValidationBuilder<kotlin.Array<0:0>>(kotlin.Function1<io.konform.validation.ValidationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlin.collections/List<io.konform.validation/Invalid>).io.konform.validation/flattenOrValid(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation/flattenOrValid|flattenOrValid@kotlin.collections.List<io.konform.validation.Invalid>(0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlin.collections/List<io.konform.validation/Validation<#A>>).io.konform.validation/flatten(kotlin/Boolean = ...): io.konform.validation/Validation<#A> // io.konform.validation/flatten|flatten@kotlin.collections.List<io.konform.validation.Validation<0:0>>(kotlin.Boolean){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlin.collections/List<io.konform.validation/ValidationResult<#A>>).io.konform.validation/flattenNonEmpty(): io.konform.validation/ValidationResult<#A> // io.konform.validation/flattenNonEmpty|flattenNonEmpty@kotlin.collections.List<io.konform.validation.ValidationResult<0:0>>(){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlin.collections/List<io.konform.validation/ValidationResult<#A>>).io.konform.validation/flattenOrValid(#A): io.konform.validation/ValidationResult<#A> // io.konform.validation/flattenOrValid|flattenOrValid@kotlin.collections.List<io.konform.validation.ValidationResult<0:0>>(0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.constraints/multipleOf(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.constraints/multipleOf|multipleOf@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/exclusiveMaximum(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/exclusiveMaximum|exclusiveMaximum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/exclusiveMinimum(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/exclusiveMinimum|exclusiveMinimum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/maximum(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/maximum|maximum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/minimum(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/minimum|minimum@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final fun <#A: kotlin/Number> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/multipleOf(kotlin/Number): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/multipleOf|multipleOf@io.konform.validation.ValidationBuilder<0:0>(kotlin.Number){0§<kotlin.Number>}[0]
+final inline fun <#A: reified kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/maxItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/maxItems|maxItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/minItems(kotlin/Int): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/minItems|minItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (io.konform.validation/ValidationBuilder<#A>).io.konform.validation.jsonschema/uniqueItems(kotlin/Boolean): io.konform.validation/Constraint<#A> // io.konform.validation.jsonschema/uniqueItems|uniqueItems@io.konform.validation.ValidationBuilder<0:0>(kotlin.Boolean){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (io.konform.validation/ValidationBuilder<*>).io.konform.validation.constraints/type(): io.konform.validation/Constraint<*> // io.konform.validation.constraints/type|type@io.konform.validation.ValidationBuilder<*>(){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (io.konform.validation/ValidationBuilder<*>).io.konform.validation.jsonschema/type(): io.konform.validation/Constraint<*> // io.konform.validation.jsonschema/type|type@io.konform.validation.ValidationBuilder<*>(){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Enum<#A>> (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.constraints/enum(): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.constraints/enum|enum@io.konform.validation.ValidationBuilder<kotlin.String>(){0§<kotlin.Enum<0:0>>}[0]
+final inline fun <#A: reified kotlin/Enum<#A>> (io.konform.validation/ValidationBuilder<kotlin/String>).io.konform.validation.jsonschema/enum(): io.konform.validation/Constraint<kotlin/String> // io.konform.validation.jsonschema/enum|enum@io.konform.validation.ValidationBuilder<kotlin.String>(){0§<kotlin.Enum<0:0>>}[0]

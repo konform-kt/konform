@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestReport
 
@@ -24,7 +25,6 @@ plugins {
     alias(libs.plugins.kotlin.powerassert)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.nexuspublish)
-    alias(libs.plugins.kotlinx.binarycompatibilityvalidator)
     id("maven-publish")
     id("signing")
     idea
@@ -42,6 +42,12 @@ version = projectVersion
 kotlin {
     // Since we are a library, prevent accidentally making things part of the public API
     explicitApi()
+
+    // Binary compatibility validation (built into Kotlin Gradle Plugin)
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+        enabled = true
+    }
 
     sourceSets.all {
         languageSettings {
@@ -141,11 +147,16 @@ listOf("wasmJsNodeTest", "wasmJsD8Test", "wasmJsBrowserTest").forEach {
     }
 }
 
-apiValidation {
-    apiDumpDirectory = "api"
+// Make ABI validation run as part of the check task (which is part of build)
+tasks.named("check") {
+    dependsOn("checkLegacyAbi")
+}
 
-    // ignoredPackages.add("kotlinx.coroutines.internal")
-    // ignoredClasses.add("com.company.BuildConfig")
+// Automatically update ABI dumps after jvmTest, but only locally (not on CI)
+if (!onCI) {
+    tasks.named("jvmTest") {
+        finalizedBy("updateLegacyAbi")
+    }
 }
 
 //endregion
