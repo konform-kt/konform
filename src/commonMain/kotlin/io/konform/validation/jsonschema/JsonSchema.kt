@@ -78,40 +78,28 @@ public fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constra
     ReplaceWith("maximum(maximumInclusive)", "io.konform.validation.constraints.maximum"),
 )
 public fun <T : Number> ValidationBuilder<T>.maximum(maximumInclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be at most '{0}'",
-        maximumInclusive.toString(),
-    ) { it.toDouble() <= maximumInclusive.toDouble() }
+    constrain("must be at most '$maximumInclusive'") { it.toDouble() <= maximumInclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("exclusiveMaximum(maximumExclusive)", "io.konform.validation.constraints.exclusiveMaximum"),
 )
 public fun <T : Number> ValidationBuilder<T>.exclusiveMaximum(maximumExclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be less than '{0}'",
-        maximumExclusive.toString(),
-    ) { it.toDouble() < maximumExclusive.toDouble() }
+    constrain("must be less than '$maximumExclusive'") { it.toDouble() < maximumExclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("minimum(minimumInclusive)", "io.konform.validation.constraints.minimum"),
 )
 public fun <T : Number> ValidationBuilder<T>.minimum(minimumInclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be at least '{0}'",
-        minimumInclusive.toString(),
-    ) { it.toDouble() >= minimumInclusive.toDouble() }
+    constrain("must be at least '$minimumInclusive'") { it.toDouble() >= minimumInclusive.toDouble() }
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("exclusiveMinimum(minimumExclusive)", "io.konform.validation.constraints.exclusiveMinimum"),
 )
 public fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: Number): Constraint<T> =
-    addConstraint(
-        "must be greater than '{0}'",
-        minimumExclusive.toString(),
-    ) { it.toDouble() > minimumExclusive.toDouble() }
+    constrain("must be greater than '$minimumExclusive'") { it.toDouble() > minimumExclusive.toDouble() }
 
 @Suppress("UNCHECKED_CAST")
 @Deprecated(
@@ -119,10 +107,7 @@ public fun <T : Number> ValidationBuilder<T>.exclusiveMinimum(minimumExclusive: 
     ReplaceWith("minItems(minSize)", "io.konform.validation.constraints.minItems"),
 )
 public inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Constraint<T> =
-    addConstraint(
-        "must have at least {0} items",
-        minSize.toString(),
-    ) {
+    constrain("must have at least $minSize items") {
         when (it) {
             is Iterable<*> -> it.count() >= minSize
             is Array<*> -> it.count() >= minSize
@@ -136,10 +121,7 @@ public inline fun <reified T> ValidationBuilder<T>.minItems(minSize: Int): Const
     ReplaceWith("maxItems(maxSize)", "io.konform.validation.constraints.maxItems"),
 )
 public inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Constraint<T> =
-    addConstraint(
-        "must have at most {0} items",
-        maxSize.toString(),
-    ) {
+    constrain("must have at most $maxSize items") {
         when (it) {
             is Iterable<*> -> it.count() <= maxSize
             is Array<*> -> it.count() <= maxSize
@@ -153,23 +135,21 @@ public inline fun <reified T> ValidationBuilder<T>.maxItems(maxSize: Int): Const
     ReplaceWith("minProperties(maxSize)", "io.konform.validation.constraints.minProperties"),
 )
 public fun <K, V> ValidationBuilder<Map<K, V>>.minProperties(minSize: Int): Constraint<Map<K, V>> =
-    movedMinProperties(minSize) hint "must have at least {0} properties"
+    movedMinProperties(minSize) hint "must have at least $minSize properties"
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("maxProperties(maxSize)", "io.konform.validation.constraints.maxProperties"),
 )
 public fun <K, V> ValidationBuilder<Map<K, V>>.maxProperties(maxSize: Int): Constraint<Map<K, V>> =
-    movedMaxProperties(maxSize) hint "must have at most {0} properties"
+    movedMaxProperties(maxSize) hint "must have at most $maxSize properties"
 
 @Deprecated(
     "Moved to io.konform.validation.constraints",
     ReplaceWith("uniqueItems(unique)", "io.konform.validation.constraints.uniqueItems"),
 )
 public inline fun <reified T> ValidationBuilder<T>.uniqueItems(unique: Boolean): Constraint<T> =
-    addConstraint(
-        "all items must be unique",
-    ) {
+    constrain("all items must be unique") {
         !unique ||
             when (it) {
                 is Iterable<*> -> it.distinct().count() == it.count()

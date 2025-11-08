@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
 public fun <T : Number> ValidationBuilder<T>.multipleOf(factor: Number): Constraint<T> {
     val factorAsDouble = factor.toDouble()
     require(factorAsDouble > 0) { "multipleOf requires the factor to be strictly larger than 0" }
-    return addConstraint("must be a multiple of '{0}'", factor.toString()) {
+    return constrain("must be a multiple of '$factor'") {
         val division = it.toDouble() / factorAsDouble
         division.compareTo(division.roundToInt()) == 0
     }
