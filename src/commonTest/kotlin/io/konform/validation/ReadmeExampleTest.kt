@@ -152,7 +152,7 @@ class ReadmeExampleTest {
         val validateUser1 =
             Validation<UserProfile> {
                 UserProfile::fullName {
-                    addConstraint("Name cannot contain a tab") { !it.contains("\t") }
+                    constrain("Name cannot contain a tab") { !it.contains("\t") }
                 }
             }
 
