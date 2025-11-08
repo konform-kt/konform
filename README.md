@@ -176,6 +176,50 @@ val validateUser = Validation<UserProfile> {
 }
 ```
 
+#### Configurable paths
+
+You can override the path that appears in validation errors by setting the `path` property in a validation builder.
+This is particularly useful for inline/value classes where you want the wrapper to be transparent in error paths,
+or when the default path doesn't match your serialized structure (e.g., JSON):
+
+```kotlin
+@JvmInline
+value class WrappedInt(val value: Int)
+
+data class DataWithWrapper(val wrapped: WrappedInt)
+
+val validation = Validation<DataWithWrapper> {
+    DataWithWrapper::wrapped {
+        // Remove the "wrapped" segment from the path
+        path = ValidationPath.EMPTY
+        validate("value", { it.value }) {
+            minimum(1)
+        }
+    }
+}
+
+// Error path will be ".value" instead of ".wrapped.value"
+validation(DataWithWrapper(WrappedInt(0)))
+// yields Invalid with error at path "value"
+```
+
+You can also set a custom path:
+
+```kotlin
+val validation = Validation<DataWithWrapper> {
+    DataWithWrapper::wrapped {
+        path = ValidationPath.of("customPath")
+        validate("value", { it.value }) {
+            minimum(1)
+        }
+    }
+}
+
+// Error path will be ".customPath.value"
+```
+
+This works with all validation methods including `ifPresent`, `required`, and `onEach`.
+
 #### Split validations
 
 You can define validations separately and run them from other validations
