@@ -91,6 +91,7 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun dynamic (Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function2;)V
 	public final fun dynamic (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function2;)V
 	protected final fun getConstraints ()Ljava/util/List;
+	public final fun getPath ()Lio/konform/validation/path/ValidationPath;
 	protected final fun getSubValidations ()Ljava/util/List;
 	public final fun hint (Lio/konform/validation/Constraint;Ljava/lang/String;)Lio/konform/validation/Constraint;
 	public final fun ifPresent (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
@@ -115,6 +116,7 @@ public class io/konform/validation/ValidationBuilder {
 	public final fun requiredOnNotNullProperty (Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)V
 	public final fun run (Lio/konform/validation/Validation;)V
 	public final fun runDynamic (Lkotlin/jvm/functions/Function1;)V
+	public final fun setPath (Lio/konform/validation/path/ValidationPath;)V
 	public final fun userContext (Lio/konform/validation/Constraint;Ljava/lang/Object;)Lio/konform/validation/Constraint;
 	public final fun validate (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 }
