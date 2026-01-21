@@ -29,6 +29,25 @@ public open class ValidationBuilder<T> {
     protected val constraints: MutableList<Constraint<T>> = mutableListOf()
     protected val subValidations: MutableList<Validation<T>> = mutableListOf()
 
+    /**
+     * Override the path that will be used for sub-validations and constraints in this builder.
+     * When set, this path replaces the default path that would normally be generated.
+     *
+     * This is useful for inline/value classes where the wrapper should be transparent in error paths,
+     * or other scenarios where the default path doesn't match the serialized structure.
+     *
+     * Example:
+     * ```kotlin
+     * WrapperClass::valueClass {
+     *   path = ValidationPath.EMPTY  // Remove this path segment
+     *   ValueClass::integer {
+     *     minimum(1)
+     *   }
+     * }
+     * ```
+     */
+    public var path: ValidationPath? = null
+
     public open fun build(): Validation<T> =
         subValidations
             .let {
@@ -99,19 +118,34 @@ public open class ValidationBuilder<T> {
         pathSegment: PathSegment,
         prop: (T) -> Iterable<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    ) = run(CallableValidation(pathSegment, prop, IterableValidation(buildWithNew(init))))
+    ) {
+        val builder = ValidationBuilder<R>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(pathSegment)
+        run(CallableValidation(actualPath, prop, IterableValidation(builder.build())))
+    }
 
     private fun <R> onEachArray(
         pathSegment: PathSegment,
         prop: (T) -> Array<R>,
         init: ValidationBuilder<R>.() -> Unit,
-    ) = run(CallableValidation(pathSegment, prop, ArrayValidation(buildWithNew(init))))
+    ) {
+        val builder = ValidationBuilder<R>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(pathSegment)
+        run(CallableValidation(actualPath, prop, ArrayValidation(builder.build())))
+    }
 
     private fun <K, V> onEachMap(
         pathSegment: PathSegment,
         prop: (T) -> Map<K, V>,
         init: ValidationBuilder<Map.Entry<K, V>>.() -> Unit,
-    ) = run(CallableValidation(pathSegment, prop, MapValidation(buildWithNew(init))))
+    ) {
+        val builder = ValidationBuilder<Map.Entry<K, V>>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(pathSegment)
+        run(CallableValidation(actualPath, prop, MapValidation(builder.build())))
+    }
 
     @JvmName("onEachIterable")
     public infix fun <R> KProperty1<T, Iterable<R>>.onEach(init: ValidationBuilder<R>.() -> Unit): Unit =
@@ -190,7 +224,12 @@ public open class ValidationBuilder<T> {
         path: Any,
         f: (T) -> R,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(path, f, buildWithNew(init)))
+    ) {
+        val builder = ValidationBuilder<R>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(path)
+        run(CallableValidation(actualPath, f, builder.build()))
+    }
 
     /**
      * Build a new validation based on a transformed value of the input and run it.
@@ -216,7 +255,12 @@ public open class ValidationBuilder<T> {
         path: Any,
         f: (T) -> R?,
         init: ValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(path, f, buildWithNew(init).ifPresent()))
+    ) {
+        val builder = ValidationBuilder<R>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(path)
+        run(CallableValidation(actualPath, f, builder.build().ifPresent()))
+    }
 
     /**
      * Calculate a value from the input and run a validation on it, and give an error if the result is null.
@@ -227,7 +271,12 @@ public open class ValidationBuilder<T> {
         path: Any,
         f: (T) -> R?,
         init: RequiredValidationBuilder<R>.() -> Unit,
-    ): Unit = run(CallableValidation(path, f, RequiredValidationBuilder.buildWithNew(init)))
+    ) {
+        val builder = RequiredValidationBuilder<R>()
+        init(builder)
+        val actualPath = builder.path ?: ValidationPath.of(path)
+        run(CallableValidation(actualPath, f, builder.build()))
+    }
 
     // endregion
 
