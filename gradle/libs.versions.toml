@@ -1,7 +1,7 @@
 [versions]
 kotest = "6.1.2"
 kotlin = "2.2.21"
-ksp = "2.3.4"
+ksp = "2.3.5"
 ktlint = "1.7.1"
 
 [libraries]
