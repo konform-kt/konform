@@ -27,8 +27,9 @@ Konform is a portable validation library for Kotlin with a type-safe DSL support
 ./gradlew ktlintCheck
 ./gradlew ktlintFormat
 
-# API compatibility validation
-./gradlew apiCheck
+# API compatibility validation (uses Kotlin's built-in ABI validation)
+./gradlew checkLegacyAbi        # Check ABI compatibility
+./gradlew updateLegacyAbi       # Update API dump files after API changes
 
 # Run single test class (JVM)
 ./gradlew jvmTest --tests "io.konform.validation.ValidationTest"
