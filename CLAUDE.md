@@ -16,7 +16,10 @@ Konform is a portable validation library for Kotlin with a type-safe DSL support
 # Build and test all platforms
 ./gradlew build
 
-# Run tests only
+# Note: On macOS without Xcode, native targets will fail. JVM tests can be run with:
+./gradlew jvmTest
+
+# Run tests only (checks without building artifacts)
 ./gradlew check
 
 # Platform-specific tests

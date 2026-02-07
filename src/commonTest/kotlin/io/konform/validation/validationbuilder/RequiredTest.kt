@@ -6,6 +6,7 @@ import io.konform.validation.ValidationError
 import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.pattern
 import io.konform.validation.countErrors
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.required
 import io.konform.validation.types.RequireNotNullValidation.Companion.DEFAULT_REQUIRED_HINT
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -111,7 +112,7 @@ class RequiredTest {
 
         validation shouldBeValid "test"
         (validation shouldBeInvalid null) shouldContainOnlyError
-            ValidationError.of("value must be present")
+            ValidationError(ValidationPath.EMPTY, "value must be present")
     }
 
     @Test
@@ -125,7 +126,7 @@ class RequiredTest {
 
         validation shouldBeValid "test"
         (validation shouldBeInvalid null) shouldContainOnlyError
-            ValidationError.of(DEFAULT_REQUIRED_HINT, CustomUserContext("value_required"))
+            ValidationError(ValidationPath.EMPTY, DEFAULT_REQUIRED_HINT, CustomUserContext("value_required"))
     }
 
     @Test
