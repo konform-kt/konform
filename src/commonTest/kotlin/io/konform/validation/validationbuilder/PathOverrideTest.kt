@@ -114,4 +114,31 @@ class PathOverrideTest {
         (validation shouldBeInvalid Level1(Level2(0))) shouldContainOnlyError
             ValidationError(ValidationPath.of(Level2::value), "must be at least '1'")
     }
+
+    @Test
+    fun pathOverrideWorksWithRequired() {
+        data class Profile(
+            val name: String?,
+        )
+
+        data class User(
+            val profile: Profile?,
+        )
+
+        val validation =
+            Validation<User> {
+                User::profile required {
+                    Profile::name required {
+                        path = ValidationPath.EMPTY
+                        hint = "Name is required"
+                    }
+                }
+            }
+
+        validation shouldBeValid User(Profile("John"))
+
+        // Error path should be .profile (name suppressed)
+        (validation shouldBeInvalid User(Profile(null))) shouldContainOnlyError
+            ValidationError.of(User::profile, "Name is required")
+    }
 }
