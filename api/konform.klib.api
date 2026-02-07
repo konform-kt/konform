@@ -311,6 +311,10 @@ open class <#A: kotlin/Any?> io.konform.validation/ValidationBuilder { // io.kon
     final val subValidations // io.konform.validation/ValidationBuilder.subValidations|{}subValidations[0]
         final fun <get-subValidations>(): kotlin.collections/MutableList<io.konform.validation/Validation<#A>> // io.konform.validation/ValidationBuilder.subValidations.<get-subValidations>|<get-subValidations>(){}[0]
 
+    final var path // io.konform.validation/ValidationBuilder.path|{}path[0]
+        final fun <get-path>(): io.konform.validation.path/ValidationPath? // io.konform.validation/ValidationBuilder.path.<get-path>|<get-path>(){}[0]
+        final fun <set-path>(io.konform.validation.path/ValidationPath?) // io.konform.validation/ValidationBuilder.path.<set-path>|<set-path>(io.konform.validation.path.ValidationPath?){}[0]
+
     final fun (io.konform.validation/Constraint<#A>).hint(kotlin/String): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.hint|hint@io.konform.validation.Constraint<1:0>(kotlin.String){}[0]
     final fun (io.konform.validation/Constraint<#A>).path(io.konform.validation.path/ValidationPath): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.path|path@io.konform.validation.Constraint<1:0>(io.konform.validation.path.ValidationPath){}[0]
     final fun (io.konform.validation/Constraint<#A>).replace(kotlin/String = ..., io.konform.validation.path/ValidationPath = ..., kotlin/Any? = ...): io.konform.validation/Constraint<#A> // io.konform.validation/ValidationBuilder.replace|replace@io.konform.validation.Constraint<1:0>(kotlin.String;io.konform.validation.path.ValidationPath;kotlin.Any?){}[0]
