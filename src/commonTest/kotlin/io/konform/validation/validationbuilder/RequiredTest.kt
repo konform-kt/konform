@@ -6,6 +6,7 @@ import io.konform.validation.ValidationError
 import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.pattern
 import io.konform.validation.countErrors
+import io.konform.validation.path.ValidationPath
 import io.konform.validation.required
 import io.konform.validation.types.RequireNotNullValidation.Companion.DEFAULT_REQUIRED_HINT
 import io.kotest.assertions.konform.shouldBeInvalid
@@ -100,9 +101,53 @@ class RequiredTest {
         validation shouldBeValid Foo("")
     }
 
+    @Test
+    fun setRequiredHintOnNullableExtension() {
+        val validation =
+            Validation<String?> {
+                required {
+                    hint = "value must be present"
+                }
+            }
+
+        validation shouldBeValid "test"
+        (validation shouldBeInvalid null) shouldContainOnlyError
+            ValidationError(ValidationPath.EMPTY, "value must be present")
+    }
+
+    @Test
+    fun setRequiredUserContextOnNullableExtension() {
+        val validation =
+            Validation<String?> {
+                required {
+                    userContext = CustomUserContext("value_required")
+                }
+            }
+
+        validation shouldBeValid "test"
+        (validation shouldBeInvalid null) shouldContainOnlyError
+            ValidationError(ValidationPath.EMPTY, DEFAULT_REQUIRED_HINT, CustomUserContext("value_required"))
+    }
+
+    @Test
+    fun setRequiredHintOnFunctionReference() {
+        val validation =
+            Validation<Register> {
+                Register::getReferral required {
+                    hint = "referral method must return a value"
+                }
+            }
+
+        validation shouldBeValid Register(referredBy = "test")
+        (validation shouldBeInvalid Register(referredBy = null)) shouldContainOnlyError
+            ValidationError.of(Register::getReferral, "referral method must return a value")
+    }
+
     private data class Register(
         val referredBy: String? = null,
-    )
+    ) {
+        fun getReferral(): String? = referredBy
+    }
 
     private data class Foo(
         val bar: String,

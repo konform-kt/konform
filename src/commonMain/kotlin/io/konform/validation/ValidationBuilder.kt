@@ -171,7 +171,7 @@ public open class ValidationBuilder<T> {
     // Don't deprecate calling this on not null props, to ease working with functions returning platform types
 
     /** Validate that the result of this function is not null and run a validation on it. */
-    public infix fun <R : Any> KFunction1<T, R?>.required(init: ValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
+    public infix fun <R : Any> KFunction1<T, R?>.required(init: RequiredValidationBuilder<R>.() -> Unit): Unit = required(this, this, init)
 
     public infix fun <R> KProperty1<T, R>.dynamic(init: ValidationBuilder<R>.(T) -> Unit): Unit = dynamic(this, this, init)
 
@@ -267,7 +267,8 @@ public fun <T : Any> ValidationBuilder<T?>.ifPresent(init: ValidationBuilder<T>.
 /**
  * Run a validation on a nullable property, giving an error on nulls.
  */
-public fun <T : Any> ValidationBuilder<T?>.required(init: ValidationBuilder<T>.() -> Unit): Unit = run(buildWithNew(init).required())
+public fun <T : Any> ValidationBuilder<T?>.required(init: RequiredValidationBuilder<T>.() -> Unit): Unit =
+    run(RequiredValidationBuilder.buildWithNew(init))
 
 @JvmName("onEachIterable")
 public fun <S, T : Iterable<S>> ValidationBuilder<T>.onEach(init: ValidationBuilder<S>.() -> Unit): Unit =
