@@ -29,12 +29,16 @@ public sealed class ValidationResult<out T> {
     /** Merge two [ValidationResult], returning [Valid] if both are valid, and the error(s) otherwise. */
     public infix operator fun plus(other: ValidationResult<@UnsafeVariance T>): ValidationResult<T> =
         when (this) {
-            is Valid -> other
-            is Invalid ->
+            is Valid -> {
+                other
+            }
+
+            is Invalid -> {
                 when (other) {
                     is Valid -> this
                     is Invalid -> Invalid(errors + other.errors)
                 }
+            }
         }
 
     public abstract fun prependPath(pathSegment: PathSegment): ValidationResult<T>

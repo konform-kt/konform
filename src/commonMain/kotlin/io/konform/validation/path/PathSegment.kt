@@ -34,11 +34,17 @@ public sealed interface PathSegment {
         public fun toPathSegment(pathSegment: Any?): PathSegment =
             when (pathSegment) {
                 is PathSegment -> pathSegment
+
                 is KProperty1<*, *> -> pathSegment.toPathSegment()
+
                 is KFunction1<*, *> -> pathSegment.toPathSegment()
+
                 is Int -> PathIndex(pathSegment)
+
                 is Map.Entry<*, *> -> pathSegment.toPathSegment()
+
                 is KClass<*> -> PathClass(pathSegment)
+
                 is ValidationPath -> throw IllegalArgumentException(
                     "Converting $pathSegment to a PathSegment is likely a mistake, as it would lead to a nested ValidationPath",
                 )

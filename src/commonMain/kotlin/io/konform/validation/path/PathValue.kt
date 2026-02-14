@@ -14,7 +14,6 @@ public data class PathValue(
         return when (other) {
             is PathValue -> other.value == value
             is PathKey -> other.key == value
-
             else -> false
         }
     }
