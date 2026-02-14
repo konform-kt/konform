@@ -16,7 +16,10 @@ Konform is a portable validation library for Kotlin with a type-safe DSL support
 # Build and test all platforms
 ./gradlew build
 
-# Run tests only
+# Note: On macOS without Xcode, native targets will fail. JVM tests can be run with:
+./gradlew jvmTest
+
+# Run tests only (checks without building artifacts)
 ./gradlew check
 
 # Platform-specific tests
@@ -27,8 +30,9 @@ Konform is a portable validation library for Kotlin with a type-safe DSL support
 ./gradlew ktlintCheck
 ./gradlew ktlintFormat
 
-# API compatibility validation
-./gradlew apiCheck
+# API compatibility validation (uses Kotlin's built-in ABI validation)
+./gradlew checkLegacyAbi        # Check ABI compatibility
+./gradlew updateLegacyAbi       # Update API dump files after API changes
 
 # Run single test class (JVM)
 ./gradlew jvmTest --tests "io.konform.validation.ValidationTest"
@@ -94,3 +98,24 @@ Extensive platform coverage including:
 - Cross-platform builds on GitHub Actions (Ubuntu + macOS)
 - PGP signing for release artifacts
 - Version managed via `CI_VERSION` environment variable
+
+## Workflow Guidelines
+
+### API Changes
+
+When making changes to the public API:
+- Run `./gradlew apiDump` (or use the automatic update via `./gradlew jvmTest` locally)
+- Include the updated API dump files from `api/` directory in your commit
+- Ensure `./gradlew checkLegacyAbi` passes before creating PR
+
+### Pull Requests
+
+- Always use pull requests for changes (never push directly to main)
+- Keep PR descriptions compact (2-3 bullet points maximum)
+- Focus on what changed and why, not verbose explanations
+- Use descriptive branch names
+
+### Local Development Notes
+
+- ABI dumps update automatically after `jvmTest` when running locally (not on CI)
+- The `check` task includes ABI validation, so it will catch API compatibility issues
