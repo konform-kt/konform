@@ -235,12 +235,16 @@ public final class io/konform/validation/constraints/MapConstraintsKt {
 public final class io/konform/validation/constraints/NumberConstraintsKt {
 	public static final fun exclusiveMaximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun exclusiveMaximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMaximumLong (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun exclusiveMinimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun exclusiveMinimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun exclusiveMinimumLong (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun maximumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun maximumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun maximumLong (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun minimumDouble (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun minimumFloat (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
+	public static final fun minimumLong (Lio/konform/validation/ValidationBuilder;I)Lio/konform/validation/Constraint;
 	public static final fun multipleOf (Lio/konform/validation/ValidationBuilder;Ljava/lang/Number;)Lio/konform/validation/Constraint;
 }
 
