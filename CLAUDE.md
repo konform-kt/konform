@@ -90,7 +90,7 @@ Extensive platform coverage including:
 - **Explicit API mode** (`explicitApi()`) prevents accidental public API exposure
 - **Ktlint** for consistent code formatting
 - **API dumps** in `/api/` directory track binary compatibility
-- Minimum Kotlin API version: 1.9
+- Minimum Kotlin API version: 2.0
 
 ## Publishing & CI
 

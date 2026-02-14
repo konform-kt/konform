@@ -12,7 +12,7 @@ val projectLicenseUrl = "https://opensource.org/licenses/MIT"
 val projectScmUrl = "https://github.com/konform-kt/konform.git"
 val projectInceptionYear = 2018
 
-val kotlinApiTarget = "1.9"
+val kotlinApiTarget = "2.0"
 val jvmTarget = JavaLanguageVersion.of(11)
 
 /** The "CI" env var is a quasi-standard way to indicate that we're running on CI. */
