@@ -31,12 +31,15 @@ internal class MapValidation<K, V>(
             // Remove ".key" or ".value" to the path as usually we want
             // ".mapField.toStringKey.xxx" and not ".mapField.toStringKey.key.xxx"
             // or ".mapField.toStringKey.value.xxx"
-            SEGMENT_MAP_KEY, SEGMENT_MAP_VALUE ->
+            SEGMENT_MAP_KEY, SEGMENT_MAP_VALUE -> {
                 error.mapPath {
                     it.toMutableList().also { path -> path[0] = keySegment }
                 }
+            }
 
-            else -> error.prependPath(keySegment)
+            else -> {
+                error.prependPath(keySegment)
+            }
         }
     }
 
