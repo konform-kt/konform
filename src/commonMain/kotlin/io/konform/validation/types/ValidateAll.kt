@@ -22,6 +22,7 @@ public class ValidateAll<T>(
     override fun toString(): String = "ValidateAll(validation=$validations)"
 }
 
+/** Validation that runs multiple validations in sequence and returns all validation errors. */
 public class FailFastValidation<T>(
     private val validations: List<Validation<T>>,
 ) : Validation<T> {
