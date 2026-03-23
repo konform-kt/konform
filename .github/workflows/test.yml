@@ -25,7 +25,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
         with:
           # Cache downloaded JDKs (we compile for Java 11 while running Gradle with Java 21)
           gradle-home-cache-includes: |
