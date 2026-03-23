@@ -28,7 +28,7 @@ jobs:
           # Library is built for JVM 11, but we run gradle itself with a newer one because we can
           # and Gradle 9 requires JVM 17+
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
         with:
           # Only restore from cache, don't save during publishing job
           cache-read-only: true
@@ -93,7 +93,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
         with:
           # Only restore from cache, don't save during release job
           cache-read-only: true
