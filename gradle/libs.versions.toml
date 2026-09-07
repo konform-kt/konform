@@ -1,6 +1,6 @@
 [versions]
 kotest = "6.1.3"
-kotlin = "2.3.10"
+kotlin = "2.4.20"
 ksp = "2.3.5"
 ktlint = "1.8.0"
 
